@@ -5,7 +5,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "badparking.ua.badparking"
+        applicationId "ua.in.badparking"
         minSdkVersion 14
         targetSdkVersion 22
         versionCode 1
