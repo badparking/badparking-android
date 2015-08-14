@@ -3,9 +3,25 @@
 
     <string name="title_section1">Подiя</string>
     <string name="title_section2">Мiсце</string>
-    <string name="title_section3">Даннi</string>
-
-    <string name="hello_world">Hello world!</string>
 
     <string name="action_settings">Settings</string>
+    <string name="save">Зберегти</string>
+    <string name="your_data">Вашi даннi</string>
+    <string name="send">Вiдicлати</string>
+    <string name="next"><![CDATA[Далi >]]></string>
+
+    <string-array name="trespass_types">
+        <item>стоянка на пішохідному переході</item>
+        <item>стоянка на перехресті</item>
+        <item>стоянка на мосту/естакаді</item>
+        <item>стоянка у два ряди</item>
+        <item>стоянка на зупинці громадського транспорту</item>
+        <item>стоянка на смузі руху для громадського транспорту</item>
+        <item>стоянка на під знаком "Зупинку заборонено"</item>
+        <item>стоянка на газоні</item>
+        <item>стоянка на тротуарі</item>
+        <item>стоянка на місцях для людей з інвалідністю</item>
+        <item>стоянка на виїзді з прилеглої території</item>
+    </string-array>
+
 </resources>

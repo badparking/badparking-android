@@ -1,10 +1,16 @@
 package ua.in.badparking;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Created by Dima Kovalenko on 8/12/15.
@@ -30,6 +36,21 @@ public class StartFragment extends Fragment {
                 ((MainActivity)getActivity()).scrollToPlace();
             }
         });
+
+        Resources res = getResources();
+        String[] trespassTypes = res.getStringArray(R.array.trespass_types);
+        // адаптер
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, Arrays.asList(trespassTypes));
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        Spinner spinner = (Spinner)rootView.findViewById(R.id.trespassSpinner);
+        spinner.setAdapter(adapter);
+        // заголовок
+        spinner.setPrompt("Оберiть");
+        // выделяем элемент
+        spinner.setSelection(2);
+        // устанавливаем обработчик нажатия
+
         return rootView;
     }
 }

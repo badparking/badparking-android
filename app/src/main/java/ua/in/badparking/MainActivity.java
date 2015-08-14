@@ -2,6 +2,7 @@ package ua.in.badparking;
 
 import java.util.Locale;
 
+import android.app.Dialog;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -117,7 +118,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public void onSendClicked() {
-
+        Dialog senderInfoDialog = new SenderInfoDialog(this);
+        senderInfoDialog.show();
     }
 
     /**
