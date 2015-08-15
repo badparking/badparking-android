@@ -36,17 +36,15 @@ public class StartFragment extends Fragment implements View.OnClickListener {
     private static final int REQUEST_IMAGE_CAPTURE = 356;
     private static final int PICK_IMAGE = 357;
 
-    private ImageView first;
-    private ImageView second;
+    private ImageView firstImageView;
+    private ImageView secondImageView;
 
     private View firstHolder;
     private View secondHolder;
     private View takePhotoButton;
 
-
     private boolean isFirstHasImage;
     private boolean isSecondHasImage;
-
 
     private File firstImage;
     private File secondImage;
@@ -81,14 +79,14 @@ public class StartFragment extends Fragment implements View.OnClickListener {
 
         ImageView closeFirst = (ImageView)rootView.findViewById(R.id.close_first);
         ImageView closeSecond = (ImageView)rootView.findViewById(R.id.close_second);
-        first = (ImageView)rootView.findViewById(R.id.first_image);
-        second = (ImageView)rootView.findViewById(R.id.second_image);
+        firstImageView = (ImageView)rootView.findViewById(R.id.first_image);
+        secondImageView = (ImageView)rootView.findViewById(R.id.second_image);
         firstHolder = rootView.findViewById(R.id.first_image_holder);
         secondHolder = rootView.findViewById(R.id.second_image_holder);
         takePhotoButton = rootView.findViewById(R.id.takePhotoButton);
 
-        first.setOnClickListener(this);
-        second.setOnClickListener(this);
+        firstImageView.setOnClickListener(this);
+        secondImageView.setOnClickListener(this);
         closeFirst.setOnClickListener(this);
         closeSecond.setOnClickListener(this);
         takePhotoButton.setOnClickListener(this);
@@ -105,12 +103,12 @@ public class StartFragment extends Fragment implements View.OnClickListener {
                     takePhotoButton.setVisibility(View.GONE);
                 }
                 firstHolder.setVisibility(View.VISIBLE);
-                setPic(first, firstImage.getPath());
+                setPic(firstImageView, firstImage.getPath());
                 isFirstHasImage = true;
             } else {
                 takePhotoButton.setVisibility(View.GONE);
                 secondHolder.setVisibility(View.VISIBLE);
-                setPic(second, secondImage.getPath());
+                setPic(secondImageView, secondImage.getPath());
                 isSecondHasImage = true;
             }
         } else if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
@@ -119,7 +117,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
                 if (!isFirstHasImage) {
                     firstHolder.setVisibility(View.VISIBLE);
                     firstImage = file;
-                    setPic(first, firstImage.getPath());
+                    setPic(firstImageView, firstImage.getPath());
                     isFirstHasImage = true;
                     if (isSecondHasImage) {
                         takePhotoButton.setVisibility(View.GONE);
@@ -128,7 +126,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
                     takePhotoButton.setVisibility(View.GONE);
                     secondHolder.setVisibility(View.VISIBLE);
                     secondImage = file;
-                    setPic(second, secondImage.getPath());
+                    setPic(secondImageView, secondImage.getPath());
                     isSecondHasImage = true;
                 }
             } else
@@ -205,7 +203,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
     }
 
     private void releaseFirstImage() {
-        first.setImageBitmap(null);
+        firstImageView.setImageBitmap(null);
         firstImage = null;
         isFirstHasImage = false;
         firstHolder.setVisibility(View.GONE);
@@ -213,7 +211,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
     }
 
     private void releaseSecondImage() {
-        second.setImageBitmap(null);
+        secondImageView.setImageBitmap(null);
         secondImage = null;
         isSecondHasImage = false;
         secondHolder.setVisibility(View.GONE);

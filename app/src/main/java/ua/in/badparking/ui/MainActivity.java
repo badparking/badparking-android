@@ -14,6 +14,8 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import ua.in.badparking.data.Sender;
+import ua.in.badparking.data.TrespassController;
 import ua.in.badparking.ui.fragments.PlaceFragment;
 import ua.in.badparking.R;
 import ua.in.badparking.ui.fragments.StartFragment;
@@ -119,8 +121,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public void onSendClicked() {
-        Dialog senderInfoDialog = new SenderInfoDialog(this);
-        senderInfoDialog.show();
+
+        if (TrespassController.INST.isSenderInfoFulfilled()) {
+            Sender.INST.send();
+        } else {
+            Dialog senderInfoDialog = new SenderInfoDialog(this);
+            senderInfoDialog.show();
+        }
+
+
     }
 
     /**

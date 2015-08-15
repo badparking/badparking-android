@@ -2,6 +2,8 @@ package ua.in.badparking.data;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.File;
+
 /**
  * Created by Dima Kovalenko on 8/15/15.
  */
@@ -26,13 +28,16 @@ public class Trespass {
     private float lat;
 
     @SerializedName("caseDt")
-    private int caseDt;
+    private long caseDt;
 
     @SerializedName("case_type_id")
     private String caseTypeId;
 
     @SerializedName("number_plates")
     private String numberPlates;
+
+    private File image1;
+    private File image2;
 
     public void setName(String name) {
         this.name = name;
@@ -58,7 +63,7 @@ public class Trespass {
         this.lat = lat;
     }
 
-    public void setCaseDt(int caseDt) {
+    public void setCaseDt(long caseDt) {
         this.caseDt = caseDt;
     }
 
@@ -68,5 +73,26 @@ public class Trespass {
 
     public void setNumberPlates(String numberPlates) {
         this.numberPlates = numberPlates;
+    }
+
+    public void setImage1(File image1) {
+        this.image1 = image1;
+    }
+
+    public void setImage2(File image2) {
+        this.image2 = image2;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
     }
 }
