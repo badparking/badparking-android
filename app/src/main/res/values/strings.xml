@@ -9,19 +9,34 @@
     <string name="your_data">Вашi даннi</string>
     <string name="send">Вiдicлати</string>
     <string name="next"><![CDATA[Далi >]]></string>
+    <string name="add_photo">Додати\n фото</string>
+    <string name="comment">Коментар (необов\'язково)</string>
+    <string name="comment_hint">наприклад: бачу ворожий Бук</string>
+    <string name="location">Мiсце подii</string>
+    <string name="location_hint">наприклад: Донецьк, Київский район</string>
+
+    <string name="make_phonot">Зробити фото</string>
+    <string name="from_gallery">З галереї</string>
+    <string name="no_connection">Немає мережи</string>
+    <string name="choose_photo_mode">Вы можете зробити нове фото або додати фото з галереї</string>
+    <string name="evaluating">Визначається ...</string>
+    <string name="error">Помилка</string>
+    <string name="simple_mode">Простий режим</string>
+    <string name="extended_mode">Розширений режим</string>
+    <string name="only_2_pics">Ви можете послати тiльки двi фотографiї одночасно</string>
 
     <string-array name="trespass_types">
-        <item>стоянка на пішохідному переході</item>
-        <item>стоянка на перехресті</item>
-        <item>стоянка на мосту/естакаді</item>
-        <item>стоянка у два ряди</item>
-        <item>стоянка на зупинці громадського транспорту</item>
-        <item>стоянка на смузі руху для громадського транспорту</item>
-        <item>стоянка на під знаком "Зупинку заборонено"</item>
-        <item>стоянка на газоні</item>
-        <item>стоянка на тротуарі</item>
-        <item>стоянка на місцях для людей з інвалідністю</item>
-        <item>стоянка на виїзді з прилеглої території</item>
+        <item>Стоянка на пішохідному переході</item>
+        <item>Стоянка на перехресті</item>
+        <item>Стоянка на мосту/естакаді</item>
+        <item>Стоянка у два ряди</item>
+        <item>Стоянка на зупинці громадського транспорту</item>
+        <item>Стоянка на смузі руху для громадського транспорту</item>
+        <item>Стоянка на під знаком "Зупинку заборонено"</item>
+        <item>Стоянка на газоні</item>
+        <item>Стоянка на тротуарі</item>
+        <item>Стоянка на місцях для людей з інвалідністю</item>
+        <item>Стоянка на виїзді з прилеглої території</item>
     </string-array>
 
 </resources>
