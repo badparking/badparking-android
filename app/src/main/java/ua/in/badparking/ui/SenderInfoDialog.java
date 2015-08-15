@@ -1,8 +1,14 @@
 package ua.in.badparking.ui;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Dialog;
 import android.content.Context;
+import android.util.Patterns;
 import android.view.View;
+import android.widget.EditText;
+
+import java.util.regex.Pattern;
 
 import ua.in.badparking.R;
 
@@ -10,6 +16,8 @@ import ua.in.badparking.R;
  * Created by Dima Kovalenko on 8/12/15.
  */
 public class SenderInfoDialog extends Dialog {
+
+    private EditText emailView;
 
     public SenderInfoDialog(Context context) {
         super(context);
@@ -29,11 +37,27 @@ public class SenderInfoDialog extends Dialog {
     private void _init() {
         setTitle(getContext().getString(R.string.your_data));
         setContentView(R.layout.dialog_sender_info);
+        emailView = (EditText)findViewById(R.id.email);
         findViewById(R.id.save).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dismiss();
             }
         });
+
+        extractPossibleInfo();
+
+        // TODO restore previous data
+    }
+
+    private void extractPossibleInfo() {
+        Pattern emailPattern = Patterns.EMAIL_ADDRESS; // API level 8+
+        Account[] accounts = AccountManager.get(getContext()).getAccounts();
+        for (Account account : accounts) {
+            if (emailPattern.matcher(account.name).matches()) {
+                String possibleEmail = account.name;
+                emailView.setText(possibleEmail);
+            }
+        }
     }
 }
