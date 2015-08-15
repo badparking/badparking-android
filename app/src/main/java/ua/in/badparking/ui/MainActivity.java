@@ -1,4 +1,4 @@
-package ua.in.badparking;
+package ua.in.badparking.ui;
 
 import java.util.Locale;
 
@@ -11,11 +11,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+
+import ua.in.badparking.ui.fragments.PlaceFragment;
+import ua.in.badparking.R;
+import ua.in.badparking.ui.fragments.StartFragment;
 
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {

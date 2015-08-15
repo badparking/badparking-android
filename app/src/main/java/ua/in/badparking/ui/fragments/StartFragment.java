@@ -1,4 +1,4 @@
-package ua.in.badparking;
+package ua.in.badparking.ui.fragments;
 
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -10,7 +10,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import java.util.Arrays;
-import java.util.Collections;
+
+import ua.in.badparking.R;
+import ua.in.badparking.ui.MainActivity;
 
 /**
  * Created by Dima Kovalenko on 8/12/15.

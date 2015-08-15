@@ -1,8 +1,10 @@
-package ua.in.badparking;
+package ua.in.badparking.ui;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.view.View;
+
+import ua.in.badparking.R;
 
 /**
  * Created by Dima Kovalenko on 8/12/15.

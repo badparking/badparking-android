@@ -1,10 +1,13 @@
-package ua.in.badparking;
+package ua.in.badparking.ui.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import ua.in.badparking.R;
+import ua.in.badparking.ui.MainActivity;
 
 /**
  * Created by Dima Kovalenko on 8/12/15.
