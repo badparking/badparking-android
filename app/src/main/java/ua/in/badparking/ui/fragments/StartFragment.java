@@ -16,6 +16,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import ua.in.badparking.R;
+import ua.in.badparking.data.TrespassController;
 import ua.in.badparking.ui.MainActivity;
 
 /**
@@ -76,6 +78,12 @@ public class StartFragment extends Fragment implements View.OnClickListener {
 
         Spinner spinner = (Spinner)rootView.findViewById(R.id.trespassSpinner);
         spinner.setAdapter(adapter);
+        spinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                TrespassController.INST.getTrespass().setCaseTypeId(position + "");
+            }
+        });
 
         ImageView closeFirst = (ImageView)rootView.findViewById(R.id.close_first);
         ImageView closeSecond = (ImageView)rootView.findViewById(R.id.close_second);

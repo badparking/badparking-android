@@ -11,18 +11,8 @@
               tools:context=".MainActivity$PlaceholderFragment">
 
     <EditText
-        android:id="@+id/lastName"
-        android:hint="Призвiще"
-        style="@style/parkingEditText"/>
-
-    <EditText
         android:id="@+id/firstName"
         android:hint="Iм'я"
-        style="@style/parkingEditText"/>
-
-    <EditText
-        android:id="@+id/fatherName"
-        android:hint="По-батьковi"
         style="@style/parkingEditText"/>
 
     <EditText
