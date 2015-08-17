@@ -11,7 +11,7 @@ public enum TrespassController {
     INST;
 
     public static final String USER_PREFS = "userPrefs";
-    private Trespass trespass;
+    private Trespass trespass = new Trespass();
 
     public Trespass getTrespass() {
         return trespass;

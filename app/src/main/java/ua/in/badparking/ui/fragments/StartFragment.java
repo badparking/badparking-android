@@ -78,12 +78,13 @@ public class StartFragment extends Fragment implements View.OnClickListener {
 
         Spinner spinner = (Spinner)rootView.findViewById(R.id.trespassSpinner);
         spinner.setAdapter(adapter);
-        spinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                TrespassController.INST.getTrespass().setCaseTypeId(position + "");
-            }
-        });
+
+//        spinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+//                TrespassController.INST.getTrespass().setCaseTypeId(position + "");
+//            }
+//        });
 
         ImageView closeFirst = (ImageView)rootView.findViewById(R.id.close_first);
         ImageView closeSecond = (ImageView)rootView.findViewById(R.id.close_second);
