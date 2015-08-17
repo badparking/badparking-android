@@ -43,6 +43,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        TrespassController.INST.restoreFromPrefs(getApplicationContext());
+
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -121,15 +123,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public void onSendClicked() {
-
         if (TrespassController.INST.isSenderInfoFulfilled()) {
             Sender.INST.send();
         } else {
             Dialog senderInfoDialog = new SenderInfoDialog(this);
             senderInfoDialog.show();
         }
-
-
     }
 
     /**
