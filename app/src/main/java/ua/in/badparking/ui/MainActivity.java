@@ -123,15 +123,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public void onSendClicked() {
-
         if (TrespassController.INST.isSenderInfoFulfilled()) {
             Sender.INST.send();
         } else {
             Dialog senderInfoDialog = new SenderInfoDialog(this);
             senderInfoDialog.show();
         }
-
-
     }
 
     /**

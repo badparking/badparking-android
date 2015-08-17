@@ -59,9 +59,11 @@ public class SenderInfoDialog extends Dialog {
 
     private void fillFromModel() {
         final Trespass trespass = TrespassController.INST.getTrespass();
-        emailView.setText(trespass.getEmail());
         nameView.setText(trespass.getName());
         phoneView.setText(trespass.getPhone());
+        if (trespass.getEmail() != null) {
+            emailView.setText(trespass.getEmail());
+        }
     }
 
     private void _saveData() {
