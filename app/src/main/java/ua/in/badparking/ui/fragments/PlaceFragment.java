@@ -1,7 +1,6 @@
 package ua.in.badparking.ui.fragments;
 
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -10,10 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
-
-import org.jdeferred.android.AndroidDoneCallback;
-import org.jdeferred.android.AndroidExecutionScope;
-import org.jdeferred.android.AndroidFailCallback;
 
 import ua.in.badparking.R;
 import ua.in.badparking.model.Geolocation;
@@ -31,6 +26,7 @@ public class PlaceFragment extends Fragment {
     private Button bDefineAddressMap;
 
     private Geolocation geolocation;
+    private Toast toast;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,7 +39,16 @@ public class PlaceFragment extends Fragment {
             }
         });
 
-        geolocation = new Geolocation(getActivity());
+        toast = Toast.makeText(getActivity(), "!CHANGE IT!, coordinates:\n Latitude - " , Toast.LENGTH_SHORT);
+
+        geolocation = new Geolocation(getActivity(), true, true, new Geolocation.UpdatedLocationCallback() {
+            @Override
+            public void locationUpdate(Location location) {
+                Log.i(TAG, "New location - " + location);
+                toast.setText("!CHANGE IT!, coordinates:\n Latitude - " + location.getLatitude() + "\n Longitude - " + location.getLongitude());
+                toast.show();
+            }
+        });
 
         bDefineAddress = (Button) rootView.findViewById(R.id.buttonDefineAddress);
         bDefineAddressGps = (Button) rootView.findViewById(R.id.buttonDefineGPS);
@@ -73,30 +78,7 @@ public class PlaceFragment extends Fragment {
         bDefineAddressGps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                geolocation.getLocation(LocationManager.GPS_PROVIDER, new AndroidDoneCallback<Location>() {
-                    @Override
-                    public AndroidExecutionScope getExecutionScope() {
-                        return AndroidExecutionScope.BACKGROUND;
-                    }
-
-                    @Override
-                    public void onDone(Location result) {
-                        Log.i(TAG, "Location result - " + result);
-                        Toast.makeText(getActivity(), "!CHANGE IT!, coordinates:\n Latitude - " + result.getLatitude() + "\n Longitude - " + result.getLongitude() , Toast.LENGTH_SHORT).show();
-
-                    }
-                }, new AndroidFailCallback<Throwable>() {
-                    @Override
-                    public AndroidExecutionScope getExecutionScope() {
-                        return AndroidExecutionScope.BACKGROUND;
-                    }
-
-                    @Override
-                    public void onFail(Throwable result) {
-                        Log.e(TAG, "Error getting location", result);
-                        Toast.makeText(getActivity(), "Error message - " + result.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }, null);
+                geolocation.updateLocation();
             }
         });
 
