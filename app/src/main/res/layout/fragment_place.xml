@@ -26,8 +26,9 @@
         android:id="@+id/city"
         style="@style/parkingEditText"
         android:hint="місто"
-        android:inputType="textCapWords"
-        android:spinnerMode="dropdown" />
+        android:textStyle="normal"
+        android:singleLine="true"
+        android:inputType="text" />
 
     <AutoCompleteTextView
         android:id="@+id/address"

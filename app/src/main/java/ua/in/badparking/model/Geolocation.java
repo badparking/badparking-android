@@ -16,8 +16,8 @@ import org.jdeferred.android.AndroidProgressCallback;
 import org.jdeferred.impl.DeferredObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -70,7 +70,9 @@ public class Geolocation {
                        final UpdatedLocationCallback updatedLocationCallback,
                        final UpdateAddressesCallback updateAddressesCallback) {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        geocoder = new Geocoder(context);
+        Locale locale = new Locale("uk", "UA");
+        Log.i(TAG, "Locale - " + locale.getCountry());
+        geocoder = new Geocoder(context, locale);
 
         this.gpsEnabled = gpsEnabled;
         this.netEnabled = netEnabled;

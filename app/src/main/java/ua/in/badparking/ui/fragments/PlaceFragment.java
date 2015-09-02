@@ -1,7 +1,5 @@
 package ua.in.badparking.ui.fragments;
 
-import android.content.Context;
-import android.database.DataSetObserver;
 import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
@@ -10,11 +8,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.ListAdapter;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -61,6 +58,14 @@ public class PlaceFragment extends Fragment {
         toast = Toast.makeText(getActivity(), "!CHANGE IT!, coordinates:\n Latitude - " , Toast.LENGTH_SHORT);
 
         actvCities = ((AutoCompleteTextView) rootView.findViewById(R.id.city));
+        actvCities.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final String selected = parent.getAdapter().getItem(position).toString();
+
+//                actvCities.setText(selected);
+            }
+        });
         actvStreets = ((AutoCompleteTextView) rootView.findViewById(R.id.address));
 
         citiesAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, new ArrayList<String>());
@@ -85,8 +90,8 @@ public class PlaceFragment extends Fragment {
                 final Set<String> streets = new HashSet<>();
 
                 for (final Address address: addresses) {
-                    cities.add(address.getAdminArea());
-                    streets.add(address.getLocality());
+                    if (address.getLocality() != null) cities.add(address.getLocality());
+                    if (address.getThoroughfare() != null && address.getSubThoroughfare() != null) streets.add(address.getThoroughfare() + "," + address.getSubThoroughfare());
                 }
 
                 Log.i(TAG, "Cities list - " + cities.toString());
@@ -95,11 +100,18 @@ public class PlaceFragment extends Fragment {
                 citiesAdapter.clear();
                 citiesAdapter.addAll(cities);
 
+                final String defaultCity = cities.toArray()[0].toString();
+                final String defaultStreet = streets.toArray()[0].toString();
+
+                Log.i(TAG, "Default city - " + defaultCity);
+                Log.i(TAG, "Default street - " + defaultStreet);
+
+
                 streetsAdapter.clear();
                 streetsAdapter.addAll(streets);
 
-                actvCities.setListSelection(0);
-                actvStreets.setListSelection(0);
+                actvCities.setText(defaultCity);
+                actvStreets.setText(defaultStreet);
 
 //                actvCities.refreshDrawableState();
 //                actvStreets.refreshDrawableState();
