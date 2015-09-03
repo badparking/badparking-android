@@ -1,8 +1,11 @@
 package ua.in.badparking.ui.fragments;
 
+import android.app.Dialog;
 import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +16,9 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,13 +42,33 @@ public class PlaceFragment extends Fragment {
     private ArrayAdapter<String> citiesAdapter;
     private ArrayAdapter<String> streetsAdapter;
 
+    private Handler uiUpdateHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            final Bundle data = msg.getData();
+
+            Log.i(TAG, "Handler received data - " + data );
+
+            if (data == null) {
+                return false;
+            } else {
+                if (data.containsKey("city")) actvCities.setText(data.getString("city"));
+                if (data.containsKey("street")) actvStreets.setText(data.getString("street"));
+
+                return true;
+            }
+        }
+    });
 
     private Button bDefineAddress;
     private Button bDefineAddressGps;
     private Button bDefineAddressMap;
 
     private Geolocation geolocation;
-    private Toast toast;
+
+//    private MapView mapView;
+//    private GoogleMap googleMap;
+//    private Dialog mapDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -55,21 +81,11 @@ public class PlaceFragment extends Fragment {
             }
         });
 
-        toast = Toast.makeText(getActivity(), "!CHANGE IT!, coordinates:\n Latitude - " , Toast.LENGTH_SHORT);
-
         actvCities = ((AutoCompleteTextView) rootView.findViewById(R.id.city));
-        actvCities.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final String selected = parent.getAdapter().getItem(position).toString();
-
-//                actvCities.setText(selected);
-            }
-        });
         actvStreets = ((AutoCompleteTextView) rootView.findViewById(R.id.address));
 
-        citiesAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, new ArrayList<String>());
-        streetsAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, new ArrayList<String>());
+        citiesAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, new ArrayList<String>());
+        streetsAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, new ArrayList<String>());
 
         actvCities.setAdapter(citiesAdapter);
         actvStreets.setAdapter(streetsAdapter);
@@ -78,13 +94,12 @@ public class PlaceFragment extends Fragment {
             @Override
             public void locationUpdate(Location location) {
                 Log.i(TAG, "New location - " + location);
-                toast.setText("!CHANGE IT!, coordinates:\n Latitude - " + location.getLatitude() + "\n Longitude - " + location.getLongitude());
-                toast.show();
             }
         }, new Geolocation.UpdateAddressesCallback() {
             @Override
             public void addressesUpdate(List<Address> addresses) {
                 Log.i(TAG, "New addresses quantity - " + addresses.size());
+                Log.i(TAG, "Addresses list - " + addresses);
 
                 final Set<String> cities = new HashSet<>();
                 final Set<String> streets = new HashSet<>();
@@ -106,15 +121,16 @@ public class PlaceFragment extends Fragment {
                 Log.i(TAG, "Default city - " + defaultCity);
                 Log.i(TAG, "Default street - " + defaultStreet);
 
-
                 streetsAdapter.clear();
                 streetsAdapter.addAll(streets);
 
-                actvCities.setText(defaultCity);
-                actvStreets.setText(defaultStreet);
+                final Message addressMessage = new Message();
+                final Bundle addressData = new Bundle();
+                addressData.putString("city", defaultCity);
+                addressData.putString("street", defaultStreet);
+                addressMessage.setData(addressData);
 
-//                actvCities.refreshDrawableState();
-//                actvStreets.refreshDrawableState();
+                uiUpdateHandler.sendMessage(addressMessage);
              }
         });
 
@@ -158,6 +174,13 @@ public class PlaceFragment extends Fragment {
             }
         });
 
+//        mapDialog = new Dialog(getActivity());
+//        mapDialog.setContentView(R.layout.map_dialog);
+//
+//        mapView = (MapView) mapDialog.findViewById(R.id.mvMap);
+//        googleMap = mapView.getMap();
+
+//        mapView = (MapView) rootView.findViewById();
 
         return rootView;
     }
