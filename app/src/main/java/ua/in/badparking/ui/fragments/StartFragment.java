@@ -16,8 +16,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -44,12 +44,14 @@ public class StartFragment extends Fragment implements View.OnClickListener {
     private View firstHolder;
     private View secondHolder;
     private View takePhotoButton;
+    private EditText platesEdittext;
 
     private boolean isFirstHasImage;
     private boolean isSecondHasImage;
 
     private File firstImage;
     private File secondImage;
+    private Spinner spinner; // TODO make parking on trotuar first
 
     /**
      * Returns a new instance of this fragment for the given section
@@ -64,27 +66,14 @@ public class StartFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_start, container, false);
-        rootView.findViewById(R.id.next).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MainActivity)getActivity()).scrollToPlace();
-            }
-        });
 
         Resources res = getResources();
         String[] trespassTypes = res.getStringArray(R.array.trespass_types);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, Arrays.asList(trespassTypes));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        Spinner spinner = (Spinner)rootView.findViewById(R.id.trespassSpinner);
+        spinner = (Spinner)rootView.findViewById(R.id.trespassSpinner);
         spinner.setAdapter(adapter);
-
-//        spinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-//                TrespassController.INST.getTrespass().setCaseTypeId(position + "");
-//            }
-//        });
 
         ImageView closeFirst = (ImageView)rootView.findViewById(R.id.close_first);
         ImageView closeSecond = (ImageView)rootView.findViewById(R.id.close_second);
@@ -93,7 +82,9 @@ public class StartFragment extends Fragment implements View.OnClickListener {
         firstHolder = rootView.findViewById(R.id.first_image_holder);
         secondHolder = rootView.findViewById(R.id.second_image_holder);
         takePhotoButton = rootView.findViewById(R.id.takePhotoButton);
+        platesEdittext = (EditText)rootView.findViewById(R.id.plates);
 
+        rootView.findViewById(R.id.next).setOnClickListener(this);
         firstImageView.setOnClickListener(this);
         secondImageView.setOnClickListener(this);
         closeFirst.setOnClickListener(this);
@@ -172,6 +163,22 @@ public class StartFragment extends Fragment implements View.OnClickListener {
                                 openGallery();
                             }
                         }).show();
+                break;
+            case R.id.next:
+                final String platesText = platesEdittext.getText().toString();
+                if (platesText.length() == 0) {
+                    Toast.makeText(getActivity(), "Введiть номернi знаки", Toast.LENGTH_LONG).show();
+                } else {
+                    TrespassController.INST.getTrespass().clearPhotos();
+                    if (isFirstHasImage) {
+                        TrespassController.INST.getTrespass().addPhoto(firstImage);
+                    }
+                    if (isSecondHasImage) {
+                        TrespassController.INST.getTrespass().addPhoto(secondImage);
+                    }
+                    TrespassController.INST.getTrespass().setCaseTypeId(spinner.getSelectedItemId() + "");
+                    ((MainActivity)getActivity()).scrollToPlace();
+                }
                 break;
         }
     }

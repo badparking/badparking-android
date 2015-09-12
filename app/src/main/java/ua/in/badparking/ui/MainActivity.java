@@ -1,23 +1,27 @@
 package ua.in.badparking.ui;
 
-import java.util.Locale;
-
 import android.app.Dialog;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.TextView;
 
+import java.util.Locale;
+
+import ua.in.badparking.R;
 import ua.in.badparking.data.Sender;
 import ua.in.badparking.data.TrespassController;
 import ua.in.badparking.ui.fragments.PlaceFragment;
-import ua.in.badparking.R;
 import ua.in.badparking.ui.fragments.StartFragment;
 
 
@@ -37,6 +41,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
      * The {@link ViewPager} that will host the section contents.
      */
     ViewPager mViewPager;
+    Dialog senderProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,11 +129,41 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     public void onSendClicked() {
         if (TrespassController.INST.isSenderInfoFulfilled()) {
-            Sender.INST.send();
+            showSenderDialogWithMessage();
+            Sender.INST.send(new Sender.SendCallback() {
+                @Override
+                public void onCallback(int code, String message) {
+                    handleResult(code, message);
+                }
+            });
         } else {
             Dialog senderInfoDialog = new SenderInfoDialog(this);
             senderInfoDialog.show();
         }
+    }
+
+    private void handleResult(int code, String message) {
+        switch (code) {
+            case 200: // OK
+                final TextView sendingMessageView = (TextView)senderProgressDialog.findViewById(R.id.sendingMessage);
+                final Button sendingMessageButton = (Button)senderProgressDialog.findViewById(R.id.sendingButton);
+                sendingMessageButton.setVisibility(View.VISIBLE);
+                sendingMessageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        senderProgressDialog.dismiss();
+                    }
+                });
+                sendingMessageView.setText("Вiдiслано, дякую!");
+                break;
+        }
+    }
+
+    private void showSenderDialogWithMessage() {
+        senderProgressDialog = new Dialog(this);
+        senderProgressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        senderProgressDialog.setContentView(R.layout.dialog_sending_progress);
+        senderProgressDialog.show();
     }
 
     /**

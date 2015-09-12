@@ -3,6 +3,8 @@ package ua.in.badparking.data;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Dima Kovalenko on 8/15/15.
@@ -36,8 +38,8 @@ public class Trespass {
     @SerializedName("number_plates")
     private String numberPlates;
 
-    private File image1;
-    private File image2;
+    private List<File> photoFiles = new ArrayList<File>();
+
 
     public void setName(String name) {
         this.name = name;
@@ -75,14 +77,6 @@ public class Trespass {
         this.numberPlates = numberPlates;
     }
 
-    public void setImage1(File image1) {
-        this.image1 = image1;
-    }
-
-    public void setImage2(File image2) {
-        this.image2 = image2;
-    }
-
 
     public String getName() {
         return name;
@@ -94,5 +88,17 @@ public class Trespass {
 
     public String getPhone() {
         return phone;
+    }
+
+    public void clearPhotos() {
+        photoFiles.clear();
+    }
+
+    public void addPhoto(File photo) {
+        photoFiles.add(photo);
+    }
+
+    public List<File> getPhotoFiles() {
+        return photoFiles;
     }
 }
