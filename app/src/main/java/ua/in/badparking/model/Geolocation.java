@@ -1,6 +1,8 @@
 package ua.in.badparking.model;
 
 import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.support.annotation.NonNull;
@@ -13,6 +15,9 @@ import org.jdeferred.android.AndroidFailCallback;
 import org.jdeferred.android.AndroidProgressCallback;
 import org.jdeferred.impl.DeferredObject;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -49,18 +54,31 @@ public class Geolocation {
         }
     };
 
+    private final Geocoder geocoder;
+
     public boolean gpsEnabled;
     public boolean netEnabled;
     private Location actualLocation;
     private long locationUpdateTimestamp;
 
     private UpdatedLocationCallback updatedLocationCallback;
+    private UpdateAddressesCallback updateAddressesCallback;
 
-    public Geolocation(final Context context, final boolean gpsEnabled, final boolean netEnabled, final UpdatedLocationCallback updatedLocationCallback) {
+    public Geolocation(final Context context,
+                       final boolean gpsEnabled,
+                       final boolean netEnabled,
+                       final UpdatedLocationCallback updatedLocationCallback,
+                       final UpdateAddressesCallback updateAddressesCallback) {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        Locale locale = new Locale("uk", "UA");
+        Log.i(TAG, "Locale - " + locale.getCountry());
+        geocoder = new Geocoder(context, locale);
+
         this.gpsEnabled = gpsEnabled;
         this.netEnabled = netEnabled;
+
         this.updatedLocationCallback = updatedLocationCallback;
+        this.updateAddressesCallback = updateAddressesCallback;
     }
 
     private DeferredObject<Location, Throwable, String> getLocation(@NonNull final String locationProvider,
@@ -105,7 +123,7 @@ public class Geolocation {
     private void updateLocation(final Location location) {
         if (actualLocation == null || actualLocation.getAccuracy() > location.getAccuracy()) {
             actualLocation = location;
-            updatedLocationCallback.locationUpdate(location);
+            if (updatedLocationCallback != null) updatedLocationCallback.locationUpdate(location);
         }
     }
 
@@ -118,8 +136,31 @@ public class Geolocation {
         });
     }
 
+    public void requestCurrentAddressesOptions(final int maxAddressesNumber) {
+        updateLocation();
+
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final List<Address> result = geocoder.getFromLocation(actualLocation.getLatitude(), actualLocation.getLongitude(), maxAddressesNumber);
+
+                    updateAddressesCallback.addressesUpdate(result);
+                } catch (IOException e) {
+                    Log.e(TAG, "Failed to get addresses by location - " + actualLocation, e);
+                }
+            }
+        });
+
+    }
+
     public interface UpdatedLocationCallback {
 
         void locationUpdate(final Location location);
+    }
+
+    public interface UpdateAddressesCallback {
+
+        void addressesUpdate(final List<Address> addresses);
     }
 }

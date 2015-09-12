@@ -22,13 +22,15 @@
         android:text="@string/send"
         android:textAllCaps="false"/>
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/city"
         style="@style/parkingEditText"
         android:hint="місто"
-        android:inputType="textCapWords"/>
+        android:textStyle="normal"
+        android:singleLine="true"
+        android:inputType="text" />
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/address"
         style="@style/parkingEditText"
         android:layout_below="@+id/city"
