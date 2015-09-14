@@ -65,6 +65,7 @@
             android:id="@+id/buttonDefineGPS"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:background="@drawable/button_background"
             android:text="Визначити за допомогою GPS"
             android:visibility="gone"/>
@@ -73,6 +74,7 @@
             android:id="@+id/buttonDefineMap"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
             android:background="@drawable/button_background"
             android:text="Вибрати на мапі"
             android:visibility="gone"/>
