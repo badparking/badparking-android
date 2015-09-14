@@ -1,5 +1,6 @@
 package ua.in.badparking.ui.fragments;
 
+import android.support.v4.app.DialogFragment;
 import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
@@ -13,6 +14,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -64,6 +71,7 @@ public class PlaceFragment extends Fragment {
 //    private MapView mapView;
 //    private GoogleMap googleMap;
 //    private Dialog mapDialog;
+    private DialogFragment mapDialogFragment;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -145,10 +153,10 @@ public class PlaceFragment extends Fragment {
                 final Button button = (Button)v;
 
                 if (button.getText().equals("Визначити адресу")) {
+                    button.setText("Приховати");
 
                     bDefineAddressGps.setVisibility(View.VISIBLE);
                     bDefineAddressMap.setVisibility(View.VISIBLE);
-                    bDefineAddress.setVisibility(View.GONE);
                 } else {
                     button.setText("Визначити адресу");
 
@@ -169,7 +177,7 @@ public class PlaceFragment extends Fragment {
         bDefineAddressMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                mapDialogFragment.show(getFragmentManager(), "MapDialog");
             }
         });
 
@@ -191,5 +199,32 @@ public class PlaceFragment extends Fragment {
     public static PlaceFragment newInstance() {
         PlaceFragment fragment = new PlaceFragment();
         return fragment;
+    }
+
+    public static class MapDialog extends DialogFragment {
+
+        private MapView mapView;
+        private GoogleMap googleMap;
+
+        @Override
+        public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle bundle) {
+            final View result = inflater.inflate(R.layout.map_dialog, container, false);
+
+            mapView = (MapView) result.findViewById(R.id.mvMap);
+            googleMap = mapView.getMap();
+
+            return result;
+        }
+
+        public void setCenter(final LatLng latLng) {
+            final CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
+            googleMap.animateCamera(cameraUpdate);
+        }
+
+        public LatLng getCenter() {
+            return googleMap.getCameraPosition().target;
+        }
+
+
     }
 }

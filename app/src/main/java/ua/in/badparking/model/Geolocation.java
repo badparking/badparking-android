@@ -70,7 +70,7 @@ public class Geolocation {
                        final UpdatedLocationCallback updatedLocationCallback,
                        final UpdateAddressesCallback updateAddressesCallback) {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        Locale locale = new Locale("uk", "UA");
+        final Locale locale = new Locale("uk", "UA");
         Log.i(TAG, "Locale - " + locale.getCountry());
         geocoder = new Geocoder(context, locale);
 
