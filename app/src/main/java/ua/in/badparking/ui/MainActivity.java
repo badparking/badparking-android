@@ -101,7 +101,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_your_data) {
+            Dialog senderInfoDialog = new SenderInfoDialog(this);
+            senderInfoDialog.show();
             return true;
         }
 
@@ -132,8 +134,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             showSenderDialogWithMessage();
             Sender.INST.send(new Sender.SendCallback() {
                 @Override
-                public void onCallback(int code, String message) {
-                    handleResult(code, message);
+                public void onCallback(final int code, final String message) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            handleResult(code, message);
+                        }
+                    });
                 }
             });
         } else {
@@ -143,11 +150,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     private void handleResult(int code, String message) {
+        final TextView sendingMessageView = (TextView)senderProgressDialog.findViewById(R.id.sendingMessage);
+        final Button sendingMessageButton = (Button)senderProgressDialog.findViewById(R.id.sendingButton);
+        final View progressBar = senderProgressDialog.findViewById(R.id.progressBar);
         switch (code) {
             case 200: // OK
-                final TextView sendingMessageView = (TextView)senderProgressDialog.findViewById(R.id.sendingMessage);
-                final Button sendingMessageButton = (Button)senderProgressDialog.findViewById(R.id.sendingButton);
                 sendingMessageButton.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.GONE);
                 sendingMessageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -156,6 +165,22 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 });
                 sendingMessageView.setText("Вiдiслано, дякую!");
                 break;
+            case Sender.CODE_UPLOADING_PHOTO: // uploading photo
+                sendingMessageView.setText(message);
+                break;
+            default:
+                sendingMessageButton.setVisibility(View.VISIBLE);
+                sendingMessageButton.setText("Спробувати ще");
+                progressBar.setVisibility(View.GONE);
+                sendingMessageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        senderProgressDialog.dismiss();
+                        onSendClicked();
+                    }
+                });
+                sendingMessageView.setText("Помилка " + code + ". Спробуйте пiзнiше");
+
         }
     }
 

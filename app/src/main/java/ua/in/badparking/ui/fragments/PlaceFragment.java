@@ -1,6 +1,5 @@
 package ua.in.badparking.ui.fragments;
 
-import android.app.Dialog;
 import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
@@ -11,14 +10,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.Toast;
-
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import ua.in.badparking.R;
+import ua.in.badparking.data.TrespassController;
 import ua.in.badparking.model.Geolocation;
 import ua.in.badparking.ui.MainActivity;
 
@@ -47,7 +42,7 @@ public class PlaceFragment extends Fragment {
         public boolean handleMessage(Message msg) {
             final Bundle data = msg.getData();
 
-            Log.i(TAG, "Handler received data - " + data );
+            Log.i(TAG, "Handler received data - " + data);
 
             if (data == null) {
                 return false;
@@ -81,14 +76,19 @@ public class PlaceFragment extends Fragment {
             }
         });
 
-        actvCities = ((AutoCompleteTextView) rootView.findViewById(R.id.city));
-        actvStreets = ((AutoCompleteTextView) rootView.findViewById(R.id.address));
+        actvCities = ((AutoCompleteTextView)rootView.findViewById(R.id.city));
+        actvStreets = ((AutoCompleteTextView)rootView.findViewById(R.id.address));
 
         citiesAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, new ArrayList<String>());
         streetsAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, new ArrayList<String>());
 
         actvCities.setAdapter(citiesAdapter);
         actvStreets.setAdapter(streetsAdapter);
+
+        final String savedCity = TrespassController.INST.getTrespass().getCity();
+        if (savedCity != null) {
+            actvCities.setText(savedCity);
+        }
 
         geolocation = new Geolocation(getActivity(), true, true, new Geolocation.UpdatedLocationCallback() {
             @Override
@@ -104,9 +104,10 @@ public class PlaceFragment extends Fragment {
                 final Set<String> cities = new HashSet<>();
                 final Set<String> streets = new HashSet<>();
 
-                for (final Address address: addresses) {
+                for (final Address address : addresses) {
                     if (address.getLocality() != null) cities.add(address.getLocality());
-                    if (address.getThoroughfare() != null && address.getSubThoroughfare() != null) streets.add(address.getThoroughfare() + "," + address.getSubThoroughfare());
+                    if (address.getThoroughfare() != null && address.getSubThoroughfare() != null)
+                        streets.add(address.getThoroughfare() + "," + address.getSubThoroughfare());
                 }
 
                 Log.i(TAG, "Cities list - " + cities.toString());
@@ -131,31 +132,29 @@ public class PlaceFragment extends Fragment {
                 addressMessage.setData(addressData);
 
                 uiUpdateHandler.sendMessage(addressMessage);
-             }
+            }
         });
 
-        bDefineAddress = (Button) rootView.findViewById(R.id.buttonDefineAddress);
-        bDefineAddressGps = (Button) rootView.findViewById(R.id.buttonDefineGPS);
-        bDefineAddressMap = (Button) rootView.findViewById(R.id.buttonDefineMap);
+        bDefineAddress = (Button)rootView.findViewById(R.id.buttonDefineAddress);
+        bDefineAddressGps = (Button)rootView.findViewById(R.id.buttonDefineGPS);
+        bDefineAddressMap = (Button)rootView.findViewById(R.id.buttonDefineMap);
 
         bDefineAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Button button = (Button) v;
+                final Button button = (Button)v;
 
                 if (button.getText().equals("Визначити адресу")) {
-                    button.setText("Приховати");
 
                     bDefineAddressGps.setVisibility(View.VISIBLE);
                     bDefineAddressMap.setVisibility(View.VISIBLE);
+                    bDefineAddress.setVisibility(View.GONE);
                 } else {
                     button.setText("Визначити адресу");
 
                     bDefineAddressGps.setVisibility(View.GONE);
                     bDefineAddressMap.setVisibility(View.GONE);
                 }
-
-
             }
         });
 

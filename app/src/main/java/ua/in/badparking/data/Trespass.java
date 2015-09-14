@@ -39,6 +39,7 @@ public class Trespass {
     private String numberPlates;
 
     private List<File> photoFiles = new ArrayList<File>();
+    private String city;
 
 
     public void setName(String name) {
@@ -100,5 +101,13 @@ public class Trespass {
 
     public List<File> getPhotoFiles() {
         return photoFiles;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCity() {
+        return city;
     }
 }

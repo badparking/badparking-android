@@ -168,6 +168,8 @@ public class StartFragment extends Fragment implements View.OnClickListener {
                 final String platesText = platesEdittext.getText().toString();
                 if (platesText.length() == 0) {
                     Toast.makeText(getActivity(), "Введiть номернi знаки", Toast.LENGTH_LONG).show();
+                } else if (!isFirstHasImage && !isSecondHasImage) {
+                    Toast.makeText(getActivity(), "Додайте хоча б одне фото", Toast.LENGTH_LONG).show();
                 } else {
                     TrespassController.INST.getTrespass().clearPhotos();
                     if (isFirstHasImage) {

@@ -20,21 +20,21 @@
         android:layout_marginRight="10dp"
         android:background="@drawable/button_background"
         android:text="@string/send"
-        android:textAllCaps="false"/>
+        android:textAllCaps="true"/>
 
     <AutoCompleteTextView
         android:id="@+id/city"
         style="@style/parkingEditText"
-        android:hint="місто"
-        android:textStyle="normal"
+        android:hint="Місто"
+        android:inputType="text"
         android:singleLine="true"
-        android:inputType="text" />
+        android:textStyle="normal"/>
 
     <AutoCompleteTextView
         android:id="@+id/address"
         style="@style/parkingEditText"
         android:layout_below="@+id/city"
-        android:hint="адреса"
+        android:hint="Адреса"
         android:inputType="textCapWords"/>
 
     <LinearLayout
@@ -46,24 +46,26 @@
         android:layout_below="@+id/address"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
         android:orientation="vertical">
 
         <Button
             android:id="@+id/buttonDefineAddress"
-            android:background="@drawable/button_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/linearLayout"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
+
+            android:background="@drawable/button_background"
             android:text="Визначити адресу"/>
 
         <Button
             android:id="@+id/buttonDefineGPS"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/button_background"
             android:text="Визначити за допомогою GPS"
             android:visibility="gone"/>
 
@@ -71,6 +73,7 @@
             android:id="@+id/buttonDefineMap"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/button_background"
             android:text="Вибрати на мапі"
             android:visibility="gone"/>
     </LinearLayout>

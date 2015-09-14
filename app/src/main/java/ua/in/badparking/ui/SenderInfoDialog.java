@@ -59,8 +59,13 @@ public class SenderInfoDialog extends Dialog {
 
     private void fillFromModel() {
         final Trespass trespass = TrespassController.INST.getTrespass();
-        nameView.setText(trespass.getName());
-        phoneView.setText(trespass.getPhone());
+
+        if (trespass.getName() != null) {
+            nameView.setText(trespass.getName());
+        }
+        if (trespass.getPhone() != null) {
+            phoneView.setText(trespass.getPhone());
+        }
         if (trespass.getEmail() != null) {
             emailView.setText(trespass.getEmail());
         }
@@ -74,6 +79,7 @@ public class SenderInfoDialog extends Dialog {
         TrespassController.INST.getTrespass().setName(name);
         TrespassController.INST.getTrespass().setPhone(phone);
         TrespassController.INST.getTrespass().setEmail(email);
+        TrespassController.INST.saveToPrefs();
     }
 
     private void extractPossibleInfo() {
