@@ -50,9 +50,10 @@ public enum Sender {
             public void onResponse(Response response) throws IOException {
                 if (trespass.getPhotoFiles().size() != 0) {
                     try {
-                        JSONObject json = new JSONObject(response.body().toString());
-                        uploadPhoto(json.getInt("id"), trespass.getPhotoFiles().get(0), sendCallback);
-                        sendCallback.onCallback(CODE_UPLOADING_PHOTO, "Завантажуеться фото N1...");
+                        final String responseString = response.body().string();
+                        JSONObject json = new JSONObject(responseString);
+                        uploadPhoto(json.getInt("id"), 0, sendCallback);
+                        sendCallback.onCallback(CODE_UPLOADING_PHOTO, "Завантажуеться фото №1...");
                     } catch (FileNotFoundException e) {
                         sendCallback.onCallback(CODE_FILE_NOT_FOUND, "Фото не знайдено.");
                         e.printStackTrace();
@@ -73,7 +74,9 @@ public enum Sender {
 
     }
 
-    private void uploadPhoto(int sessionId, File image, final SendCallback sendCallback) throws FileNotFoundException {
+    private void uploadPhoto(int sessionId, final int imageIndex, final SendCallback sendCallback) throws FileNotFoundException {
+        final Trespass trespass = TrespassController.INST.getTrespass();
+        File image = trespass.getPhotoFiles().get(imageIndex);
         RequestBody formBody = new FormEncodingBuilder()
                 .add("cmd", "upload")
                 .add("id", String.valueOf(sessionId))
@@ -95,27 +98,26 @@ public enum Sender {
             @Override
             public void onResponse(Response response) throws IOException {
                 sendCallback.onCallback(response.code(), "");
-//                if (trespass.getPhotoFiles().size() != 0) {
-//                    try {
-//                        JSONObject json = new JSONObject(response.body().toString());
-//                        uploadPhoto(json.getInt("id"), trespass.getPhotoFiles().get(0));
-//                        sendCallback.onCallback(CODE_UPLOADING_PHOTO, "Завантажуеться фото N1...");
-//                    } catch (FileNotFoundException e) {
-//                        sendCallback.onCallback(CODE_FILE_NOT_FOUND, "Фото не знайдено.");
-//                        e.printStackTrace();
-//                    } catch (JSONException e) {
-//                        sendCallback.onCallback(CODE_FILE_NOT_FOUND, "Помилка парсингу.");
-//                        e.printStackTrace();
-//                    }
-//                } else {
-//                    sendCallback.onCallback(response.code(), "");
-//                }
+                if (trespass.getPhotoFiles().size() != 0) {
+                    try {
+                        JSONObject json = new JSONObject(response.body().toString());
+                        uploadPhoto(json.getInt("id"), imageIndex + 1, sendCallback);
+                        sendCallback.onCallback(CODE_UPLOADING_PHOTO, "Завантажуеться фото №" + (imageIndex + 2) + "...");
+                    } catch (FileNotFoundException e) {
+                        sendCallback.onCallback(CODE_FILE_NOT_FOUND, "Фото не знайдено.");
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        sendCallback.onCallback(CODE_FILE_NOT_FOUND, "Помилка парсингу.");
+                        e.printStackTrace();
+                    }
+                } else {
+                    sendCallback.onCallback(response.code(), "");
+                }
             }
 
             @Override
             public void onFailure(Request request, IOException e) {
                 sendCallback.onCallback(CODE_UNKNOWN_ERROR, "");
-//                sendCallback.onCallback(CODE_UNKNOWN_ERROR, "");
             }
         });
 
