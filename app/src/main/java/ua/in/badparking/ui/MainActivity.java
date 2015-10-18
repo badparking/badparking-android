@@ -89,8 +89,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onBackPressed() {
         if (mViewPager.getCurrentItem() == 1) {
             mViewPager.setCurrentItem(0);
+        } else {
+            super.onBackPressed();
         }
-        super.onBackPressed();
     }
 
     @Override
