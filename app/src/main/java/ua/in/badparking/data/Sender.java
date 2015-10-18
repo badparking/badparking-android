@@ -74,7 +74,7 @@ public enum Sender {
 
     }
 
-    private void uploadPhoto(int sessionId, final int imageIndex, final SendCallback sendCallback) throws FileNotFoundException {
+    private void uploadPhoto(final int sessionId, final int imageIndex, final SendCallback sendCallback) throws FileNotFoundException {
         final Trespass trespass = TrespassController.INST.getTrespass();
         File image = trespass.getPhotoFiles().get(imageIndex);
         RequestBody formBody = new FormEncodingBuilder()
@@ -98,16 +98,13 @@ public enum Sender {
             @Override
             public void onResponse(Response response) throws IOException {
                 sendCallback.onCallback(response.code(), "");
-                if (trespass.getPhotoFiles().size() != 0) {
+                final int numberOfPhotos = trespass.getPhotoFiles().size();
+                if (numberOfPhotos != 0 && imageIndex + 1 < numberOfPhotos) {
                     try {
-                        JSONObject json = new JSONObject(response.body().toString());
-                        uploadPhoto(json.getInt("id"), imageIndex + 1, sendCallback);
+                        uploadPhoto(sessionId, imageIndex + 1, sendCallback);
                         sendCallback.onCallback(CODE_UPLOADING_PHOTO, "Завантажуеться фото №" + (imageIndex + 2) + "...");
                     } catch (FileNotFoundException e) {
                         sendCallback.onCallback(CODE_FILE_NOT_FOUND, "Фото не знайдено.");
-                        e.printStackTrace();
-                    } catch (JSONException e) {
-                        sendCallback.onCallback(CODE_FILE_NOT_FOUND, "Помилка парсингу.");
                         e.printStackTrace();
                     }
                 } else {
