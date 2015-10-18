@@ -27,6 +27,8 @@ public enum Sender {
     public static final int CODE_UPLOADING_PHOTO = 9001;
     public static final int CODE_FILE_NOT_FOUND = 9002;
     public static final int CODE_UNKNOWN_ERROR = 9003;
+    public static final int CODE_PARSING_FAILED = 9004;
+
     public static final String POST_URL = "http://badparking.in.ua/modules/json.php";
 
     private static final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
@@ -53,12 +55,9 @@ public enum Sender {
                         final String responseString = response.body().string();
                         JSONObject json = new JSONObject(responseString);
                         uploadPhoto(json.getInt("id"), 0, sendCallback);
-                        sendCallback.onCallback(CODE_UPLOADING_PHOTO, "Завантажуеться фото №1...");
-                    } catch (FileNotFoundException e) {
-                        sendCallback.onCallback(CODE_FILE_NOT_FOUND, "Фото не знайдено.");
-                        e.printStackTrace();
+                        sendCallback.onCallback(CODE_UPLOADING_PHOTO, "Завантажується фото №1...");
                     } catch (JSONException e) {
-                        sendCallback.onCallback(CODE_FILE_NOT_FOUND, "Помилка парсингу.");
+                        sendCallback.onCallback(CODE_PARSING_FAILED, "Помилка парсингу.");
                         e.printStackTrace();
                     }
                 } else {
@@ -102,7 +101,7 @@ public enum Sender {
                 if (numberOfPhotos != 0 && imageIndex + 1 < numberOfPhotos) {
                     try {
                         uploadPhoto(sessionId, imageIndex + 1, sendCallback);
-                        sendCallback.onCallback(CODE_UPLOADING_PHOTO, "Завантажуеться фото №" + (imageIndex + 2) + "...");
+                        sendCallback.onCallback(CODE_UPLOADING_PHOTO, "Завантажується фото №" + (imageIndex + 2) + "...");
                     } catch (FileNotFoundException e) {
                         sendCallback.onCallback(CODE_FILE_NOT_FOUND, "Фото не знайдено.");
                         e.printStackTrace();

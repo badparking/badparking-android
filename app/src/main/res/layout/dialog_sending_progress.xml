@@ -27,7 +27,7 @@
             android:layout_toRightOf="@id/progressBar"
             android:gravity="center"
             android:minHeight="40dp"
-            android:text="Вiдсилаэмо..."
+            android:text="Вiдсилаємо..."
             android:textColor="@android:color/white"/>
 
     </LinearLayout>
