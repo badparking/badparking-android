@@ -12,6 +12,7 @@
     <EditText
         android:id="@+id/plates"
         style="@style/parkingEditText"
+        android:layout_width="match_parent"
         android:layout_centerInParent="true"
         android:hint="Номернi знаки"
         />
@@ -23,6 +24,15 @@
         android:layout_above="@id/plates"
         android:layout_marginTop="2dp"
         android:background="@drawable/edittext_background"/>
+
+    <ImageView
+        android:src="@android:drawable/arrow_down_float"
+        android:layout_alignRight="@id/trespassSpinner"
+        android:layout_alignTop="@id/trespassSpinner"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
     <!--android:textColor="@android:color/white"-->
     <!--android:background="@drawable/spinner_white_holo_dark_am"-->

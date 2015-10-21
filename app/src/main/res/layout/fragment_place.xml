@@ -26,6 +26,7 @@
         android:id="@+id/city"
         style="@style/parkingEditText"
         android:hint="Місто"
+        android:layout_width="match_parent"
         android:inputType="text"
         android:singleLine="true"
         android:textStyle="normal"/>
@@ -33,6 +34,7 @@
     <AutoCompleteTextView
         android:id="@+id/address"
         style="@style/parkingEditText"
+        android:layout_width="match_parent"
         android:layout_below="@+id/city"
         android:hint="Адреса"
         android:inputType="textCapWords"/>
