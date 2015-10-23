@@ -14,19 +14,20 @@
         android:id="@+id/send"
         android:layout_width="120dp"
         android:layout_height="50dp"
+        android:textSize="15sp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_marginBottom="10dp"
         android:layout_marginRight="10dp"
         android:background="@drawable/button_background"
         android:text="@string/send"
-        android:textAllCaps="true"/>
+        android:textAllCaps="false"/>
 
     <AutoCompleteTextView
         android:id="@+id/city"
         style="@style/parkingEditText"
-        android:hint="Місто"
         android:layout_width="match_parent"
+        android:hint="Місто"
         android:inputType="text"
         android:singleLine="true"
         android:textStyle="normal"/>
@@ -53,15 +54,16 @@
 
         <Button
             android:id="@+id/buttonDefineAddress"
+            android:textSize="15sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/linearLayout"
             android:layout_centerHorizontal="true"
-
             android:background="@drawable/button_background"
-            android:text="Визначити адресу"/>
+            android:text="Визначити адресу"
+            android:textAllCaps="false"/>
 
         <Button
             android:id="@+id/buttonDefineGPS"
@@ -70,6 +72,8 @@
             android:layout_marginTop="5dp"
             android:background="@drawable/button_background"
             android:text="Визначити за допомогою GPS"
+            android:textAllCaps="false"
+            android:textSize="15sp"
             android:visibility="gone"/>
 
         <Button
@@ -79,6 +83,8 @@
             android:layout_marginTop="15dp"
             android:background="@drawable/button_background"
             android:text="Вибрати на мапі"
+            android:textSize="15sp"
+            android:textAllCaps="false"
             android:visibility="gone"/>
     </LinearLayout>
 
