@@ -138,8 +138,11 @@
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
         android:layout_marginBottom="10dp"
         android:layout_marginRight="10dp"
+        android:drawableRight="@drawable/right_arrow_icon"
         android:background="@drawable/button_background"
         android:text="@string/next"
         android:textAllCaps="false"/>

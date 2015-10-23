@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-       android:shape="rectangle"
-    >
-    <gradient
-        android:angle="270"
-        android:startColor="#fdd400"
-        android:endColor="#ea6f00"
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:drawable="@drawable/button_background_sel"
+        android:state_pressed="true"
+        />
+    <item
+        android:drawable="@drawable/button_background_nor"
         />
 
-    <corners android:radius="3dp"/>
-
-</shape>
+</selector>

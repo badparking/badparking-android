@@ -9,7 +9,7 @@
     <string name="cancel">Відмінити</string>
     <string name="your_data">Вашi даннi</string>
     <string name="send">Вiдicлати</string>
-    <string name="next"><![CDATA[Далi >]]></string>
+    <string name="next">Далi</string>
     <string name="add_photo">Додати\n фото</string>
     <string name="comment">Коментар (необов\'язково)</string>
     <string name="comment_hint">наприклад: бачу ворожий Бук</string>
