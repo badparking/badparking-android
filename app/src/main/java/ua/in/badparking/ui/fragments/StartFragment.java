@@ -16,6 +16,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -140,6 +142,17 @@ public class StartFragment extends Fragment implements View.OnClickListener {
         releaseAll();
     }
 
+    public void hideKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager = (InputMethodManager)activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(activity);
+        }
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -165,6 +178,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
                         }).show();
                 break;
             case R.id.next:
+                hideKeyboard(getActivity());
                 final String platesText = platesEdittext.getText().toString();
                 if (platesText.length() == 0) {
                     Toast.makeText(getActivity(), "Введiть номернi знаки", Toast.LENGTH_LONG).show();

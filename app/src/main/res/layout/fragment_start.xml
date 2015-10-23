@@ -9,11 +9,27 @@
                 android:paddingTop="@dimen/activity_vertical_margin"
                 tools:context=".MainActivity$PlaceholderFragment">
 
+    <Button
+        android:id="@+id/next"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/button_background"
+        android:drawableRight="@drawable/right_arrow_icon"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="@string/next"
+        android:textAllCaps="false"/>
+
     <EditText
         android:id="@+id/plates"
         style="@style/parkingEditText"
         android:layout_width="match_parent"
-        android:layout_centerInParent="true"
+        android:layout_above="@id/next"
+        android:layout_marginBottom="15dp"
         android:hint="Номернi знаки"
         />
 
@@ -26,18 +42,17 @@
         android:background="@drawable/edittext_background"/>
 
     <ImageView
-        android:src="@android:drawable/arrow_down_float"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignRight="@id/trespassSpinner"
         android:layout_alignTop="@id/trespassSpinner"
-        android:layout_marginTop="15dp"
         android:layout_marginRight="15dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_marginTop="15dp"
+        android:src="@android:drawable/arrow_down_float"/>
 
-    <!--android:textColor="@android:color/white"-->
-    <!--android:background="@drawable/spinner_white_holo_dark_am"-->
 
     <TextView
+        android:id="@+id/trespassSpinnerLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@id/trespassSpinner"
@@ -47,10 +62,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/photo_side"
-        android:layout_below="@id/plates"
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal"
-        >
+        android:layout_above="@id/trespassSpinnerLabel"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal">
 
         <RelativeLayout
             android:id="@+id/first_image_holder"
@@ -131,21 +145,6 @@
 
         </RelativeLayout>
     </LinearLayout>
-
-    <Button
-        android:id="@+id/next"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:paddingRight="10dp"
-        android:paddingLeft="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginRight="10dp"
-        android:drawableRight="@drawable/right_arrow_icon"
-        android:background="@drawable/button_background"
-        android:text="@string/next"
-        android:textAllCaps="false"/>
 
 
 </RelativeLayout>
