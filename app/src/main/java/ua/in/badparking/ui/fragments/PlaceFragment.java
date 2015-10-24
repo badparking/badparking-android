@@ -1,12 +1,17 @@
 package ua.in.badparking.ui.fragments;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -163,7 +168,7 @@ public class PlaceFragment extends Fragment {
                     geolocation.updateLocation();
                     geolocation.requestCurrentAddressesOptions(5);
                 } else {
-                    // TODO show dialog.
+                    buildAlertMessage(getString(R.string.dialogGPSActivateQuestion));
                 }
             }
         });
@@ -184,6 +189,24 @@ public class PlaceFragment extends Fragment {
 //        mapView = (MapView) rootView.findViewById();
 
         return rootView;
+    }
+
+    public void buildAlertMessage(String message) {
+        if (getActivity().isFinishing())
+            return;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(message).setCancelable(false).setPositiveButton("Так", new DialogInterface.OnClickListener() {
+            public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        }).setNegativeButton("Hi", new DialogInterface.OnClickListener() {
+            public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                dialog.cancel();
+            }
+        });
+        final AlertDialog alert = builder.create();
+        alert.show();
     }
 
     public boolean isGpsEnabled() {
