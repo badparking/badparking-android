@@ -17,76 +17,75 @@
         android:textSize="15sp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="5dp"
         android:layout_marginRight="10dp"
         android:background="@drawable/button_background"
         android:text="@string/send"
         android:textAllCaps="false"/>
 
-    <AutoCompleteTextView
-        android:id="@+id/city"
-        style="@style/parkingEditText"
-        android:layout_width="match_parent"
-        android:hint="Місто"
-        android:inputType="text"
-        android:singleLine="true"
-        android:textStyle="normal"/>
-
-    <AutoCompleteTextView
-        android:id="@+id/address"
-        style="@style/parkingEditText"
-        android:layout_width="match_parent"
-        android:layout_below="@+id/city"
-        android:hint="Адреса"
-        android:inputType="textCapWords"/>
-
     <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="wrap_content"
+        android:id="@+id/positionButtonsLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/address"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"
+        android:layout_above="@id/send"
+        android:layout_marginBottom="20dp"
         android:layout_marginTop="10dp"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/buttonDefineAddress"
             android:textSize="15sp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/linearLayout"
-            android:layout_centerHorizontal="true"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="70dp"
             android:background="@drawable/button_background"
-            android:text="Визначити адресу"
+            android:text="Ввести \nвручну"
             android:textAllCaps="false"/>
 
         <Button
             android:id="@+id/buttonDefineGPS"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="70dp"
+            android:layout_marginLeft="10dp"
             android:background="@drawable/button_background"
-            android:text="Визначити за допомогою GPS"
+            android:text="Увiмкнути \nGPS"
             android:textAllCaps="false"
-            android:textSize="15sp"
-            android:visibility="gone"/>
+            android:textSize="15sp"/>
 
         <Button
             android:id="@+id/buttonDefineMap"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="70dp"
+            android:layout_marginLeft="10dp"
             android:background="@drawable/button_background"
-            android:text="Вибрати на мапі"
+            android:text="Вибрати\n на мапі"
             android:textSize="15sp"
-            android:textAllCaps="false"
-            android:visibility="gone"/>
+            android:textAllCaps="false"/>
     </LinearLayout>
+
+
+    <AutoCompleteTextView
+        android:id="@+id/address"
+        style="@style/parkingEditText"
+        android:layout_marginBottom="10dp"
+        android:layout_width="match_parent"
+        android:layout_above="@+id/send"
+        android:hint="Адреса"
+        android:visibility="gone"
+        android:inputType="textCapWords"/>
+
+    <AutoCompleteTextView
+        android:id="@+id/city"
+        style="@style/parkingEditText"
+        android:layout_width="match_parent"
+        android:layout_above="@id/address"
+        android:hint="Місто"
+        android:visibility="gone"
+        android:inputType="text"
+        android:singleLine="true"
+        android:textStyle="normal"/>
 
 
 </RelativeLayout>

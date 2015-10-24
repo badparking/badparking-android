@@ -1,19 +1,23 @@
 package ua.in.badparking.ui.fragments;
 
-import android.support.v4.app.DialogFragment;
+import android.content.Context;
 import android.location.Address;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -38,6 +42,7 @@ public class PlaceFragment extends Fragment {
 
     private static final String TAG = "PlaceFragment";
 
+    private View positionButtonsLayout;
     private AutoCompleteTextView actvCities;
     private AutoCompleteTextView actvStreets;
 
@@ -62,13 +67,9 @@ public class PlaceFragment extends Fragment {
         }
     });
 
-    private Button bDefineAddress;
-    private Button bDefineAddressGps;
-    private Button bDefineAddressMap;
-
     private Geolocation geolocation;
 
-//    private MapView mapView;
+    //    private MapView mapView;
 //    private GoogleMap googleMap;
 //    private Dialog mapDialog;
     private DialogFragment mapDialogFragment;
@@ -84,6 +85,7 @@ public class PlaceFragment extends Fragment {
             }
         });
 
+        positionButtonsLayout = rootView.findViewById(R.id.positionButtonsLayout);
         actvCities = ((AutoCompleteTextView)rootView.findViewById(R.id.city));
         actvStreets = ((AutoCompleteTextView)rootView.findViewById(R.id.address));
 
@@ -98,7 +100,7 @@ public class PlaceFragment extends Fragment {
             actvCities.setText(savedCity);
         }
 
-        geolocation = new Geolocation(getActivity(), true, true, new Geolocation.UpdatedLocationCallback() {
+        geolocation = new Geolocation(getActivity(), isGpsEnabled(), true, new Geolocation.UpdatedLocationCallback() {
             @Override
             public void locationUpdate(Location location) {
                 Log.i(TAG, "New location - " + location);
@@ -143,34 +145,26 @@ public class PlaceFragment extends Fragment {
             }
         });
 
-        bDefineAddress = (Button)rootView.findViewById(R.id.buttonDefineAddress);
-        bDefineAddressGps = (Button)rootView.findViewById(R.id.buttonDefineGPS);
-        bDefineAddressMap = (Button)rootView.findViewById(R.id.buttonDefineMap);
+        Button bDefineAddress = (Button)rootView.findViewById(R.id.buttonDefineAddress);
+        Button bDefineAddressGps = (Button)rootView.findViewById(R.id.buttonDefineGPS);
+        Button bDefineAddressMap = (Button)rootView.findViewById(R.id.buttonDefineMap);
 
         bDefineAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Button button = (Button)v;
-
-                if (button.getText().equals("Визначити адресу")) {
-                    button.setText("Приховати");
-
-                    bDefineAddressGps.setVisibility(View.VISIBLE);
-                    bDefineAddressMap.setVisibility(View.VISIBLE);
-                } else {
-                    button.setText("Визначити адресу");
-
-                    bDefineAddressGps.setVisibility(View.GONE);
-                    bDefineAddressMap.setVisibility(View.GONE);
-                }
+                showCityAndStreetLayout();
             }
         });
 
         bDefineAddressGps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                geolocation.updateLocation();
-                geolocation.requestCurrentAddressesOptions(5);
+                if (isGpsEnabled()) {
+                    geolocation.updateLocation();
+                    geolocation.requestCurrentAddressesOptions(5);
+                } else {
+                    // TODO show dialog.
+                }
             }
         });
 
@@ -192,13 +186,29 @@ public class PlaceFragment extends Fragment {
         return rootView;
     }
 
+    public boolean isGpsEnabled() {
+        final LocationManager manager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    private void showCityAndStreetLayout() {
+        actvCities.setVisibility(View.VISIBLE);
+        actvStreets.setVisibility(View.VISIBLE);
+        actvCities.requestFocus();
+        final RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)positionButtonsLayout.getLayoutParams();
+        layoutParams.bottomMargin = 300;// TODO dp
+        positionButtonsLayout.requestLayout();
+        InputMethodManager inputMethodManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.toggleSoftInputFromWindow(actvCities.getApplicationWindowToken(), InputMethodManager.SHOW_FORCED, 0);
+    }
+
     /**
      * Returns a new instance of this fragment for the given section
      * number.
      */
     public static PlaceFragment newInstance() {
-        PlaceFragment fragment = new PlaceFragment();
-        return fragment;
+        return new PlaceFragment();
     }
 
     public static class MapDialog extends DialogFragment {
@@ -210,7 +220,7 @@ public class PlaceFragment extends Fragment {
         public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle bundle) {
             final View result = inflater.inflate(R.layout.map_dialog, container, false);
 
-            mapView = (MapView) result.findViewById(R.id.mvMap);
+            mapView = (MapView)result.findViewById(R.id.mvMap);
             googleMap = mapView.getMap();
 
             return result;
