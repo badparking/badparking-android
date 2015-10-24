@@ -215,6 +215,12 @@ public class PlaceFragment extends Fragment {
         return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        geolocation.setGpsEnabled(isGpsEnabled());
+    }
+
     private void showCityAndStreetLayout() {
         actvCities.setVisibility(View.VISIBLE);
         actvStreets.setVisibility(View.VISIBLE);
