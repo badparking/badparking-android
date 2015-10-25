@@ -61,9 +61,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        }
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -71,16 +68,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager)findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
-        // When swiping between different sections, select the corresponding
-        // tab. We can also use ActionBar.Tab#select() to do this if we have
-        // a reference to the Tab.
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
-            }
-        });
 
         if (actionBar != null) {
             // For each of the sections in the app, add a tab to the action bar.

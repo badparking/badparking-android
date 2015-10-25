@@ -87,5 +87,13 @@
         android:singleLine="true"
         android:textStyle="normal"/>
 
+    <TextView
+        android:id="@+id/topTextPlace"
+        android:layout_marginTop="20dp"
+        android:text="Нам потрiбно мiсце визначити мiсце правопорушення, виберiть один з трьох варiантiв:"
+        android:textColor="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
 
 </RelativeLayout>

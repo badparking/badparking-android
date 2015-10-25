@@ -1,6 +1,5 @@
 package ua.in.badparking.ui.fragments;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -23,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -50,6 +50,7 @@ public class PlaceFragment extends Fragment {
     private View positionButtonsLayout;
     private AutoCompleteTextView actvCities;
     private AutoCompleteTextView actvStreets;
+    private TextView topTextPlace;
 
     private ArrayAdapter<String> citiesAdapter;
     private ArrayAdapter<String> streetsAdapter;
@@ -66,6 +67,7 @@ public class PlaceFragment extends Fragment {
             } else {
                 actvCities.setVisibility(View.VISIBLE);
                 actvStreets.setVisibility(View.VISIBLE);
+                topTextPlace.setText("Адресу визначено ....\n Натиснiть \"Вiдiслати\"");
                 if (data.containsKey("city")) actvCities.setText(data.getString("city"));
                 if (data.containsKey("street")) actvStreets.setText(data.getString("street"));
 
@@ -95,6 +97,7 @@ public class PlaceFragment extends Fragment {
         positionButtonsLayout = rootView.findViewById(R.id.positionButtonsLayout);
         actvCities = ((AutoCompleteTextView)rootView.findViewById(R.id.city));
         actvStreets = ((AutoCompleteTextView)rootView.findViewById(R.id.address));
+        topTextPlace = ((TextView)rootView.findViewById(R.id.topTextPlace));
 
         citiesAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, new ArrayList<String>());
         streetsAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, new ArrayList<String>());
@@ -167,6 +170,7 @@ public class PlaceFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (isGpsEnabled()) {
+                    topTextPlace.setText("Визначаємо адресу....\nЗачекайте хвилинку будь-ласка");
                     geolocation.updateLocation();
                     geolocation.requestCurrentAddressesOptions(5);
                 } else {
