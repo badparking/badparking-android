@@ -37,18 +37,24 @@
             android:textSize="15sp"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="70dp"
-            android:background="@drawable/button_background"
+            android:layout_height="wrap_content"
+            android:background="@drawable/yellow_button_background"
             android:text="Ввести \nвручну"
+            android:padding="10dp"
+            android:drawablePadding="7dp"
+            android:drawableTop="@android:drawable/ic_menu_edit"
             android:textAllCaps="false"/>
 
         <Button
             android:id="@+id/buttonDefineGPS"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="70dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:background="@drawable/button_background"
+            android:padding="10dp"
+            android:drawablePadding="7dp"
+            android:drawableTop="@android:drawable/ic_menu_compass"
+            android:background="@drawable/yellow_button_background"
             android:text="Увiмкнути \nGPS"
             android:textAllCaps="false"
             android:textSize="15sp"/>
@@ -57,9 +63,12 @@
             android:id="@+id/buttonDefineMap"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="70dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:background="@drawable/button_background"
+            android:padding="10dp"
+            android:drawablePadding="7dp"
+            android:drawableTop="@android:drawable/ic_menu_directions"
+            android:background="@drawable/yellow_button_background"
             android:text="Вибрати\n на мапі"
             android:textSize="15sp"
             android:textAllCaps="false"/>
@@ -90,7 +99,7 @@
     <TextView
         android:id="@+id/topTextPlace"
         android:layout_marginTop="20dp"
-        android:text="Нам потрiбно мiсце визначити мiсце правопорушення, виберiть один з трьох варiантiв:"
+        android:text="Нам потрiбно мiсце визначити адресу мiсця правопорушення, виберiть один з трьох варiантiв:"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
