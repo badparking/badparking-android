@@ -41,6 +41,8 @@ public enum Sender {
 
     public void send(final SendCallback sendCallback) {
         client.setConnectTimeout(20, TimeUnit.SECONDS);
+        client.setReadTimeout(50, TimeUnit.SECONDS);
+        client.setWriteTimeout(50, TimeUnit.SECONDS);
         final Trespass trespass = TrespassController.INST.getTrespass();
         final String json = new Gson().toJson(trespass);
         RequestBody formBody = new FormEncodingBuilder()
