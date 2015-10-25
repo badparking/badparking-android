@@ -11,12 +11,14 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Dima Kovalenko on 8/15/15.
@@ -28,6 +30,7 @@ public enum Sender {
     public static final int CODE_FILE_NOT_FOUND = 9002;
     public static final int CODE_UNKNOWN_ERROR = 9003;
     public static final int CODE_PARSING_FAILED = 9004;
+    public static final int CODE_FILE_READING_ERROR = 9005;
 
     public static final String POST_URL = "http://badparking.in.ua/modules/json.php";
 
@@ -37,6 +40,7 @@ public enum Sender {
     private final OkHttpClient client = new OkHttpClient();
 
     public void send(final SendCallback sendCallback) {
+        client.setConnectTimeout(20, TimeUnit.SECONDS);
         final Trespass trespass = TrespassController.INST.getTrespass();
         final String json = new Gson().toJson(trespass);
         RequestBody formBody = new FormEncodingBuilder()
@@ -67,7 +71,7 @@ public enum Sender {
 
             @Override
             public void onFailure(Request request, IOException e) {
-                sendCallback.onCallback(CODE_UNKNOWN_ERROR, "");
+                sendCallback.onCallback(CODE_UNKNOWN_ERROR, e.getMessage());
             }
         });
 
@@ -81,13 +85,20 @@ public enum Sender {
                 .add("id", String.valueOf(sessionId))
                 .build();
         final MediaType mediaType = image.getName().endsWith("png") ? MEDIA_TYPE_PNG : MEDIA_TYPE_JPG;
-        RequestBody requestBody = new MultipartBuilder()
-                .type(MultipartBuilder.FORM)
-                .addPart(formBody)
-                .addPart(
-                        Headers.of("Content-Disposition", "form-data; name=\"file\""),
-                        RequestBody.create(mediaType, image))
-                .build();
+        RequestBody requestBody = null;
+        try {
+            requestBody = new MultipartBuilder()
+                    .type(MultipartBuilder.FORM)
+                    .addPart(formBody)
+                    .addPart(
+                            Headers.of("Content-Disposition", "form-data; name=\"file\""),
+                            RequestBody.create(mediaType, FileUtils.readFileToByteArray(image)))
+                    .build();
+        } catch (IOException e) {
+            sendCallback.onCallback(CODE_FILE_READING_ERROR, " Помилка при обробцi фото.");
+            e.printStackTrace();
+            return;
+        }
 
         Request request = new Request.Builder()
                 .url(POST_URL)
@@ -113,7 +124,7 @@ public enum Sender {
 
             @Override
             public void onFailure(Request request, IOException e) {
-                sendCallback.onCallback(CODE_UNKNOWN_ERROR, "");
+                sendCallback.onCallback(CODE_UNKNOWN_ERROR, e.getMessage());
             }
         });
 

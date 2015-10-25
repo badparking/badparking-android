@@ -64,6 +64,8 @@ public class PlaceFragment extends Fragment {
             if (data == null) {
                 return false;
             } else {
+                actvCities.setVisibility(View.VISIBLE);
+                actvStreets.setVisibility(View.VISIBLE);
                 if (data.containsKey("city")) actvCities.setText(data.getString("city"));
                 if (data.containsKey("street")) actvStreets.setText(data.getString("street"));
 
@@ -211,7 +213,6 @@ public class PlaceFragment extends Fragment {
 
     public boolean isGpsEnabled() {
         final LocationManager manager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
-
         return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 

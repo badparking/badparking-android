@@ -46,4 +46,5 @@ dependencies {
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'com.squareup.okhttp:okhttp:2.5.0'
     compile 'com.crashlytics.android:crashlytics:1.+'
+    compile 'commons-io:commons-io:2.4'
 }

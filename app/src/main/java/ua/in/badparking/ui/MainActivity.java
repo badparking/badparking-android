@@ -212,7 +212,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         onSendClicked();
                     }
                 });
-                sendingMessageView.setText("Помилка " + code + ". Спробуйте пiзнiше");
+                String text = "Помилка " + code + ".\n Спробуйте пiзнiше.";
+                if (BuildConfig.DEBUG) {
+                    text += "\n" + message;
+                }
+                sendingMessageView.setText(text);
 
         }
     }

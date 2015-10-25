@@ -16,7 +16,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -46,7 +45,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
     private View firstHolder;
     private View secondHolder;
     private View takePhotoButton;
-    private EditText platesEdittext;
+    private EditText platesEditText;
 
     private boolean isFirstHasImage;
     private boolean isSecondHasImage;
@@ -60,8 +59,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
      * number.
      */
     public static StartFragment newInstance() {
-        StartFragment fragment = new StartFragment();
-        return fragment;
+        return new StartFragment();
     }
 
     @Override
@@ -84,7 +82,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
         firstHolder = rootView.findViewById(R.id.first_image_holder);
         secondHolder = rootView.findViewById(R.id.second_image_holder);
         takePhotoButton = rootView.findViewById(R.id.takePhotoButton);
-        platesEdittext = (EditText)rootView.findViewById(R.id.plates);
+        platesEditText = (EditText)rootView.findViewById(R.id.plates);
 
         rootView.findViewById(R.id.next).setOnClickListener(this);
         firstImageView.setOnClickListener(this);
@@ -179,7 +177,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
                 break;
             case R.id.next:
                 hideKeyboard(getActivity());
-                final String platesText = platesEdittext.getText().toString();
+                final String platesText = platesEditText.getText().toString();
                 if (platesText.length() == 0) {
                     Toast.makeText(getActivity(), "Введiть номернi знаки", Toast.LENGTH_LONG).show();
                 } else if (!isFirstHasImage && !isSecondHasImage) {
