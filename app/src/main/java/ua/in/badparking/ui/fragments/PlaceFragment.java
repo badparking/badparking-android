@@ -170,6 +170,7 @@ public class PlaceFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (isGpsEnabled()) {
+                    topTextPlace.setVisibility(View.VISIBLE);
                     topTextPlace.setText("Визначаємо адресу....\nЗачекайте хвилинку будь-ласка");
                     geolocation.updateLocation();
                     geolocation.requestCurrentAddressesOptions(5);
@@ -227,11 +228,12 @@ public class PlaceFragment extends Fragment {
     }
 
     private void showCityAndStreetLayout() {
+        topTextPlace.setVisibility(View.GONE);
         actvCities.setVisibility(View.VISIBLE);
         actvStreets.setVisibility(View.VISIBLE);
         actvCities.requestFocus();
         final RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)positionButtonsLayout.getLayoutParams();
-        layoutParams.bottomMargin = 300;// TODO dp
+        layoutParams.bottomMargin = getResources().getDimensionPixelSize(R.dimen.place_buttons_margin_bottom);// TODO dp
         positionButtonsLayout.requestLayout();
         InputMethodManager inputMethodManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputMethodManager.toggleSoftInputFromWindow(actvCities.getApplicationWindowToken(), InputMethodManager.SHOW_FORCED, 0);

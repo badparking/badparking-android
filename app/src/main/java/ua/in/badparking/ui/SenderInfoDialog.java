@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.util.Patterns;
 import android.view.View;
+import android.view.Window;
 import android.widget.EditText;
 
 import java.util.regex.Pattern;
@@ -39,7 +40,7 @@ public class SenderInfoDialog extends Dialog {
     }
 
     private void _init() {
-        setTitle(getContext().getString(R.string.your_data));
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_sender_info);
         emailView = (EditText)findViewById(R.id.email);
         nameView = (EditText)findViewById(R.id.firstName);

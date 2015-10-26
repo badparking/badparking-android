@@ -99,7 +99,7 @@
     <TextView
         android:id="@+id/topTextPlace"
         android:layout_marginTop="20dp"
-        android:text="Нам потрiбно мiсце визначити адресу мiсця правопорушення, виберiть один з трьох варiантiв:"
+        android:text="Нам потрiбно визначити адресу мiсця правопорушення, виберiть один з трьох варiантiв:"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
