@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -28,6 +26,8 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -76,12 +76,12 @@ public class PlaceFragment extends Fragment {
         }
     });
 
-    private Geolocation geolocation;
+    private Button bDefineAddress;
+    private Button bDefineAddressGps;
+    private Button bDefineAddressMap;
 
-    //    private MapView mapView;
-//    private GoogleMap googleMap;
-//    private Dialog mapDialog;
-    private DialogFragment mapDialogFragment;
+    private Geolocation geolocation;
+    private MapDialogFragment mapDialogFragment;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -110,90 +110,114 @@ public class PlaceFragment extends Fragment {
             actvCities.setText(savedCity);
         }
 
-        geolocation = new Geolocation(getActivity(), isGpsEnabled(), true, new Geolocation.UpdatedLocationCallback() {
+        mapDialogFragment = new MapDialogFragment().setMapPositionSetCallback(new MapDialogFragment.MapPositionSetCallback() {
             @Override
-            public void locationUpdate(Location location) {
-                Log.i(TAG, "New location - " + location);
-            }
-        }, new Geolocation.UpdateAddressesCallback() {
-            @Override
-            public void addressesUpdate(List<Address> addresses) {
-                Log.i(TAG, "New addresses quantity - " + addresses.size());
-                Log.i(TAG, "Addresses list - " + addresses);
-
-                final Set<String> cities = new HashSet<>();
-                final Set<String> streets = new HashSet<>();
-
-                for (final Address address : addresses) {
-                    if (address.getLocality() != null) cities.add(address.getLocality());
-                    if (address.getThoroughfare() != null && address.getSubThoroughfare() != null)
-                        streets.add(address.getThoroughfare() + "," + address.getSubThoroughfare());
-                }
-
-                Log.i(TAG, "Cities list - " + cities.toString());
-                Log.i(TAG, "Streets list - " + streets.toString());
-
-                citiesAdapter.clear();
-                citiesAdapter.addAll(cities);
-
-                final String defaultCity = cities.toArray()[0].toString();
-                final String defaultStreet = streets.toArray()[0].toString();
-
-                Log.i(TAG, "Default city - " + defaultCity);
-                Log.i(TAG, "Default street - " + defaultStreet);
-
-                streetsAdapter.clear();
-                streetsAdapter.addAll(streets);
-
-                final Message addressMessage = new Message();
-                final Bundle addressData = new Bundle();
-                addressData.putString("city", defaultCity);
-                addressData.putString("street", defaultStreet);
-                addressMessage.setData(addressData);
-
-                uiUpdateHandler.sendMessage(addressMessage);
+            public void receivePositionFromMap(CameraPosition cameraPosition) {
+                geolocation.requestPositionAddressesOptions(cameraPosition.target, 5);
             }
         });
 
-        Button bDefineAddress = (Button)rootView.findViewById(R.id.buttonDefineAddress);
-        Button bDefineAddressGps = (Button)rootView.findViewById(R.id.buttonDefineGPS);
-        Button bDefineAddressMap = (Button)rootView.findViewById(R.id.buttonDefineMap);
+        geolocation = new Geolocation(getActivity(), true, true, new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                final Bundle data = msg.getData();
+
+                if (data == null) return false;
+                else {
+                    switch (msg.what) {
+                        case 1: {
+                            final List<Address> addresses = data.getParcelableArrayList("addresses");
+                            if (addresses == null || addresses.isEmpty()) {
+                                Log.e(TAG, "No addresses array");
+                            } else {
+                                Log.i(TAG, "New addresses quantity - " + addresses.size());
+                                Log.i(TAG, "Addresses list - " + addresses);
+
+                                final Set<String> cities = new HashSet<>();
+                                final Set<String> streets = new HashSet<>();
+
+                                for (final Address address : addresses) {
+                                    if (address.getLocality() != null) cities.add(address.getLocality());
+                                    if (address.getThoroughfare() != null && address.getSubThoroughfare() != null)
+                                        streets.add(address.getThoroughfare() + "," + address.getSubThoroughfare());
+                                }
+
+                                Log.i(TAG, "Cities list - " + cities.toString());
+                                Log.i(TAG, "Streets list - " + streets.toString());
+
+                                citiesAdapter.clear();
+                                citiesAdapter.addAll(cities);
+
+                                final String defaultCity = cities.toArray()[0].toString();
+                                final String defaultStreet = streets.toArray()[0].toString();
+
+                                Log.i(TAG, "Default city - " + defaultCity);
+                                Log.i(TAG, "Default street - " + defaultStreet);
+
+                                streetsAdapter.clear();
+                                streetsAdapter.addAll(streets);
+
+                                final Message addressMessage = new Message();
+                                final Bundle addressData = new Bundle();
+                                addressData.putString("city", defaultCity);
+                                addressData.putString("street", defaultStreet);
+                                addressMessage.setData(addressData);
+
+                                uiUpdateHandler.sendMessage(addressMessage);
+                            }
+                            return true;
+                        }
+                        case 2: {
+                            mapDialogFragment.setCenter(data.getDouble("Latitude"), data.getDouble("Longitude"));
+                            return true;
+                        }
+                        default: {
+                            Log.e(TAG, "Unknown request what sent to handler - " + msg.what);
+                            return false;
+                        }
+                    }
+                }
+            }
+        });
+
+        bDefineAddress = (Button)rootView.findViewById(R.id.buttonDefineAddress);
+        bDefineAddressGps = (Button)rootView.findViewById(R.id.buttonDefineGPS);
+        bDefineAddressMap = (Button)rootView.findViewById(R.id.buttonDefineMap);
 
         bDefineAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showCityAndStreetLayout();
+                final Button button = (Button)v;
+
+                if (button.getText().equals("Визначити адресу")) {
+                    button.setText("Приховати");
+
+                    bDefineAddressGps.setVisibility(View.VISIBLE);
+                    bDefineAddressMap.setVisibility(View.VISIBLE);
+                } else {
+                    button.setText("Визначити адресу");
+
+                    bDefineAddressGps.setVisibility(View.GONE);
+                    bDefineAddressMap.setVisibility(View.GONE);
+                }
             }
         });
 
         bDefineAddressGps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isGpsEnabled()) {
-                    topTextPlace.setVisibility(View.VISIBLE);
-                    topTextPlace.setText("Визначаємо адресу....\nЗачекайте хвилинку будь-ласка");
-                    geolocation.updateLocation();
-                    geolocation.requestCurrentAddressesOptions(5);
-                } else {
-                    buildAlertMessage(getString(R.string.dialogGPSActivateQuestion));
-                }
+                geolocation.updateLocation();
+                geolocation.requestCurrentAddressesOptions(5);
             }
         });
 
         bDefineAddressMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mapDialogFragment.show(getFragmentManager(), "MapDialog");
+                geolocation.updateLocation();
+                mapDialogFragment.show(getFragmentManager(), "mapDialog");
             }
         });
-
-//        mapDialog = new Dialog(getActivity());
-//        mapDialog.setContentView(R.layout.map_dialog);
-//
-//        mapView = (MapView) mapDialog.findViewById(R.id.mvMap);
-//        googleMap = mapView.getMap();
-
-//        mapView = (MapView) rootView.findViewById();
 
         return rootView;
     }
@@ -216,15 +240,9 @@ public class PlaceFragment extends Fragment {
         alert.show();
     }
 
-    public boolean isGpsEnabled() {
-        final LocationManager manager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
-        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-    }
-
     @Override
     public void onResume() {
         super.onResume();
-        geolocation.setGpsEnabled(isGpsEnabled());
     }
 
     private void showCityAndStreetLayout() {
@@ -247,30 +265,98 @@ public class PlaceFragment extends Fragment {
         return new PlaceFragment();
     }
 
-    public static class MapDialog extends DialogFragment {
+    public static class MapDialogFragment extends DialogFragment {
 
         private MapView mapView;
         private GoogleMap googleMap;
+        private MapPositionSetCallback mapPositionSetCallback;
+        private CameraUpdate lastCameraUpdate;
+        private LatLng lastLatLng;
 
         @Override
         public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle bundle) {
             final View result = inflater.inflate(R.layout.map_dialog, container, false);
 
-            mapView = (MapView)result.findViewById(R.id.mvMap);
+            mapView = (MapView) result.findViewById(R.id.mvMap);
+            mapView.onCreate(bundle);
+            MapsInitializer.initialize(getActivity());
+
             googleMap = mapView.getMap();
+
+            if (lastCameraUpdate == null) lastCameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(50, 30), 19);
+
+            final DialogFragment currentFragment = this;
+
+            result.findViewById(R.id.bCancel).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    currentFragment.dismiss();
+                }
+            });
+            result.findViewById(R.id.bSave).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    CameraPosition cameraPosition = googleMap.getCameraPosition();
+                    if (mapPositionSetCallback == null) {
+                        Log.e(TAG, "No MapPositionSetCallback defined");
+                    } else {
+                        mapPositionSetCallback.receivePositionFromMap(cameraPosition);
+                    }
+
+                    currentFragment.dismiss();
+                }
+            });
 
             return result;
         }
 
+        @Override
+        public void onResume(){
+            mapView.onResume();
+            super.onResume();
+
+            if (lastLatLng != null) googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng, 10));
+        }
+
+        @Override
+        public void onPause() {
+            mapView.onPause();
+            super.onPause();
+        }
+
+        @Override
+        public void onLowMemory() {
+            super.onLowMemory();
+            mapView.onLowMemory();
+        }
+
         public void setCenter(final LatLng latLng) {
-            final CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
-            googleMap.animateCamera(cameraUpdate);
+            Log.i(TAG, "Set camera center: lat - " + latLng.latitude + ", lng - " + latLng.longitude);
+            lastLatLng = latLng;
+            try {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng, 19));
+            } catch (NullPointerException e) {
+                Log.e(TAG, "Exception setting map center", e);
+            }
+        }
+
+        public void setCenter(final double lat, final double lng) {
+            setCenter(new LatLng(lat, lng));
         }
 
         public LatLng getCenter() {
             return googleMap.getCameraPosition().target;
         }
 
+        public MapDialogFragment setMapPositionSetCallback(final MapPositionSetCallback mapPositionSetCallback) {
 
+            this.mapPositionSetCallback = mapPositionSetCallback;
+            return this;
+        }
+
+        public interface MapPositionSetCallback {
+
+            void receivePositionFromMap(final CameraPosition cameraPosition);
+        }
     }
 }
