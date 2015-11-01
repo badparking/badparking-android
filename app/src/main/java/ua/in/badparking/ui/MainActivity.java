@@ -169,7 +169,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-    private void handleResult(int code, String message) {
+    public void handleResult(int code, String message) {
+        if (senderProgressDialog == null || !senderProgressDialog.isShowing()) {
+            showSenderDialogWithMessage();
+        }
         final TextView sendingMessageView = (TextView)senderProgressDialog.findViewById(R.id.sendingMessage);
         final Button sendingMessageButton = (Button)senderProgressDialog.findViewById(R.id.sendingButton);
         final View progressBar = senderProgressDialog.findViewById(R.id.progressBar);
@@ -187,6 +190,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 break;
             case Sender.CODE_UPLOADING_PHOTO: // uploading photo
                 sendingMessageView.setText(message);
+                break;
+            case 8001: // uploading photo
+                progressBar.setVisibility(View.GONE);
+                sendingMessageView.setText(message);
+                sendingMessageButton.setVisibility(View.GONE);
                 break;
             default:
                 sendingMessageButton.setVisibility(View.VISIBLE);

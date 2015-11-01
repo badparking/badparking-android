@@ -62,6 +62,9 @@ public class PlaceFragment extends Fragment {
         @Override
         public boolean handleMessage(Message msg) {
             final Bundle data = msg.getData();
+            if (data == null) {
+                ((MainActivity)getActivity()).handleResult(8001, "Вибачте, ми не змогли визначити мiсто або вулицю.");
+            }
 
             Log.i(TAG, "Handler received data - " + data);
 
@@ -71,8 +74,17 @@ public class PlaceFragment extends Fragment {
                 showCityAndStreetLayout(false);
                 topTextPlace.setText("Адресу визначено ....\n Натиснiть \"Вiдiслати\"");
                 topTextPlace.setVisibility(View.VISIBLE);
-                if (data.containsKey("city")) actvCities.setText(data.getString("city"));
-                if (data.containsKey("street")) actvStreets.setText(data.getString("street"));
+                if (data.containsKey("city") && data.containsKey("street")) {
+                    final String city = data.getString("city");
+                    actvCities.setText(city);
+                    String street = data.getString("street");
+                    if (street.endsWith(",")) {
+                        street = street.substring(0, street.length() - 1);
+                    }
+                    actvStreets.setText(street);
+                } else {
+                    ((MainActivity)getActivity()).handleResult(8001, "Вибачте, ми не змогли визначити мiсто або вулицю.");
+                }
 
                 return true;
             }
@@ -132,6 +144,7 @@ public class PlaceFragment extends Fragment {
                             final List<Address> addresses = data.getParcelableArrayList("addresses");
                             if (addresses == null || addresses.isEmpty()) {
                                 Log.e(TAG, "No addresses array");
+                                uiUpdateHandler.sendMessage(new Message());
                             } else {
                                 Log.i(TAG, "New addresses quantity - " + addresses.size());
                                 Log.i(TAG, "Addresses list - " + addresses);
@@ -154,19 +167,22 @@ public class PlaceFragment extends Fragment {
                                 citiesAdapter.clear();
                                 citiesAdapter.addAll(cities);
 
-                                final String defaultCity = cities.toArray()[0].toString();
-                                final String defaultStreet = streets.toArray()[0].toString();
+                                String defaultCity = null;
+                                String defaultStreet = null;
+                                final Message addressMessage = new Message();
+                                final Bundle addressData = new Bundle();
+                                if (cities.size() > 0 && streets.size() > 0) {
+                                    defaultCity = cities.toArray()[0].toString();
+                                    defaultStreet = streets.toArray()[0].toString();
+                                    Log.i(TAG, "Default city - " + defaultCity);
+                                    Log.i(TAG, "Default street - " + defaultStreet);
 
-                                Log.i(TAG, "Default city - " + defaultCity);
-                                Log.i(TAG, "Default street - " + defaultStreet);
+                                    addressData.putString("city", defaultCity);
+                                    addressData.putString("street", defaultStreet);
+                                }
 
                                 streetsAdapter.clear();
                                 streetsAdapter.addAll(streets);
-
-                                final Message addressMessage = new Message();
-                                final Bundle addressData = new Bundle();
-                                addressData.putString("city", defaultCity);
-                                addressData.putString("street", defaultStreet);
                                 addressMessage.setData(addressData);
 
                                 uiUpdateHandler.sendMessage(addressMessage);
