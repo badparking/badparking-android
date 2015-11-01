@@ -20,8 +20,13 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
 
+        <!--Semer7-->
+        <!--<meta-data android:name="com.google.android.geo.API_KEY"-->
+        <!--android:value="AIzaSyA8AuoO9GKN3MPqIqntXCOYpIC6-A95FYA" />-->
+
+        <!--kovalenych-->
         <meta-data android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyA8AuoO9GKN3MPqIqntXCOYpIC6-A95FYA" />
+                   android:value="AIzaSyA23gHRlDRK1NyrWH2Or1gLNz2GtVhPWHc"/>
 
         <!--<meta-data-->
             <!--android:name="com.google.android.gms.version"-->

@@ -1,10 +1,12 @@
 package ua.in.badparking.ui.fragments;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -65,9 +68,9 @@ public class PlaceFragment extends Fragment {
             if (data == null) {
                 return false;
             } else {
-                actvCities.setVisibility(View.VISIBLE);
-                actvStreets.setVisibility(View.VISIBLE);
+                showCityAndStreetLayout(false);
                 topTextPlace.setText("Адресу визначено ....\n Натиснiть \"Вiдiслати\"");
+                topTextPlace.setVisibility(View.VISIBLE);
                 if (data.containsKey("city")) actvCities.setText(data.getString("city"));
                 if (data.containsKey("street")) actvStreets.setText(data.getString("street"));
 
@@ -137,9 +140,12 @@ public class PlaceFragment extends Fragment {
                                 final Set<String> streets = new HashSet<>();
 
                                 for (final Address address : addresses) {
-                                    if (address.getLocality() != null) cities.add(address.getLocality());
-                                    if (address.getThoroughfare() != null && address.getSubThoroughfare() != null)
+                                    if (address.getLocality() != null) {
+                                        cities.add(address.getLocality());
+                                    }
+                                    if (address.getThoroughfare() != null && address.getSubThoroughfare() != null) {
                                         streets.add(address.getThoroughfare() + "," + address.getSubThoroughfare());
+                                    }
                                 }
 
                                 Log.i(TAG, "Cities list - " + cities.toString());
@@ -187,27 +193,21 @@ public class PlaceFragment extends Fragment {
         bDefineAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Button button = (Button)v;
-
-                if (button.getText().equals("Визначити адресу")) {
-                    button.setText("Приховати");
-
-                    bDefineAddressGps.setVisibility(View.VISIBLE);
-                    bDefineAddressMap.setVisibility(View.VISIBLE);
-                } else {
-                    button.setText("Визначити адресу");
-
-                    bDefineAddressGps.setVisibility(View.GONE);
-                    bDefineAddressMap.setVisibility(View.GONE);
-                }
+                showCityAndStreetLayout(true);
             }
         });
 
         bDefineAddressGps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                geolocation.updateLocation();
-                geolocation.requestCurrentAddressesOptions(5);
+                if (isGpsEnabled()) {
+                    topTextPlace.setVisibility(View.VISIBLE);
+                    topTextPlace.setText("Визначаємо адресу....\nЗачекайте хвилинку будь-ласка");
+                    geolocation.updateLocation();
+                    geolocation.requestCurrentAddressesOptions(5);
+                } else {
+                    buildAlertMessage(getString(R.string.dialogGPSActivateQuestion));
+                }
             }
         });
 
@@ -218,8 +218,12 @@ public class PlaceFragment extends Fragment {
                 mapDialogFragment.show(getFragmentManager(), "mapDialog");
             }
         });
-
         return rootView;
+    }
+
+    public boolean isGpsEnabled() {
+        final LocationManager manager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     public void buildAlertMessage(String message) {
@@ -245,16 +249,18 @@ public class PlaceFragment extends Fragment {
         super.onResume();
     }
 
-    private void showCityAndStreetLayout() {
+    private void showCityAndStreetLayout(boolean openKeyboard) {
         topTextPlace.setVisibility(View.GONE);
         actvCities.setVisibility(View.VISIBLE);
         actvStreets.setVisibility(View.VISIBLE);
-        actvCities.requestFocus();
         final RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)positionButtonsLayout.getLayoutParams();
-        layoutParams.bottomMargin = getResources().getDimensionPixelSize(R.dimen.place_buttons_margin_bottom);// TODO dp
-        positionButtonsLayout.requestLayout();
-        InputMethodManager inputMethodManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.toggleSoftInputFromWindow(actvCities.getApplicationWindowToken(), InputMethodManager.SHOW_FORCED, 0);
+        layoutParams.bottomMargin = getResources().getDimensionPixelSize(R.dimen.place_buttons_margin_bottom);
+        if (openKeyboard) {
+            actvCities.requestFocus();
+            positionButtonsLayout.requestLayout();
+            InputMethodManager inputMethodManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.toggleSoftInputFromWindow(actvCities.getApplicationWindowToken(), InputMethodManager.SHOW_FORCED, 0);
+        }
     }
 
     /**
@@ -275,15 +281,18 @@ public class PlaceFragment extends Fragment {
 
         @Override
         public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle bundle) {
+            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
             final View result = inflater.inflate(R.layout.map_dialog, container, false);
 
-            mapView = (MapView) result.findViewById(R.id.mvMap);
+            mapView = (MapView)result.findViewById(R.id.mvMap);
             mapView.onCreate(bundle);
             MapsInitializer.initialize(getActivity());
 
             googleMap = mapView.getMap();
 
-            if (lastCameraUpdate == null) lastCameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(50, 30), 19);
+            if (lastCameraUpdate == null) {
+                lastCameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(50, 30), 19);
+            }
 
             final DialogFragment currentFragment = this;
 
@@ -293,7 +302,7 @@ public class PlaceFragment extends Fragment {
                     currentFragment.dismiss();
                 }
             });
-            result.findViewById(R.id.bSave).setOnClickListener(new View.OnClickListener() {
+            result.findViewById(R.id.bChoose).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     CameraPosition cameraPosition = googleMap.getCameraPosition();
@@ -311,11 +320,24 @@ public class PlaceFragment extends Fragment {
         }
 
         @Override
-        public void onResume(){
+        public void onStart() {
+            super.onStart();
+            Dialog dialog = getDialog();
+            if (dialog != null) {
+
+                int width = ViewGroup.LayoutParams.MATCH_PARENT;
+                int height = ViewGroup.LayoutParams.MATCH_PARENT;
+                dialog.getWindow().setLayout(width, height);
+            }
+        }
+
+        @Override
+        public void onResume() {
             mapView.onResume();
             super.onResume();
 
-            if (lastLatLng != null) googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng, 10));
+            if (lastLatLng != null)
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng, 10));
         }
 
         @Override
