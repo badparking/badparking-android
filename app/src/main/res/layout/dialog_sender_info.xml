@@ -31,6 +31,7 @@
         android:id="@+id/phone"
         style="@style/parkingEditText"
         android:layout_width="260dp"
+        android:inputType="phone"
         android:hint="Телефон"/>
 
     <EditText
