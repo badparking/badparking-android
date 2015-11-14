@@ -136,7 +136,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mViewPager.setCurrentItem(1);
     }
 
-    private boolean isOnline() {
+    public boolean isOnline() {
         try {
             ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
             return cm.getActiveNetworkInfo().isConnectedOrConnecting();

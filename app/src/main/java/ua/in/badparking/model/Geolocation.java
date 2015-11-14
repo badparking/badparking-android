@@ -57,7 +57,7 @@ public class Geolocation {
         handler = new Handler(Looper.myLooper(), handlerCallback);
 
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        final Locale locale = new Locale("uk", "UA");
+        final Locale locale = new Locale("ru", "RU");
         geocoder = new Geocoder(context, locale);
 
 //        LocationServices.FusedLocationApi.getLastLocation();

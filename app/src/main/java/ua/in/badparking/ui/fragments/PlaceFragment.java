@@ -24,6 +24,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -230,8 +231,12 @@ public class PlaceFragment extends Fragment {
         bDefineAddressMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                geolocation.updateLocation();
-                mapDialogFragment.show(getFragmentManager(), "mapDialog");
+                if (!((MainActivity)getActivity()).isOnline()) {
+                    Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
+                } else {
+                    geolocation.updateLocation();
+                    mapDialogFragment.show(getFragmentManager(), "mapDialog");
+                }
             }
         });
         return rootView;
