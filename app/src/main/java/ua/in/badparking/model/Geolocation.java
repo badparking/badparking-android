@@ -44,15 +44,11 @@ public class Geolocation {
 
     private final Geocoder geocoder;
 
-    public boolean gpsEnabled;
-    public boolean netEnabled;
     private Location actualLocation;
     private long locationUpdateTimestamp;
     private Handler handler;
 
     public Geolocation(final Context context,
-                       final boolean gpsEnabled,
-                       final boolean netEnabled,
                        final Handler.Callback handlerCallback) {
         handler = new Handler(Looper.myLooper(), handlerCallback);
 
@@ -62,8 +58,6 @@ public class Geolocation {
 
 //        LocationServices.FusedLocationApi.getLastLocation();
 
-        this.gpsEnabled = gpsEnabled;
-        this.netEnabled = netEnabled;
 
     }
 
@@ -72,44 +66,47 @@ public class Geolocation {
         final DeferredManager deferredManager = new DefaultDeferredManager();
         final List<Deferred> deferredList = new LinkedList<>();
 
-        if (gpsEnabled) {
-            final Deferred<Location,Throwable,Void> deferred = new DeferredObject<>();
+        {
+            final Deferred<Location, Throwable, Void> deferred = new DeferredObject<>();
             deferredList.add(deferred);
-            new LocationAsync(locationManager){
+            new LocationAsync(locationManager) {
                 @Override
                 public void onPostExecute(Location location) {
                     Log.i(TAG, "GPS post execute with location - " + location);
-                    if (location == null) deferred.reject(new Exception("Failed to get location from " + LocationManager.GPS_PROVIDER));
+                    if (location == null)
+                        deferred.reject(new Exception("Failed to get location from " + LocationManager.GPS_PROVIDER));
                     else deferred.resolve(location);
                 }
 
             }.executeOnExecutor(executorService, LocationManager.GPS_PROVIDER);
         }
 
-        if (netEnabled) {
-            final Deferred<Location,Throwable,Void> deferred = new DeferredObject<>();
+        {
+            final Deferred<Location, Throwable, Void> deferred = new DeferredObject<>();
             deferredList.add(deferred);
-            new LocationAsync(locationManager){
+            new LocationAsync(locationManager) {
 
                 @Override
                 public void onPostExecute(Location location) {
                     Log.i(TAG, "NET post execute with location - " + location);
-                    if (location == null) deferred.reject(new Exception("Failed to get location from " + LocationManager.NETWORK_PROVIDER));
+                    if (location == null)
+                        deferred.reject(new Exception("Failed to get location from " + LocationManager.NETWORK_PROVIDER));
                     else deferred.resolve(location);
                 }
 
             }.executeOnExecutor(executorService, LocationManager.NETWORK_PROVIDER);
         }
 
-        final Deferred<Location,Throwable,Void> deferred = new DeferredObject<>();
+        final Deferred<Location, Throwable, Void> deferred = new DeferredObject<>();
         deferredList.add(deferred);
 
-        new LocationAsync(locationManager){
+        new LocationAsync(locationManager) {
 
             @Override
             public void onPostExecute(Location location) {
                 Log.i(TAG, "Passive post execute with location - " + location);
-                if (location == null) deferred.reject(new Exception("Failed to get location from " + LocationManager.PASSIVE_PROVIDER));
+                if (location == null)
+                    deferred.reject(new Exception("Failed to get location from " + LocationManager.PASSIVE_PROVIDER));
                 else deferred.resolve(location);
             }
 
@@ -130,25 +127,18 @@ public class Geolocation {
                 final List<Location> locations = new ArrayList<>();
                 Location maxAccuracyLocation = null;
 
-                for (OneResult oneResult: result) {
-                    final Location location = (Location) oneResult.getResult();
+                for (OneResult oneResult : result) {
+                    final Location location = (Location)oneResult.getResult();
                     locations.add(location);
-                    if (maxAccuracyLocation == null || maxAccuracyLocation.getAccuracy() > location.getAccuracy()) maxAccuracyLocation = location;
+                    if (maxAccuracyLocation == null || maxAccuracyLocation.getAccuracy() > location.getAccuracy())
+                        maxAccuracyLocation = location;
                 }
 
-                if (maxAccuracyLocation != null ) finalDeferred.resolve(maxAccuracyLocation);
+                if (maxAccuracyLocation != null) finalDeferred.resolve(maxAccuracyLocation);
                 else finalDeferred.reject(new Exception("Failed to get location"));
             }
         });
 
-    }
-
-    public void setGpsEnabled(boolean enabled) {
-        gpsEnabled = enabled;
-    }
-
-    public void setNetEnabled(boolean enabled) {
-        netEnabled = enabled;
     }
 
     public void updateLocation() {
@@ -290,7 +280,7 @@ public class Geolocation {
 
         private final LocationManager locationManager;
 
-        public LocationAsync(final LocationManager locationManager){
+        public LocationAsync(final LocationManager locationManager) {
             this.locationManager = locationManager;
         }
 

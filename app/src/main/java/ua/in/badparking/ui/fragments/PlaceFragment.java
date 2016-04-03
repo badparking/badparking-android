@@ -79,7 +79,7 @@ public class PlaceFragment extends Fragment {
                     final String city = data.getString("city");
                     actvCities.setText(city);
                     String street = data.getString("street");
-                    if (street.endsWith(",")) {
+                    if (street != null && street.endsWith(",")) {
                         street = street.substring(0, street.length() - 1);
                     }
                     actvStreets.setText(street);
@@ -133,7 +133,9 @@ public class PlaceFragment extends Fragment {
             }
         });
 
-        geolocation = new Geolocation(getActivity(), true, true, new Handler.Callback() {
+        int a = 0;
+
+        geolocation = new Geolocation(getActivity(), new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
                 final Bundle data = msg.getData();
@@ -168,8 +170,8 @@ public class PlaceFragment extends Fragment {
                                 citiesAdapter.clear();
                                 citiesAdapter.addAll(cities);
 
-                                String defaultCity = null;
-                                String defaultStreet = null;
+                                String defaultCity;
+                                String defaultStreet;
                                 final Message addressMessage = new Message();
                                 final Bundle addressData = new Bundle();
                                 if (cities.size() > 0 && streets.size() > 0) {
@@ -359,6 +361,9 @@ public class PlaceFragment extends Fragment {
 
             if (lastLatLng != null)
                 googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng, 10));
+            else {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(50.4, 30.5), 10));
+            }
         }
 
         @Override
