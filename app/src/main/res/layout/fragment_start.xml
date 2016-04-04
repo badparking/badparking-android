@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -9,62 +10,25 @@
                 android:paddingTop="@dimen/activity_vertical_margin"
                 tools:context=".MainActivity$PlaceholderFragment">
 
-    <Button
-        android:id="@+id/next"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/snap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="5dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/button_background"
-        android:drawableRight="@drawable/right_arrow_icon"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:textSize="15sp"
-        android:text="@string/next"
-        android:textAllCaps="false"/>
-
-    <EditText
-        android:id="@+id/plates"
-        style="@style/parkingEditText"
-        android:layout_width="match_parent"
-        android:layout_above="@id/next"
-        android:layout_marginBottom="15dp"
-        android:hint="Номернi знаки"
-        />
-
-    <Spinner
-        android:id="@+id/trespassSpinner"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_above="@id/plates"
-        android:layout_marginTop="2dp"
-        android:background="@drawable/edittext_background"/>
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@id/trespassSpinner"
-        android:layout_alignTop="@id/trespassSpinner"
-        android:layout_marginRight="15dp"
-        android:layout_marginTop="15dp"
-        android:src="@android:drawable/arrow_down_float"/>
-
-
-    <TextView
-        android:id="@+id/trespassSpinnerLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/trespassSpinner"
-        android:text="Виберiть порушення:"
-        android:textColor="@android:color/white"/>
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:src="@drawable/icon_camera"
+        app:backgroundTint="@color/primaryColor"
+        app:borderWidth="0dp"
+        app:elevation="6dp"
+        app:fabSize="normal"/>
 
     <LinearLayout
+        android:id="@+id/photoHolder"
         android:layout_width="match_parent"
         android:layout_height="@dimen/photo_side"
-        android:layout_above="@id/trespassSpinnerLabel"
-        android:layout_marginBottom="20dp"
+        android:layout_alignParentBottom="true"
         android:orientation="horizontal">
 
         <RelativeLayout
@@ -96,7 +60,7 @@
             android:id="@+id/second_image_holder"
             android:layout_width="@dimen/photo_side"
             android:layout_height="@dimen/photo_side"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="10dp"
             android:background="@drawable/white_dashed_frame"
             android:visibility="gone">
 
@@ -119,33 +83,36 @@
 
         </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/takePhotoButton"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_marginLeft="5dp"
-            android:background="@drawable/white_dashed_frame">
-
-            <TextView
-                android:id="@+id/addPhoto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:paddingLeft="25dp"
-                android:text="@string/add_photo"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"/>
-
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="-10dp"
-                android:layout_toLeftOf="@id/addPhoto"
-                android:src="@drawable/white_cross"/>
-
-        </RelativeLayout>
     </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/mapHolder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        android:orientation="vertical">
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mvMap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"/>
+
+        <View
+            android:layout_width="50dp"
+            android:layout_height="2dp"
+            android:layout_centerInParent="true"
+            android:background="#ff4400"
+            />
+
+        <View
+            android:layout_width="2dp"
+            android:layout_height="50dp"
+            android:layout_centerInParent="true"
+            android:background="#ff4400"
+            />
+
+    </RelativeLayout>
 
 
 </RelativeLayout>

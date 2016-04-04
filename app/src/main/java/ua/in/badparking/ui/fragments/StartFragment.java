@@ -13,46 +13,58 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
 import ua.in.badparking.R;
-import ua.in.badparking.data.TrespassController;
-import ua.in.badparking.ui.MainActivity;
 
 /**
- * Created by Dima Kovalenko on 8/12/15.
+ * @author Dima Kovalenko
+ * @author Vadik Kovalsky
  */
 public class StartFragment extends Fragment implements View.OnClickListener {
 
     private static final int REQUEST_IMAGE_CAPTURE = 356;
     private static final int PICK_IMAGE = 357;
 
+    private static final String TAG = StartFragment.class.getName();
     private ImageView firstImageView;
-    private ImageView secondImageView;
 
+    private ImageView secondImageView;
     private View firstHolder;
     private View secondHolder;
+
     private View takePhotoButton;
-    private EditText platesEditText;
-
     private boolean isFirstHasImage;
-    private boolean isSecondHasImage;
 
+    private boolean isSecondHasImage;
     private File firstImage;
+
     private File secondImage;
-    private Spinner spinner; // TODO make parking on trotuar first
+    private MapView mapView;
+    private GoogleMap googleMap;
+    private LatLng lastLatLng;
+    private View mapHolder;
+
 
     /**
      * Returns a new instance of this fragment for the given section
@@ -72,24 +84,34 @@ public class StartFragment extends Fragment implements View.OnClickListener {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, Arrays.asList(trespassTypes));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        spinner = (Spinner)rootView.findViewById(R.id.trespassSpinner);
-        spinner.setAdapter(adapter);
-
         ImageView closeFirst = (ImageView)rootView.findViewById(R.id.close_first);
         ImageView closeSecond = (ImageView)rootView.findViewById(R.id.close_second);
         firstImageView = (ImageView)rootView.findViewById(R.id.first_image);
         secondImageView = (ImageView)rootView.findViewById(R.id.second_image);
         firstHolder = rootView.findViewById(R.id.first_image_holder);
         secondHolder = rootView.findViewById(R.id.second_image_holder);
-        takePhotoButton = rootView.findViewById(R.id.takePhotoButton);
-        platesEditText = (EditText)rootView.findViewById(R.id.plates);
+        takePhotoButton = rootView.findViewById(R.id.snap);
 
-        rootView.findViewById(R.id.next).setOnClickListener(this);
+//        rootView.findViewById(R.id.next).setOnClickListener(this);
         firstImageView.setOnClickListener(this);
         secondImageView.setOnClickListener(this);
         closeFirst.setOnClickListener(this);
         closeSecond.setOnClickListener(this);
         takePhotoButton.setOnClickListener(this);
+
+        rootView.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getActivity(), "Зробiть фото \nправопорушення →", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        mapHolder = rootView.findViewById(R.id.mapHolder);
+        mapView = (MapView)rootView.findViewById(R.id.mvMap);
+        mapView.onCreate(savedInstanceState);
+        MapsInitializer.initialize(getActivity());
+
+        googleMap = mapView.getMap();
 
         return rootView;
     }
@@ -105,6 +127,8 @@ public class StartFragment extends Fragment implements View.OnClickListener {
                 firstHolder.setVisibility(View.VISIBLE);
                 setPic(firstImageView, firstImage.getPath());
                 isFirstHasImage = true;
+                Toast.makeText(getActivity(), "Зробiть фото \nномерних знакiв →", Toast.LENGTH_LONG).show();
+                mapView.setVisibility(View.VISIBLE);
             } else {
                 takePhotoButton.setVisibility(View.GONE);
                 secondHolder.setVisibility(View.VISIBLE);
@@ -119,11 +143,9 @@ public class StartFragment extends Fragment implements View.OnClickListener {
                     firstImage = file;
                     setPic(firstImageView, firstImage.getPath());
                     isFirstHasImage = true;
-                    if (isSecondHasImage) {
-                        takePhotoButton.setVisibility(View.GONE);
-                    }
+                    Toast.makeText(getActivity(), "Зробiть фото \nномерних знакiв →", Toast.LENGTH_LONG).show();
+                    mapView.setVisibility(View.VISIBLE);
                 } else {
-                    takePhotoButton.setVisibility(View.GONE);
                     secondHolder.setVisibility(View.VISIBLE);
                     secondImage = file;
                     setPic(secondImageView, secondImage.getPath());
@@ -160,7 +182,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
             case R.id.close_second:
                 releaseSecondImage();
                 break;
-            case R.id.takePhotoButton:
+            case R.id.snap:
                 new AlertDialog.Builder(getActivity()).setMessage(getString(R.string.choose_photo_mode))
                         .setNegativeButton(getString(R.string.make_phonot), new DialogInterface.OnClickListener() {
                             @Override
@@ -175,25 +197,21 @@ public class StartFragment extends Fragment implements View.OnClickListener {
                             }
                         }).show();
                 break;
-            case R.id.next:
-                hideKeyboard(getActivity());
-                final String platesText = platesEditText.getText().toString();
-                if (platesText.length() == 0) {
-                    Toast.makeText(getActivity(), "Введiть номернi знаки", Toast.LENGTH_LONG).show();
-                } else if (!isFirstHasImage && !isSecondHasImage) {
-                    Toast.makeText(getActivity(), "Додайте хоча б одне фото", Toast.LENGTH_LONG).show();
-                } else {
-                    TrespassController.INST.getTrespass().clearPhotos();
-                    if (isFirstHasImage) {
-                        TrespassController.INST.getTrespass().addPhoto(firstImage);
-                    }
-                    if (isSecondHasImage) {
-                        TrespassController.INST.getTrespass().addPhoto(secondImage);
-                    }
-                    TrespassController.INST.getTrespass().setCaseTypeId(spinner.getSelectedItemId() + "");
-                    ((MainActivity)getActivity()).scrollToPlace();
-                }
-                break;
+//            case R.id.next:
+//                hideKeyboard(getActivity());
+//                if (!isFirstHasImage && !isSecondHasImage) {
+//                    Toast.makeText(getActivity(), "Додайте хоча б одне фото", Toast.LENGTH_LONG).show();
+//                } else {
+//                    TrespassController.INST.getTrespass().clearPhotos();
+//                    if (isFirstHasImage) {
+//                        TrespassController.INST.getTrespass().addPhoto(firstImage);
+//                    }
+//                    if (isSecondHasImage) {
+//                        TrespassController.INST.getTrespass().addPhoto(secondImage);
+//                    }
+//                    ((MainActivity)getActivity()).scrollToPlace();
+//                }
+//                break;
         }
     }
 
@@ -289,4 +307,40 @@ public class StartFragment extends Fragment implements View.OnClickListener {
         cursor.close();
         return selected;
     }
+
+
+    @Override
+    public void onResume() {
+        mapView.onResume();
+        super.onResume();
+
+        if (lastLatLng != null)
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng, 17));
+        else {
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(50.45, 30.51), 17));
+        }
+    }
+
+    @Override
+    public void onPause() {
+        mapView.onPause();
+        super.onPause();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
+    }
+
+    public void setCenter(final LatLng latLng) {
+        Log.i(TAG, "Set camera center: lat - " + latLng.latitude + ", lng - " + latLng.longitude);
+        lastLatLng = latLng;
+        try {
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng, 19));
+        } catch (NullPointerException e) {
+            Log.e(TAG, "Exception setting map center", e);
+        }
+    }
+
 }
