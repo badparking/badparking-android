@@ -24,6 +24,21 @@
         app:elevation="6dp"
         app:fabSize="normal"/>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:visibility="gone"
+        android:src="@drawable/send_icon"
+        app:backgroundTint="@color/primaryColor"
+        app:borderWidth="0dp"
+        app:elevation="6dp"
+        app:fabSize="normal"/>
+
     <LinearLayout
         android:id="@+id/photoHolder"
         android:layout_width="match_parent"
@@ -89,6 +104,8 @@
         android:id="@+id/mapHolder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@id/photoHolder"
+        android:layout_marginBottom="10dp"
         android:visibility="invisible"
         android:orientation="vertical">
 

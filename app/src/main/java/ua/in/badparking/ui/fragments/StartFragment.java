@@ -54,6 +54,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
     private View secondHolder;
 
     private View takePhotoButton;
+    private View sendButton;
     private boolean isFirstHasImage;
 
     private boolean isSecondHasImage;
@@ -91,6 +92,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
         firstHolder = rootView.findViewById(R.id.first_image_holder);
         secondHolder = rootView.findViewById(R.id.second_image_holder);
         takePhotoButton = rootView.findViewById(R.id.snap);
+        sendButton = rootView.findViewById(R.id.send);
 
 //        rootView.findViewById(R.id.next).setOnClickListener(this);
         firstImageView.setOnClickListener(this);
@@ -98,6 +100,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
         closeFirst.setOnClickListener(this);
         closeSecond.setOnClickListener(this);
         takePhotoButton.setOnClickListener(this);
+        sendButton.setOnClickListener(this);
 
         rootView.post(new Runnable() {
             @Override
@@ -128,12 +131,14 @@ public class StartFragment extends Fragment implements View.OnClickListener {
                 setPic(firstImageView, firstImage.getPath());
                 isFirstHasImage = true;
                 Toast.makeText(getActivity(), "Зробiть фото \nномерних знакiв →", Toast.LENGTH_LONG).show();
-                mapView.setVisibility(View.VISIBLE);
+                mapHolder.setVisibility(View.VISIBLE);
+
             } else {
                 takePhotoButton.setVisibility(View.GONE);
                 secondHolder.setVisibility(View.VISIBLE);
                 setPic(secondImageView, secondImage.getPath());
                 isSecondHasImage = true;
+
             }
         } else if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
             if (getPathFromUri(data.getData()) != null) {
@@ -144,7 +149,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
                     setPic(firstImageView, firstImage.getPath());
                     isFirstHasImage = true;
                     Toast.makeText(getActivity(), "Зробiть фото \nномерних знакiв →", Toast.LENGTH_LONG).show();
-                    mapView.setVisibility(View.VISIBLE);
+                    mapHolder.setVisibility(View.VISIBLE);
                 } else {
                     secondHolder.setVisibility(View.VISIBLE);
                     secondImage = file;
@@ -154,6 +159,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
             } else
                 Toast.makeText(getActivity(), getString(R.string.error), Toast.LENGTH_LONG).show();
         }
+        sendButton.setVisibility((isFirstHasImage && isSecondHasImage) ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -183,21 +189,27 @@ public class StartFragment extends Fragment implements View.OnClickListener {
                 releaseSecondImage();
                 break;
             case R.id.snap:
-                new AlertDialog.Builder(getActivity()).setMessage(getString(R.string.choose_photo_mode))
-                        .setNegativeButton(getString(R.string.make_phonot), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                openCamera();
-                            }
-                        })
-                        .setPositiveButton(getString(R.string.from_gallery), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                openGallery();
-                            }
-                        }).show();
+//                openCamera();// TODO uncomment
+                openGallery();
+//                new AlertDialog.Builder(getActivity()).setMessage(getString(R.string.choose_photo_mode))
+//                        .setNegativeButton(getString(R.string.make_phonot), new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialogInterface, int i) {
+//                                openCamera();
+//                            }
+//                        })
+//                        .setPositiveButton(getString(R.string.from_gallery), new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialogInterface, int i) {
+//                                openGallery();
+//                            }
+//                        }).show();
                 break;
-//            case R.id.next:
+            case R.id.send:
+
+                Uri uri = Uri.parse("https://dl.dropboxusercontent.com/u/46259342/error.html");
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(browserIntent);
 //                hideKeyboard(getActivity());
 //                if (!isFirstHasImage && !isSecondHasImage) {
 //                    Toast.makeText(getActivity(), "Додайте хоча б одне фото", Toast.LENGTH_LONG).show();
@@ -211,7 +223,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
 //                    }
 //                    ((MainActivity)getActivity()).scrollToPlace();
 //                }
-//                break;
+                break;
         }
     }
 
