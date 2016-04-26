@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -65,6 +66,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
     private GoogleMap googleMap;
     private LatLng lastLatLng;
     private View mapHolder;
+    private Spinner spinner;
 
 
     /**
@@ -82,8 +84,11 @@ public class StartFragment extends Fragment implements View.OnClickListener {
 
         Resources res = getResources();
         String[] trespassTypes = res.getStringArray(R.array.trespass_types);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, Arrays.asList(trespassTypes));
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, Arrays.asList(trespassTypes));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinner = (Spinner)rootView.findViewById(R.id.trespassSpinner);
+        spinner.setAdapter(adapter);
 
         ImageView closeFirst = (ImageView)rootView.findViewById(R.id.close_first);
         ImageView closeSecond = (ImageView)rootView.findViewById(R.id.close_second);
@@ -126,6 +131,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
             if (!isFirstHasImage) {
                 if (isSecondHasImage) {
                     takePhotoButton.setVisibility(View.GONE);
+                    spinner.setVisibility(View.VISIBLE);
                 }
                 firstHolder.setVisibility(View.VISIBLE);
                 setPic(firstImageView, firstImage.getPath());
@@ -135,6 +141,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
 
             } else {
                 takePhotoButton.setVisibility(View.GONE);
+                spinner.setVisibility(View.VISIBLE);
                 secondHolder.setVisibility(View.VISIBLE);
                 setPic(secondImageView, secondImage.getPath());
                 isSecondHasImage = true;
@@ -151,6 +158,7 @@ public class StartFragment extends Fragment implements View.OnClickListener {
                     Toast.makeText(getActivity(), "Зробiть фото \nномерних знакiв →", Toast.LENGTH_LONG).show();
                     mapHolder.setVisibility(View.VISIBLE);
                 } else {
+                    spinner.setVisibility(View.VISIBLE);
                     secondHolder.setVisibility(View.VISIBLE);
                     secondImage = file;
                     setPic(secondImageView, secondImage.getPath());

@@ -32,8 +32,8 @@
         android:layout_alignParentRight="true"
         android:layout_margin="16dp"
         android:clickable="true"
-        android:visibility="gone"
         android:src="@drawable/send_icon"
+        android:visibility="gone"
         app:backgroundTint="@color/primaryColor"
         app:borderWidth="0dp"
         app:elevation="6dp"
@@ -100,14 +100,24 @@
 
     </LinearLayout>
 
+    <Spinner
+        android:id="@+id/trespassSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_above="@id/photoHolder"
+        android:layout_marginTop="2dp"
+        android:visibility="invisible"
+        />
+
+
     <RelativeLayout
         android:id="@+id/mapHolder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/photoHolder"
+        android:layout_above="@id/trespassSpinner"
         android:layout_marginBottom="10dp"
-        android:visibility="invisible"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="invisible">
 
         <com.google.android.gms.maps.MapView
             android:id="@+id/mvMap"

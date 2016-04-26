@@ -28,6 +28,7 @@
     <string name="dialogGPSActivateQuestion">Щоб визначити мiсцеположення, треби увiмкнути GPS в налаштуваннях, зробити це?</string>
 
     <string-array name="trespass_types">
+        <item>Виберiть правопорушення …</item>
         <item>Стоянка на пішохідному переході</item>
         <item>Стоянка на перехресті</item>
         <item>Стоянка на мосту/естакаді</item>
