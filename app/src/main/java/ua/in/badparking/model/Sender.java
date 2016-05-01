@@ -1,4 +1,4 @@
-package ua.in.badparking.data;
+package ua.in.badparking.model;
 
 import com.google.gson.Gson;
 import com.squareup.okhttp.Callback;
@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+
+import ua.in.badparking.data.Report;
 
 /**
  * Created by Dima Kovalenko on 8/15/15.
@@ -43,8 +45,8 @@ public enum Sender {
         client.setConnectTimeout(20, TimeUnit.SECONDS);
         client.setReadTimeout(50, TimeUnit.SECONDS);
         client.setWriteTimeout(50, TimeUnit.SECONDS);
-        final Trespass trespass = TrespassController.INST.getTrespass();
-        final String json = new Gson().toJson(trespass);
+        final Report report = ReportController.INST.getReport();
+        final String json = new Gson().toJson(report);
         RequestBody formBody = new FormEncodingBuilder()
                 .add("cmd", "save")
                 .add("data", json)
@@ -56,7 +58,7 @@ public enum Sender {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Response response) throws IOException {
-                if (trespass.getPhotoFiles().size() != 0) {
+                if (report.getPhotoFiles().size() != 0) {
                     try {
                         final String responseString = response.body().string();
                         JSONObject json = new JSONObject(responseString);
@@ -80,8 +82,8 @@ public enum Sender {
     }
 
     private void uploadPhoto(final int sessionId, final int imageIndex, final SendCallback sendCallback) throws FileNotFoundException {
-        final Trespass trespass = TrespassController.INST.getTrespass();
-        File image = trespass.getPhotoFiles().get(imageIndex);
+        final Report report = ReportController.INST.getReport();
+        File image = report.getPhotoFiles().get(imageIndex);
         RequestBody formBody = new FormEncodingBuilder()
                 .add("cmd", "upload")
                 .add("id", String.valueOf(sessionId))
@@ -110,7 +112,7 @@ public enum Sender {
             @Override
             public void onResponse(Response response) throws IOException {
                 sendCallback.onCallback(response.code(), "");
-                final int numberOfPhotos = trespass.getPhotoFiles().size();
+                final int numberOfPhotos = report.getPhotoFiles().size();
                 if (numberOfPhotos != 0 && imageIndex + 1 < numberOfPhotos) {
                     try {
                         uploadPhoto(sessionId, imageIndex + 1, sendCallback);

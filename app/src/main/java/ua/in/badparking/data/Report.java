@@ -9,16 +9,7 @@ import java.util.List;
 /**
  * Created by Dima Kovalenko on 8/15/15.
  */
-public class Trespass {
-
-    @SerializedName("name")
-    private String name;
-
-    @SerializedName("email")
-    private String email;
-
-    @SerializedName("phone")
-    private String phone;
+public class Report {
 
     @SerializedName("address")
     private String address;
@@ -40,19 +31,6 @@ public class Trespass {
 
     private List<File> photoFiles = new ArrayList<File>();
     private String city;
-
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
 
     public void setAddress(String address) {
         this.address = address;
@@ -76,19 +54,6 @@ public class Trespass {
 
     public void setNumberPlates(String numberPlates) {
         this.numberPlates = numberPlates;
-    }
-
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPhone() {
-        return phone;
     }
 
     public void clearPhotos() {

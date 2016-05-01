@@ -26,9 +26,10 @@
     <string name="extended_mode">Розширений режим</string>
     <string name="only_2_pics">Ви можете послати тiльки двi фотографiї одночасно</string>
     <string name="dialogGPSActivateQuestion">Щоб визначити мiсцеположення, треби увiмкнути GPS в налаштуваннях, зробити це?</string>
+    <string name="shoot_plates">Зробiть фото \nномерних знакiв →</string>
+    <string name="shoot_trespass">Зробiть фото \nправопорушення →</string>
 
-    <string-array name="trespass_types">
-        <item>Виберiть правопорушення …</item>
+    <string-array name="report_types">
         <item>Стоянка на пішохідному переході</item>
         <item>Стоянка на перехресті</item>
         <item>Стоянка на мосту/естакаді</item>

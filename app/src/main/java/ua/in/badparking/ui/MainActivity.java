@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -12,33 +11,21 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Locale;
 
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
-import ua.in.badparking.data.Sender;
-import ua.in.badparking.data.TrespassController;
-import ua.in.badparking.ui.fragments.StartFragment;
+import ua.in.badparking.model.ReportController;
+import ua.in.badparking.model.Sender;
+import ua.in.badparking.ui.fragments.ReportFragment;
 
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
@@ -67,7 +54,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
         setContentView(R.layout.activity_main);
 
-        TrespassController.INST.restoreFromPrefs(getApplicationContext());
+        ReportController.INST.restoreFromPrefs(getApplicationContext());
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
@@ -103,29 +90,29 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_your_data) {
-            Dialog senderInfoDialog = new SenderInfoDialog(this);
-            senderInfoDialog.show();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_your_data) {
+//            Dialog senderInfoDialog = new SenderInfoDialog(this);
+//            senderInfoDialog.show();
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @Override
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
@@ -142,10 +129,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
 
-    public void scrollToPlace() {
-        mViewPager.setCurrentItem(1);
-    }
-
     public boolean isOnline() {
         try {
             ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -160,23 +143,31 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT).show();
             return;
         }
-        if (TrespassController.INST.isSenderInfoFulfilled()) {
-            showSenderDialogWithMessage();
-            Sender.INST.send(new Sender.SendCallback() {
-                @Override
-                public void onCallback(final int code, final String message) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            handleResult(code, message);
-                        }
-                    });
-                }
-            });
-        } else {
-            Dialog senderInfoDialog = new SenderInfoDialog(this);
-            senderInfoDialog.show();
-        }
+
+        ReportTypeDialog reportTypeDialog = new ReportTypeDialog(this, android.R.style.Theme_Black_NoTitleBar, new ReportTypeDialog.ReportTypeChosenListener() {
+            @Override
+            public void onReportChosen(int typeId) {
+                ReportController.INST.getReport().setCaseTypeId(String.valueOf(typeId));
+                onReportTypeChosen();
+            }
+        });
+        reportTypeDialog.show();
+
+    }
+
+    private void onReportTypeChosen() {
+        showSenderDialogWithMessage();
+        Sender.INST.send(new Sender.SendCallback() {
+            @Override
+            public void onCallback(final int code, final String message) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        handleResult(code, message);
+                    }
+                });
+            }
+        });
     }
 
     public void handleResult(int code, String message) {
@@ -247,12 +238,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-                return StartFragment.newInstance();
+            return ReportFragment.newInstance();
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             return 1;
         }
 

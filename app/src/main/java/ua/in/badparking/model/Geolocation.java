@@ -56,9 +56,6 @@ public class Geolocation {
         final Locale locale = new Locale("ru", "RU");
         geocoder = new Geocoder(context, locale);
 
-//        LocationServices.FusedLocationApi.getLastLocation();
-
-
     }
 
     private void getLocation(final Deferred<Location, Throwable, Void> finalDeferred) {
@@ -182,98 +179,6 @@ public class Geolocation {
                 getLocation(deferred);
             }
         });
-    }
-
-    public void requestCurrentAddressesOptions(final int maxAddresses) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                Log.i(TAG, "Started retrieving address");
-                final Deferred<Location, Throwable, Void> deferred = new DeferredObject<>();
-                deferred.done(new AndroidDoneCallback<Location>() {
-                    @Override
-                    public AndroidExecutionScope getExecutionScope() {
-                        return AndroidExecutionScope.BACKGROUND;
-                    }
-
-                    @Override
-                    public void onDone(Location result) {
-                        Log.i(TAG, "Retrieved location - " + result + ", now getting addresses");
-
-                        new AsyncTask<Location, Void, List<Address>>() {
-
-                            @Override
-                            protected List<Address> doInBackground(Location... params) {
-                                ArrayList<Address> addresses = null;
-                                try {
-                                    addresses = new ArrayList<>(geocoder.getFromLocation(params[0].getLatitude(), params[0].getLongitude(), maxAddresses));
-                                    Log.i(TAG, "Retrieved addresses - " + addresses);
-                                    final Bundle data = new Bundle();
-                                    data.putParcelableArrayList("addresses", addresses);
-
-                                    final Message msg = new Message();
-                                    msg.what = 1;
-                                    msg.setData(data);
-
-                                    handler.sendMessage(msg);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-
-                                return addresses;
-                            }
-                        }.executeOnExecutor(executorService, result);
-                    }
-                }).fail(new AndroidFailCallback<Throwable>() {
-                    @Override
-                    public AndroidExecutionScope getExecutionScope() {
-                        return AndroidExecutionScope.BACKGROUND;
-                    }
-
-                    @Override
-                    public void onFail(Throwable result) {
-                        Log.e(TAG, "Failed to get location from any service");
-                    }
-                });
-
-                getLocation(deferred);
-            }
-        });
-    }
-
-    public Deferred<List<Address>, Throwable, Void> requestPositionAddressesOptions(final LatLng latLng, final int maxAddresses) {
-        final Deferred<List<Address>, Throwable, Void> result = new DeferredObject<>();
-
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                new AsyncTask<LatLng, Void, List<Address>>() {
-
-                    @Override
-                    protected List<Address> doInBackground(LatLng... params) {
-                        ArrayList<Address> addresses = null;
-                        try {
-                            addresses = new ArrayList<>(geocoder.getFromLocation(params[0].latitude, params[0].longitude, maxAddresses));
-                            Log.i(TAG, "Retrieved addresses - " + addresses);
-                            final Bundle data = new Bundle();
-                            data.putParcelableArrayList("addresses", addresses);
-
-                            final Message msg = new Message();
-                            msg.what = 1;
-                            msg.setData(data);
-
-                            handler.sendMessage(msg);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        return addresses;
-                    }
-                }.executeOnExecutor(executorService, latLng);
-            }
-        });
-
-        return result;
     }
 
     private static class LocationAsync extends AsyncTask<String, Void, Location> {
