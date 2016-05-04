@@ -44,24 +44,25 @@ public class ReportFragment extends Fragment implements View.OnClickListener {
     private static final int PICK_IMAGE = 357;
 
     private static final String TAG = ReportFragment.class.getName();
-    private ImageView firstImageView;
 
+    // photos
+    private ImageView firstImageView;
     private ImageView secondImageView;
     private View firstHolder;
     private View secondHolder;
-
     private View takePhotoButton;
-    private View sendButton;
     private boolean isFirstHasImage;
-
     private boolean isSecondHasImage;
     private File firstImage;
-
     private File secondImage;
     private MapView mapView;
+
+    // map
     private GoogleMap googleMap;
     private LatLng lastLatLng;
     private View mapHolder;
+
+    private View sendButton;
 
 
     /**
@@ -91,7 +92,6 @@ public class ReportFragment extends Fragment implements View.OnClickListener {
         takePhotoButton = rootView.findViewById(R.id.snap);
         sendButton = rootView.findViewById(R.id.send);
 
-//        rootView.findViewById(R.id.next).setOnClickListener(this);
         firstImageView.setOnClickListener(this);
         secondImageView.setOnClickListener(this);
         closeFirst.setOnClickListener(this);
@@ -186,7 +186,8 @@ public class ReportFragment extends Fragment implements View.OnClickListener {
                 releaseSecondImage();
                 break;
             case R.id.snap:
-                openCamera();
+                openGallery();
+//                openCamera();
                 break;
             case R.id.send:
                 hideKeyboard(getActivity());
