@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.crashlytics.android.Crashlytics;
 
-import ua.in.badparking.BuildConfig;
+import ua.in.badparking.model.Geolocation;
 import ua.in.badparking.model.UserManager;
 
 /**
@@ -18,6 +18,7 @@ public class App extends Application {
         if (!BuildConfig.DEBUG) {
             Crashlytics.start(this);
         }
+        Geolocation.INST.init(this);
         UserManager.INST.init(this);
     }
 }

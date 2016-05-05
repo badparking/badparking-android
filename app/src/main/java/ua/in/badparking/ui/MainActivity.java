@@ -19,8 +19,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
-
 import java.util.Locale;
 
 import ua.in.badparking.BuildConfig;
@@ -44,15 +42,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        showReportFragment();
     }
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (UserManager.INST.getUserToken() != null) {
-            showReportFragment();
-        } else {
+        if (UserManager.INST.getUserToken() == null) {
             showIntro();
         }
     }
@@ -150,10 +147,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     public void onSendClicked() {
-        if (!isOnline()) {
-            Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (!isOnline()) {
+//            Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT).show();
+//            return;
+//        }
 
         ReportTypeDialog reportTypeDialog = new ReportTypeDialog(this, android.R.style.Theme_Black_NoTitleBar, new ReportTypeDialog.ReportTypeChosenListener() {
             @Override

@@ -20,7 +20,8 @@ public enum UserManager {
     }
 
     public String getUserToken() {
-        return userDataPrefs.getString(USER_TOKEN_KEY, null);
+        return "";
+//        return userDataPrefs.getString(USER_TOKEN_KEY, null);
     }
 
     @SuppressWarnings("All")

@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import ua.in.badparking.R;
+import ua.in.badparking.model.Geolocation;
 import ua.in.badparking.model.ReportController;
 import ua.in.badparking.ui.MainActivity;
 
@@ -112,10 +114,25 @@ public class ReportFragment extends Fragment implements View.OnClickListener {
         MapsInitializer.initialize(getActivity());
 
         googleMap = mapView.getMap();
+//        mapView.touch TODO
+
+        Geolocation.INST.subscribe(new Geolocation.ILocationListener() {
+            @Override
+            public void onLocationObtained(Location location) {
+                mapHolder.setVisibility(View.VISIBLE);
+                setCenter(new LatLng(location.getLatitude(), location.getLongitude()));
+            }
+        });
 
         return rootView;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        boolean locationObsolete = Geolocation.INST.isLocationObsolete();
+        mapHolder.setVisibility(locationObsolete ? View.GONE : View.VISIBLE);
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -128,7 +145,6 @@ public class ReportFragment extends Fragment implements View.OnClickListener {
                 setPic(firstImageView, firstImage.getPath());
                 isFirstHasImage = true;
                 Toast.makeText(getActivity(), R.string.shoot_plates, Toast.LENGTH_LONG).show();
-                mapHolder.setVisibility(View.VISIBLE);
 
             } else {
                 takePhotoButton.setVisibility(View.GONE);
@@ -146,7 +162,6 @@ public class ReportFragment extends Fragment implements View.OnClickListener {
                     setPic(firstImageView, firstImage.getPath());
                     isFirstHasImage = true;
                     Toast.makeText(getActivity(), R.string.shoot_plates, Toast.LENGTH_LONG).show();
-                    mapHolder.setVisibility(View.VISIBLE);
                 } else {
                     secondHolder.setVisibility(View.VISIBLE);
                     secondImage = file;
@@ -270,6 +285,8 @@ public class ReportFragment extends Fragment implements View.OnClickListener {
         isSecondHasImage = false;
     }
 
+
+    // TODO move all of this to helper class
     private void setPic(ImageView view, String currentPhotoPath) {
         int targetW = getResources().getDimensionPixelSize(R.dimen.photo_side);
         int targetH = getResources().getDimensionPixelSize(R.dimen.photo_side);
@@ -307,12 +324,6 @@ public class ReportFragment extends Fragment implements View.OnClickListener {
     public void onResume() {
         mapView.onResume();
         super.onResume();
-
-        if (lastLatLng != null)
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng, 17));
-        else {
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(50.45, 30.51), 17));
-        }
     }
 
     @Override
