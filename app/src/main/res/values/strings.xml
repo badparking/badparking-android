@@ -28,6 +28,11 @@
     <string name="dialogGPSActivateQuestion">Щоб визначити мiсцеположення, треби увiмкнути GPS в налаштуваннях, зробити це?</string>
     <string name="shoot_plates">Зробiть фото \nномерних знакiв →</string>
     <string name="shoot_trespass">Зробiть фото \nправопорушення →</string>
+    <string name="consent_text">
+        1. Увiмкнiть  GPS.\n2. Зробiть фото правопорушення та фото номерiв.\n
+        Дякуэмо за спiвпрацю!\n\n
+        Щоб полiцiя прийняла заявку, потрiбно залогинитись через BankID.
+    </string>
 
     <string-array name="report_types">
         <item>Стоянка на пішохідному переході</item>

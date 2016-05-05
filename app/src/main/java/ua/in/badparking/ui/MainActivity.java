@@ -2,7 +2,9 @@ package ua.in.badparking.ui;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -25,37 +27,38 @@ import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
 import ua.in.badparking.model.ReportController;
 import ua.in.badparking.model.Sender;
+import ua.in.badparking.model.UserManager;
+import ua.in.badparking.ui.dialogs.IntroDialog;
+import ua.in.badparking.ui.dialogs.ReportTypeDialog;
 import ua.in.badparking.ui.fragments.ReportFragment;
 
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-    SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    ViewPager mViewPager;
-    Dialog senderProgressDialog;
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private ViewPager mViewPager;
+    private Dialog senderProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!BuildConfig.DEBUG) {
-            Crashlytics.start(this);
-        }
+
         setContentView(R.layout.activity_main);
+    }
 
-        ReportController.INST.restoreFromPrefs(getApplicationContext());
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (UserManager.INST.getUserToken() != null) {
+            showReportFragment();
+        } else {
+            showIntro();
+        }
+    }
+
+
+    private void showReportFragment() {
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         // Create the adapter that will return a fragment for each of the three
@@ -81,13 +84,21 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        if (mViewPager.getCurrentItem() == 1) {
-            mViewPager.setCurrentItem(0);
-        } else {
-            super.onBackPressed();
-        }
+
+    private void showIntro() {
+        IntroDialog introDialog = new IntroDialog(this, android.R.style.Theme_Black_NoTitleBar, new IntroDialog.ActionListener() {
+            @Override
+            public void onAction() {
+                if (!isOnline()) {
+                    Toast.makeText(MainActivity.this, R.string.no_connection, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Uri uri = Uri.parse("https://dl.dropboxusercontent.com/u/46259342/error.html");
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(browserIntent);
+            }
+        });
+        introDialog.show();
     }
 
 //    @Override

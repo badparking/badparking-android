@@ -1,4 +1,4 @@
-package ua.in.badparking.ui;
+package ua.in.badparking.ui.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;

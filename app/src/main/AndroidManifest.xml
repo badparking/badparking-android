@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="ua.in.badparking">
+<manifest package="ua.in.badparking"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -15,32 +15,34 @@
         android:required="true"/>
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
 
         <!--Semer7-->
         <!--<meta-data android:name="com.google.android.geo.API_KEY"-->
         <!--android:value="AIzaSyA8AuoO9GKN3MPqIqntXCOYpIC6-A95FYA" />-->
 
         <!--kovalenych-->
-        <meta-data android:name="com.google.android.geo.API_KEY"
-                   android:value="AIzaSyA23gHRlDRK1NyrWH2Or1gLNz2GtVhPWHc"/>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyA23gHRlDRK1NyrWH2Or1gLNz2GtVhPWHc"/>
 
         <!--<meta-data-->
-            <!--android:name="com.google.android.gms.version"-->
-            <!--android:value="7.8.0" />-->
+        <!--android:name="com.google.android.gms.version"-->
+        <!--android:value="7.8.0" />-->
 
         <activity
             android:name=".ui.MainActivity"
+            android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustResize"
-            android:label="@string/app_name" >
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <meta-data
