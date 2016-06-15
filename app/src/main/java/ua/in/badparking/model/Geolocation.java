@@ -19,11 +19,11 @@ public enum Geolocation {
     }
 
     public void subscribe(ILocationListener listener) {
-
+        // TODO for Igor
     }
 
     public boolean isLocationObsolete() {
-        return false;
+        return true; // TODO for Igor
     }
 
     public interface ILocationListener {
