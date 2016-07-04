@@ -14,6 +14,7 @@ import ua.in.badparking.R;
 import ua.in.badparking.model.ClaimService;
 
 /**
+ * Design https://www.dropbox.com/sh/vbffs09uqzaj2mt/AAABkTvQbP7q10o5YP83Mzdia?dl=0
  * Created by Dima Kovalenko on 7/3/16.
  */
 public class ClaimTypeFragment extends Fragment {

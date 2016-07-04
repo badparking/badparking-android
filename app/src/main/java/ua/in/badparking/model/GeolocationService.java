@@ -5,6 +5,7 @@ import android.location.Location;
 import android.location.LocationManager;
 
 /**
+ * Design https://www.dropbox.com/sh/vbffs09uqzaj2mt/AAABkTvQbP7q10o5YP83Mzdia?dl=0
  * Created by Igor on 14-08-2015.
  */
 public enum GeolocationService {
