@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">BadParking</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_bank_id">BankIdActivity</string>
+    <string name="about_app">Додаток для боротьби з порушенням правил стоянки автомобілів</string>
+    <string name="enter_through">Увійти через</string>
+    <string name="badparking">BadParking</string>
+    <string name="electronic_identification">Спосіб електронної ідентифікації</string>
+    <string name="choose_bank">Оберіть Ваш банк та введіть свої авторизаційні дані, згідно вимог Вашого банку</string>
+</resources>
