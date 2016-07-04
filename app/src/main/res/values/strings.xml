@@ -1,10 +1,51 @@
 <resources>
-    <string name="app_name">BadParking</string>
+    <string name="app_name">Parking Hero</string>
+
+    <string name="title_section1">Подiя</string>
+    <string name="title_section2">Мiсце</string>
+
     <string name="action_settings">Settings</string>
-    <string name="title_activity_bank_id">BankIdActivity</string>
-    <string name="about_app">Додаток для боротьби з порушенням правил стоянки автомобілів</string>
-    <string name="enter_through">Увійти через</string>
-    <string name="badparking">BadParking</string>
-    <string name="electronic_identification">Спосіб електронної ідентифікації</string>
-    <string name="choose_bank">Оберіть Ваш банк та введіть свої авторизаційні дані, згідно вимог Вашого банку</string>
+    <string name="choose">Вибрати</string>
+    <string name="cancel">Відмінити</string>
+    <string name="your_data">Вашi даннi</string>
+    <string name="send">Вiдicлати</string>
+    <string name="next">Далi</string>
+    <string name="add_photo">Додати\n фото</string>
+    <string name="comment">Коментар (необов\'язково)</string>
+    <string name="comment_hint">наприклад: бачу ворожий Бук</string>
+    <string name="location">Мiсце подii</string>
+    <string name="location_hint">наприклад: Донецьк, Київский район</string>
+
+    <string name="make_phonot">Зробити фото</string>
+    <string name="from_gallery">З галереї</string>
+    <string name="no_connection">Немає мережi</string>
+    <string name="choose_photo_mode">Вы можете зробити нове фото або додати фото з галереї</string>
+    <string name="evaluating">Визначається ...</string>
+    <string name="error">Помилка</string>
+    <string name="simple_mode">Простий режим</string>
+    <string name="extended_mode">Розширений режим</string>
+    <string name="only_2_pics">Ви можете послати тiльки двi фотографiї одночасно</string>
+    <string name="dialogGPSActivateQuestion">Щоб визначити мiсцеположення, треби увiмкнути GPS в налаштуваннях, зробити це?</string>
+    <string name="shoot_plates">Зробiть фото \nномерних знакiв →</string>
+    <string name="shoot_trespass">Зробiть фото \nправопорушення →</string>
+    <string name="consent_text">
+        1. Увiмкнiть  GPS.\n2. Зробiть фото правопорушення та фото номерiв.\n
+        Дякуэмо за спiвпрацю!\n\n
+        Щоб полiцiя прийняла заявку, потрiбно залогинитись через BankID.
+    </string>
+
+    <string-array name="report_types">
+        <item>Стоянка на пішохідному переході</item>
+        <item>Стоянка на перехресті</item>
+        <item>Стоянка на мосту/естакаді</item>
+        <item>Стоянка у два ряди</item>
+        <item>Стоянка на зупинці громадського транспорту</item>
+        <item>Стоянка на смузі руху для громадського транспорту</item>
+        <item>Стоянка на під знаком "Зупинку заборонено"</item>
+        <item>Стоянка на газоні</item>
+        <item>Стоянка на тротуарі</item>
+        <item>Стоянка на місцях для людей з інвалідністю</item>
+        <item>Стоянка на виїзді з прилеглої території</item>
+    </string-array>
+
 </resources>
