@@ -25,6 +25,7 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+//        multiDexEnabled true
     }
     buildTypes {
         debug {
@@ -42,6 +43,8 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/maven/com.squareup.okhttp/okhttp/pom.properties'
         exclude 'META-INF/maven/com.squareup.okhttp/okhttp/pom.xml'
+        exclude 'META-INF/maven/com.squareup/otto/pom.properties'
+        exclude 'META-INF/maven/com.squareup/otto/pom.xml'
     }
 }
 
