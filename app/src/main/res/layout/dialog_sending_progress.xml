@@ -34,7 +34,6 @@
 
     <Button
         android:id="@+id/sendingButton"
-        android:visibility="gone"
         android:layout_width="150dp"
         android:layout_height="50dp"
         android:layout_below="@id/progressBar"
@@ -42,7 +41,8 @@
         android:layout_marginBottom="10dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/button_background"
-        android:text="Ok"/>
+        android:text="Ok"
+        android:visibility="gone"/>
 
 
 </LinearLayout>

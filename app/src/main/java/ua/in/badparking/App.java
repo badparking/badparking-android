@@ -4,8 +4,8 @@ import android.app.Application;
 
 import com.crashlytics.android.Crashlytics;
 
-import ua.in.badparking.model.Geolocation;
-import ua.in.badparking.model.UserManager;
+import ua.in.badparking.model.GeolocationService;
+import ua.in.badparking.model.UserService;
 
 /**
  * Created by Dima Kovalenko on 5/5/16.
@@ -18,7 +18,7 @@ public class App extends Application {
         if (!BuildConfig.DEBUG) {
             Crashlytics.start(this);
         }
-        Geolocation.INST.init(this);
-        UserManager.INST.init(this);
+        GeolocationService.INST.init(this);
+        UserService.INST.init(this);
     }
 }

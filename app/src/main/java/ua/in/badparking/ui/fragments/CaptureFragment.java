@@ -6,13 +6,11 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,31 +19,23 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.model.LatLng;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
 import ua.in.badparking.R;
-import ua.in.badparking.model.Geolocation;
-import ua.in.badparking.model.ReportController;
-import ua.in.badparking.ui.MainActivity;
+import ua.in.badparking.model.ClaimService;
 
 /**
  * @author Dima Kovalenko
  * @author Vadik Kovalsky
  */
-public class ReportFragment extends Fragment implements View.OnClickListener {
+public class CaptureFragment extends Fragment implements View.OnClickListener {
 
     private static final int REQUEST_IMAGE_CAPTURE = 356;
     private static final int PICK_IMAGE = 357;
 
-    private static final String TAG = ReportFragment.class.getName();
+    private static final String TAG = CaptureFragment.class.getName();
 
     // photos
     private ImageView firstImageView;
@@ -57,28 +47,17 @@ public class ReportFragment extends Fragment implements View.OnClickListener {
     private boolean isSecondHasImage;
     private File firstImage;
     private File secondImage;
-    private MapView mapView;
-
-    // map
-    private GoogleMap googleMap;
-    private LatLng lastLatLng;
-    private View mapHolder;
 
     private View sendButton;
 
-
-    /**
-     * Returns a new instance of this fragment for the given section
-     * number.
-     */
-    public static ReportFragment newInstance() {
-        return new ReportFragment();
+    public static CaptureFragment newInstance() {
+        return new CaptureFragment();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_report, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_capture, container, false);
 
         Resources res = getResources();
         String[] trespassTypes = res.getStringArray(R.array.report_types);
@@ -108,30 +87,7 @@ public class ReportFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-        mapHolder = rootView.findViewById(R.id.mapHolder);
-        mapView = (MapView)rootView.findViewById(R.id.mvMap);
-        mapView.onCreate(savedInstanceState);
-        MapsInitializer.initialize(getActivity());
-
-        googleMap = mapView.getMap();
-//        mapView.touch TODO
-
-        Geolocation.INST.subscribe(new Geolocation.ILocationListener() {
-            @Override
-            public void onLocationObtained(Location location) {
-                mapHolder.setVisibility(View.VISIBLE);
-                setCenter(new LatLng(location.getLatitude(), location.getLongitude()));
-            }
-        });
-
         return rootView;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        boolean locationObsolete = Geolocation.INST.isLocationObsolete();
-        mapHolder.setVisibility(locationObsolete ? View.GONE : View.VISIBLE);
     }
 
     @Override
@@ -211,14 +167,13 @@ public class ReportFragment extends Fragment implements View.OnClickListener {
                 } else if (!isSecondHasImage) {
                     Toast.makeText(getActivity(), R.string.shoot_plates, Toast.LENGTH_LONG).show();
                 } else {
-                    ReportController.INST.getReport().clearPhotos();
+                    ClaimService.INST.getClaim().clearPhotos();
                     if (isFirstHasImage) {
-                        ReportController.INST.getReport().addPhoto(firstImage);
+                        ClaimService.INST.getClaim().addPhoto(firstImage);
                     }
                     if (isSecondHasImage) {
-                        ReportController.INST.getReport().addPhoto(secondImage);
+                        ClaimService.INST.getClaim().addPhoto(secondImage);
                     }
-                    ((MainActivity)getActivity()).onSendClicked();
                 }
                 break;
         }
@@ -317,35 +272,6 @@ public class ReportFragment extends Fragment implements View.OnClickListener {
         selected = cursor.getString(columnIndex);
         cursor.close();
         return selected;
-    }
-
-
-    @Override
-    public void onResume() {
-        mapView.onResume();
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        mapView.onPause();
-        super.onPause();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mapView.onLowMemory();
-    }
-
-    public void setCenter(final LatLng latLng) {
-        Log.i(TAG, "Set camera center: lat - " + latLng.latitude + ", lng - " + latLng.longitude);
-        lastLatLng = latLng;
-        try {
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng, 19));
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Exception setting map center", e);
-        }
     }
 
 }

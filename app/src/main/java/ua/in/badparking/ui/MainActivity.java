@@ -2,39 +2,34 @@ package ua.in.badparking.ui;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.Locale;
 
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
-import ua.in.badparking.model.ReportController;
 import ua.in.badparking.model.Sender;
-import ua.in.badparking.model.UserManager;
-import ua.in.badparking.ui.dialogs.IntroDialog;
-import ua.in.badparking.ui.dialogs.ReportTypeDialog;
-import ua.in.badparking.ui.fragments.ReportFragment;
+import ua.in.badparking.ui.dialogs.EnableGPSDialog;
+import ua.in.badparking.ui.fragments.CaptureFragment;
+import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
+import ua.in.badparking.ui.fragments.ClaimTypeFragment;
+import ua.in.badparking.ui.fragments.LocationFragment;
 
 
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
+public class MainActivity extends FragmentActivity {
 
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
+    private SectionsPagerAdapter sectionsPagerAdapter;
+    private ViewPager viewPager;
     private Dialog senderProgressDialog;
 
     @Override
@@ -42,99 +37,52 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        showReportFragment();
-    }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (UserManager.INST.getUserToken() == null) {
-            showIntro();
-        }
-    }
-
-
-    private void showReportFragment() {
-        // Set up the action bar.
-        final ActionBar actionBar = getSupportActionBar();
+        setupToolbar();
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager)findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-
-        if (actionBar != null) {
-            // For each of the sections in the app, add a tab to the action bar.
-            for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-                // Create a tab with text corresponding to the page title defined by
-                // the adapter. Also specify this Activity object, which implements
-                // the TabListener interface, as the callback (listener) for when
-                // this tab is selected.
-                actionBar.addTab(
-                        actionBar.newTab()
-                                .setText(mSectionsPagerAdapter.getPageTitle(i))
-                                .setTabListener(this));
-            }
-        }
+        viewPager = (ViewPager)findViewById(R.id.pager);
+        viewPager.setAdapter(sectionsPagerAdapter);
     }
 
+    private void setupToolbar() {
+        // TODO
+    }
 
-    private void showIntro() {
-        IntroDialog introDialog = new IntroDialog(this, android.R.style.Theme_Black_NoTitleBar, new IntroDialog.ActionListener() {
+    private void showEnableGpsDialogIfNeeded() {
+        // TODO
+        EnableGPSDialog introDialog = new EnableGPSDialog(this, android.R.style.Theme_Black_NoTitleBar, new EnableGPSDialog.ActionListener() {
             @Override
             public void onAction() {
-                if (!isOnline()) {
-                    Toast.makeText(MainActivity.this, R.string.no_connection, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Uri uri = Uri.parse("https://dl.dropboxusercontent.com/u/46259342/error.html");
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(browserIntent);
             }
         });
         introDialog.show();
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_your_data) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_your_data) {
 //            Dialog senderInfoDialog = new SenderInfoDialog(this);
 //            senderInfoDialog.show();
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
+            return true;
+        }
 
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        // When the given tab is selected, switch to the corresponding page in
-        // the ViewPager.
-        mViewPager.setCurrentItem(tab.getPosition());
-    }
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+        return super.onOptionsItemSelected(item);
     }
 
     public boolean isOnline() {
@@ -144,38 +92,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         } catch (Exception e) {
             return false;
         }
-    }
-
-    public void onSendClicked() {
-//        if (!isOnline()) {
-//            Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-
-        ReportTypeDialog reportTypeDialog = new ReportTypeDialog(this, android.R.style.Theme_Black_NoTitleBar, new ReportTypeDialog.ReportTypeChosenListener() {
-            @Override
-            public void onReportChosen(int typeId) {
-                ReportController.INST.getReport().setCaseTypeId(String.valueOf(typeId));
-                onReportTypeChosen();
-            }
-        });
-        reportTypeDialog.show();
-
-    }
-
-    private void onReportTypeChosen() {
-        showSenderDialogWithMessage();
-        Sender.INST.send(new Sender.SendCallback() {
-            @Override
-            public void onCallback(final int code, final String message) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        handleResult(code, message);
-                    }
-                });
-            }
-        });
     }
 
     public void handleResult(int code, String message) {
@@ -213,7 +129,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     @Override
                     public void onClick(View view) {
                         senderProgressDialog.dismiss();
-                        onSendClicked();
                     }
                 });
                 String text = "Помилка " + code + ".\n Спробуйте пiзнiше.";
@@ -244,27 +159,22 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return ReportFragment.newInstance();
+            if (position == 0) {
+                return CaptureFragment.newInstance();
+            } else if (position == 1) {
+                return LocationFragment.newInstance();
+            } else if (position == 2) {
+                return ClaimTypeFragment.newInstance();
+            } else {
+                return ClaimOverviewFragment.newInstance();
+            }
         }
 
         @Override
         public int getCount() {
-            return 1;
+            return 4;
         }
 
-        @Override
-        public CharSequence getPageTitle(int position) {
-            Locale l = Locale.getDefault();
-            switch (position) {
-                case 0:
-                    return getString(R.string.title_section1).toUpperCase(l);
-                case 1:
-                    return getString(R.string.title_section2).toUpperCase(l);
-            }
-            return null;
-        }
     }
 
 

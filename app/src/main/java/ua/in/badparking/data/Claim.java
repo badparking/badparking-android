@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by Dima Kovalenko on 8/15/15.
  */
-public class Report {
+public class Claim {
 
     @SerializedName("address")
     private String address;

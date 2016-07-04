@@ -7,7 +7,7 @@ import android.location.LocationManager;
 /**
  * Created by Igor on 14-08-2015.
  */
-public enum Geolocation {
+public enum GeolocationService {
     INST;
 
     private static final String TAG = "Geolocation";

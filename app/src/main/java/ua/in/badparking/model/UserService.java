@@ -7,7 +7,7 @@ import android.content.SharedPreferences;
 /**
  * Created by Dima Kovalenko on 8/15/15.
  */
-public enum UserManager {
+public enum UserService {
     INST;
 
     private static final String USER_DATA_PREFS = "userDataPrefs";
@@ -19,9 +19,8 @@ public enum UserManager {
         userDataPrefs = appContext.getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE);
     }
 
-    public String getUserToken() {
-        return "";
-//        return userDataPrefs.getString(USER_TOKEN_KEY, null);
+    public String getUserToken() {  // TODO SecurePrefs
+        return userDataPrefs.getString(USER_TOKEN_KEY, null);
     }
 
     @SuppressWarnings("All")

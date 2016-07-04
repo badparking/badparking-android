@@ -20,9 +20,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import ua.in.badparking.data.Report;
+import ua.in.badparking.data.Claim;
 
 /**
+ * TODO: Use retrofit here!!!
  * Created by Dima Kovalenko on 8/15/15.
  */
 public enum Sender {
@@ -45,8 +46,8 @@ public enum Sender {
         client.setConnectTimeout(20, TimeUnit.SECONDS);
         client.setReadTimeout(50, TimeUnit.SECONDS);
         client.setWriteTimeout(50, TimeUnit.SECONDS);
-        final Report report = ReportController.INST.getReport();
-        final String json = new Gson().toJson(report);
+        final Claim claim = ClaimService.INST.getClaim();
+        final String json = new Gson().toJson(claim);
         RequestBody formBody = new FormEncodingBuilder()
                 .add("cmd", "save")
                 .add("data", json)
@@ -58,7 +59,7 @@ public enum Sender {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Response response) throws IOException {
-                if (report.getPhotoFiles().size() != 0) {
+                if (claim.getPhotoFiles().size() != 0) {
                     try {
                         final String responseString = response.body().string();
                         JSONObject json = new JSONObject(responseString);
@@ -82,8 +83,8 @@ public enum Sender {
     }
 
     private void uploadPhoto(final int sessionId, final int imageIndex, final SendCallback sendCallback) throws FileNotFoundException {
-        final Report report = ReportController.INST.getReport();
-        File image = report.getPhotoFiles().get(imageIndex);
+        final Claim claim = ClaimService.INST.getClaim();
+        File image = claim.getPhotoFiles().get(imageIndex);
         RequestBody formBody = new FormEncodingBuilder()
                 .add("cmd", "upload")
                 .add("id", String.valueOf(sessionId))
@@ -112,7 +113,7 @@ public enum Sender {
             @Override
             public void onResponse(Response response) throws IOException {
                 sendCallback.onCallback(response.code(), "");
-                final int numberOfPhotos = report.getPhotoFiles().size();
+                final int numberOfPhotos = claim.getPhotoFiles().size();
                 if (numberOfPhotos != 0 && imageIndex + 1 < numberOfPhotos) {
                     try {
                         uploadPhoto(sessionId, imageIndex + 1, sendCallback);
