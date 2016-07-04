@@ -11,7 +11,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import ua.in.badparking.R;
-import ua.in.badparking.model.ClaimService;
+import ua.in.badparking.services.ClaimService;
 
 /**
  * Design https://www.dropbox.com/sh/vbffs09uqzaj2mt/AAABkTvQbP7q10o5YP83Mzdia?dl=0

@@ -1,4 +1,4 @@
-package ua.in.badparking.model;
+package ua.in.badparking.services;
 
 import com.google.gson.Gson;
 import com.squareup.okhttp.Callback;
@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import ua.in.badparking.data.Claim;
+import ua.in.badparking.services.ClaimService;
 
 /**
  * TODO: Use retrofit here!!!

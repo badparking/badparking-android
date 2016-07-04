@@ -33,6 +33,8 @@
         Дякуэмо за спiвпрацю!\n\n
         Щоб полiцiя прийняла заявку, потрiбно залогинитись через BankID.
     </string>
+    <string name="electronic_identification" />
+    <string name="choose_bank" />
 
     <string-array name="report_types">
         <item>Стоянка на пішохідному переході</item>

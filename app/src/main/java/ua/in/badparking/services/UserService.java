@@ -1,4 +1,4 @@
-package ua.in.badparking.model;
+package ua.in.badparking.services;
 
 import android.content.Context;
 import android.content.Intent;
