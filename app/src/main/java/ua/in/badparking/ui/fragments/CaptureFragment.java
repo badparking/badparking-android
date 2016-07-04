@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import ua.in.badparking.R;
-import ua.in.badparking.model.ClaimService;
+import ua.in.badparking.services.ClaimService;
 
 /**
  * @author Dima Kovalenko

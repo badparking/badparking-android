@@ -4,8 +4,8 @@ import android.app.Application;
 
 import com.crashlytics.android.Crashlytics;
 
-import ua.in.badparking.model.GeolocationService;
-import ua.in.badparking.model.UserService;
+import ua.in.badparking.services.GeolocationService;
+import ua.in.badparking.services.UserService;
 
 /**
  * Created by Dima Kovalenko on 5/5/16.

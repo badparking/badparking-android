@@ -1,4 +1,4 @@
-package ua.in.badparking.model;
+package ua.in.badparking.services;
 
 import ua.in.badparking.data.Claim;
 

@@ -17,7 +17,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 
 import ua.in.badparking.R;
-import ua.in.badparking.model.GeolocationService;
+import ua.in.badparking.services.GeolocationService;
 
 /**
  * @author Dima Kovalenko
