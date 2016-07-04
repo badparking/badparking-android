@@ -3,7 +3,6 @@ package ua.in.badparking.ui.fragments;
 import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,11 +17,12 @@ import com.google.android.gms.maps.model.LatLng;
 
 import ua.in.badparking.R;
 import ua.in.badparking.services.GeolocationService;
+import ua.in.badparking.ui.MainActivity;
 
 /**
  * @author Dima Kovalenko
  */
-public class LocationFragment extends Fragment {
+public class LocationFragment extends BaseFragment {
 
     private static final String TAG = LocationFragment.class.getName();
 
@@ -58,6 +58,12 @@ public class LocationFragment extends Fragment {
             public void onLocationObtained(Location location) {
                 mapHolder.setVisibility(View.VISIBLE);
                 setCenter(new LatLng(location.getLatitude(), location.getLongitude()));
+            }
+        });
+        rootView.findViewById(R.id.next_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MainActivity)getActivity()).moveToNext();
             }
         });
 

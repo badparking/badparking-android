@@ -13,7 +13,7 @@ import ua.in.badparking.R;
  * Design https://www.dropbox.com/sh/vbffs09uqzaj2mt/AAABkTvQbP7q10o5YP83Mzdia?dl=0
  * Created by Dima Kovalenko on 7/3/16.
  */
-public class ClaimOverviewFragment extends Fragment {
+public class ClaimOverviewFragment extends BaseFragment {
 
     public static Fragment newInstance() {
         return new ClaimOverviewFragment();
