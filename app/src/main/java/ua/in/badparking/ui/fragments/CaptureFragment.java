@@ -25,12 +25,13 @@ import java.util.Arrays;
 
 import ua.in.badparking.R;
 import ua.in.badparking.services.ClaimService;
+import ua.in.badparking.ui.MainActivity;
 
 /**
  * @author Dima Kovalenko
  * @author Vadik Kovalsky
  */
-public class CaptureFragment extends Fragment implements View.OnClickListener {
+public class CaptureFragment extends BaseFragment implements View.OnClickListener {
 
     private static final int REQUEST_IMAGE_CAPTURE = 356;
     private static final int PICK_IMAGE = 357;
@@ -47,8 +48,7 @@ public class CaptureFragment extends Fragment implements View.OnClickListener {
     private boolean isSecondHasImage;
     private File firstImage;
     private File secondImage;
-
-    private View sendButton;
+    private View nextButton;
 
     public static CaptureFragment newInstance() {
         return new CaptureFragment();
@@ -71,14 +71,14 @@ public class CaptureFragment extends Fragment implements View.OnClickListener {
         firstHolder = rootView.findViewById(R.id.first_image_holder);
         secondHolder = rootView.findViewById(R.id.second_image_holder);
         takePhotoButton = rootView.findViewById(R.id.snap);
-        sendButton = rootView.findViewById(R.id.send);
+        nextButton = rootView.findViewById(R.id.next_button);
 
         firstImageView.setOnClickListener(this);
         secondImageView.setOnClickListener(this);
         closeFirst.setOnClickListener(this);
         closeSecond.setOnClickListener(this);
         takePhotoButton.setOnClickListener(this);
-        sendButton.setOnClickListener(this);
+        nextButton.setOnClickListener(this);
 
         rootView.post(new Runnable() {
             @Override
@@ -127,7 +127,6 @@ public class CaptureFragment extends Fragment implements View.OnClickListener {
             } else
                 Toast.makeText(getActivity(), getString(R.string.error), Toast.LENGTH_LONG).show();
         }
-        sendButton.setVisibility((isFirstHasImage && isSecondHasImage) ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -159,22 +158,8 @@ public class CaptureFragment extends Fragment implements View.OnClickListener {
             case R.id.snap:
                 openGallery();
 //                openCamera();
-                break;
-            case R.id.send:
-                hideKeyboard(getActivity());
-                if (!isFirstHasImage) {
-                    Toast.makeText(getActivity(), R.string.shoot_trespass, Toast.LENGTH_LONG).show();
-                } else if (!isSecondHasImage) {
-                    Toast.makeText(getActivity(), R.string.shoot_plates, Toast.LENGTH_LONG).show();
-                } else {
-                    ClaimService.INST.getClaim().clearPhotos();
-                    if (isFirstHasImage) {
-                        ClaimService.INST.getClaim().addPhoto(firstImage);
-                    }
-                    if (isSecondHasImage) {
-                        ClaimService.INST.getClaim().addPhoto(secondImage);
-                    }
-                }
+            case R.id.next_button:
+                ((MainActivity)getActivity()).moveToNext();
                 break;
         }
     }

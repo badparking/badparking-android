@@ -28,7 +28,7 @@ import ua.in.badparking.ui.fragments.LocationFragment;
 
 public class MainActivity extends FragmentActivity {
 
-    private SectionsPagerAdapter sectionsPagerAdapter;
+    private SectionsPagerAdapter pagerAdapter;
     private ViewPager viewPager;
     private Dialog senderProgressDialog;
 
@@ -40,11 +40,11 @@ public class MainActivity extends FragmentActivity {
         setupToolbar();
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        pagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-//        viewPager = (ViewPager)findViewById(R.id.pager);
-//        viewPager.setAdapter(sectionsPagerAdapter);
+        viewPager = (ViewPager)findViewById(R.id.pager);
+        viewPager.setAdapter(pagerAdapter);
     }
 
     private void setupToolbar() {
@@ -145,6 +145,10 @@ public class MainActivity extends FragmentActivity {
         senderProgressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         senderProgressDialog.setContentView(R.layout.dialog_sending_progress);
         senderProgressDialog.show();
+    }
+
+    public void moveToNext() {
+        viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
     }
 
     /**
