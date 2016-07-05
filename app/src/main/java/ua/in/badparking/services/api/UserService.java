@@ -1,6 +1,6 @@
 package ua.in.badparking.services.api;
 
-import com.squareup.otto.Bus;
+import org.greenrobot.eventbus.EventBus;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -16,8 +16,8 @@ public class UserService extends ApiService {
 
     private final UserApi mUserApi;
 
-    protected UserService(Bus bus, ApiGenerator apiGenerator) {
-        super(bus, apiGenerator);
+    protected UserService( ApiGenerator apiGenerator) {
+        super(apiGenerator);
         mUserApi = apiGenerator.createApi(UserApi.class);
     }
 
@@ -25,7 +25,7 @@ public class UserService extends ApiService {
         mUserApi.getUser(new Callback<User>() {
             @Override
             public void success(User user, Response response) {
-                mBus.post(new UserLoadedEvent());
+                EventBus.getDefault().post(new UserLoadedEvent());
             }
 
             @Override
@@ -39,7 +39,7 @@ public class UserService extends ApiService {
         mUserApi.postUserComplete(userRequest, new Callback<User>() {
             @Override
             public void success(User user, Response response) {
-                mBus.post(new UserUpdatedEvent());
+                EventBus.getDefault().post(new UserUpdatedEvent());
             }
 
             @Override
@@ -53,7 +53,7 @@ public class UserService extends ApiService {
         mUserApi.patchUserComplete(userRequest, new Callback<User>() {
             @Override
             public void success(User user, Response response) {
-                mBus.post(new UserUpdatedEvent());
+                EventBus.getDefault().post(new UserUpdatedEvent());
             }
 
             @Override

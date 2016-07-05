@@ -1,6 +1,6 @@
 package ua.in.badparking.services.api;
 
-import com.squareup.otto.Bus;
+import org.greenrobot.eventbus.EventBus;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -16,8 +16,8 @@ public class TokenService extends ApiService {
 
     private final TokenApi mTokenApi;
 
-    protected TokenService(Bus bus, ApiGenerator apiGenerator) {
-        super(bus, apiGenerator);
+    protected TokenService(ApiGenerator apiGenerator) {
+        super(apiGenerator);
         mTokenApi = apiGenerator.createApi(TokenApi.class);
     }
 
@@ -25,7 +25,7 @@ public class TokenService extends ApiService {
         mTokenApi.refreshToken(tokenRequest, new Callback<TokenResponse>() {
             @Override
             public void success(TokenResponse tokenResponse, Response response) {
-                mBus.post(new TokenRefreshedEvent());
+                EventBus.getDefault().post(new TokenRefreshedEvent());
             }
 
             @Override
@@ -39,7 +39,7 @@ public class TokenService extends ApiService {
         mTokenApi.verifyToken(tokenRequest, new Callback<TokenResponse>() {
             @Override
             public void success(TokenResponse tokenResponse, Response response) {
-                mBus.post(new TokenVerifiedEvent());
+                EventBus.getDefault().post(new TokenVerifiedEvent());
             }
 
             @Override

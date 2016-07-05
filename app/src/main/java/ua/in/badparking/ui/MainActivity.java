@@ -43,8 +43,8 @@ public class MainActivity extends FragmentActivity {
         sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        viewPager = (ViewPager)findViewById(R.id.pager);
-        viewPager.setAdapter(sectionsPagerAdapter);
+//        viewPager = (ViewPager)findViewById(R.id.pager);
+//        viewPager.setAdapter(sectionsPagerAdapter);
     }
 
     private void setupToolbar() {

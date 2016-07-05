@@ -2,7 +2,8 @@ package ua.in.badparking.services.api;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.squareup.otto.Bus;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -26,8 +27,8 @@ public class ClaimsService extends ApiService {
     private final ClaimsApi mClaimsApi;
 
     @Inject
-    protected ClaimsService(Bus bus, ApiGenerator apiGenerator) {
-        super(bus, apiGenerator);
+    protected ClaimsService(ApiGenerator apiGenerator) {
+        super(apiGenerator);
         mClaimsApi = apiGenerator.createApi(ClaimsApi.class);
     }
 
@@ -35,7 +36,7 @@ public class ClaimsService extends ApiService {
         mClaimsApi.getClaims(clientId, clientSecret, timestamp, new Callback<List<Claim>>() {
             @Override
             public void success(List<Claim> claims, Response response) {
-                mBus.post(new ClaimsLoadedEvent());
+                EventBus.getDefault().post(new ClaimsLoadedEvent());
             }
 
             @Override
@@ -49,7 +50,7 @@ public class ClaimsService extends ApiService {
         mClaimsApi.getMyClaims(new Callback<List<Claim>>() {
             @Override
             public void success(List<Claim> claims, Response response) {
-                mBus.post(new ClaimsLoadedEvent());
+                EventBus.getDefault().post(new ClaimsLoadedEvent());
             }
 
             @Override
@@ -63,7 +64,7 @@ public class ClaimsService extends ApiService {
         mClaimsApi.postMyClaims(claimRequest, new Callback<ClaimsResponse>() {
             @Override
             public void success(ClaimsResponse claimsResponse, Response response) {
-                mBus.post(new ClaimPostedEvent());
+                EventBus.getDefault().post(new ClaimPostedEvent());
             }
 
             @Override
@@ -77,7 +78,7 @@ public class ClaimsService extends ApiService {
         mClaimsApi.putMyClaims(pk, claimRequest, new Callback<ClaimsResponse>() {
             @Override
             public void success(ClaimsResponse claimsResponse, Response response) {
-                mBus.post(new ClaimPutEvent());
+                EventBus.getDefault().post(new ClaimPutEvent());
             }
 
             @Override
@@ -91,7 +92,7 @@ public class ClaimsService extends ApiService {
         mClaimsApi.patchMyClaims(pk, claimRequest, new Callback<ClaimsResponse>() {
             @Override
             public void success(ClaimsResponse claimsResponse, Response response) {
-                mBus.post(new ClaimPutEvent());
+                EventBus.getDefault().post(new ClaimPutEvent());
             }
 
             @Override
@@ -105,7 +106,7 @@ public class ClaimsService extends ApiService {
         mClaimsApi.getClaim(pk, new Callback<ClaimsResponse>() {
             @Override
             public void success(ClaimsResponse claimsResponse, Response response) {
-                mBus.post(new ClaimsLoadedEvent());
+                EventBus.getDefault().post(new ClaimsLoadedEvent());
             }
 
             @Override
@@ -118,7 +119,7 @@ public class ClaimsService extends ApiService {
         mClaimsApi.cancelClaim(pk, new Callback<BaseResponse>() {
             @Override
             public void success(BaseResponse baseResponse, Response response) {
-                mBus.post(new ClaimCancelledEvent());
+                EventBus.getDefault().post(new ClaimCancelledEvent());
             }
 
             @Override
