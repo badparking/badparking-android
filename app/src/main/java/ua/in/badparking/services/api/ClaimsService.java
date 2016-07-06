@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ import ua.in.badparking.events.ClaimCancelledEvent;
 import ua.in.badparking.events.ClaimPostedEvent;
 import ua.in.badparking.events.ClaimPutEvent;
 import ua.in.badparking.events.ClaimsLoadedEvent;
+import ua.in.badparking.events.ErrorEvent;
 import ua.in.badparking.model.Claim;
 
 @Singleton
@@ -128,4 +130,5 @@ public class ClaimsService extends ApiService {
             }
         });
     }
+
 }

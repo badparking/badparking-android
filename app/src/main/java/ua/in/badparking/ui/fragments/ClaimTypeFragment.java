@@ -66,7 +66,7 @@ public class ClaimTypeFragment extends BaseFragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                ClaimService.INST.getClaim().setCaseTypeId(String.valueOf(reportTypes[position]));
+                ClaimService.INST.getClaim().setCrimetypes(String.valueOf(reportTypes[position]));
             }
         });
         return rootView;
