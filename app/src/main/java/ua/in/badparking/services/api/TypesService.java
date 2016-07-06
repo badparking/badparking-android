@@ -1,6 +1,6 @@
 package ua.in.badparking.services.api;
 
-import com.squareup.otto.Bus;
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -16,8 +16,8 @@ public class TypesService extends ApiService {
 
     private final TypesApi mTypesApi;
 
-    protected TypesService(Bus bus, ApiGenerator apiGenerator) {
-        super(bus, apiGenerator);
+    protected TypesService( ApiGenerator apiGenerator) {
+        super(apiGenerator);
         mTypesApi = apiGenerator.createApi(TypesApi.class);
     }
 
@@ -25,7 +25,7 @@ public class TypesService extends ApiService {
         mTypesApi.getTypes(new Callback<List<CrimeType>>() {
             @Override
             public void success(List<CrimeType> crimeTypes, Response response) {
-                mBus.post(new TypesLoadedEvent());
+                EventBus.getDefault().post(new TypesLoadedEvent());
             }
 
             @Override
@@ -39,7 +39,7 @@ public class TypesService extends ApiService {
         mTypesApi.getType(pk, new Callback<CrimeType>() {
             @Override
             public void success(CrimeType crimeType, Response response) {
-                mBus.post(new TypesLoadedEvent());
+                EventBus.getDefault().post(new TypesLoadedEvent());
             }
 
             @Override

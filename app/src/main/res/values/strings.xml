@@ -35,6 +35,7 @@
     </string>
     <string name="electronic_identification" />
     <string name="choose_bank" />
+    <string name="actionbar_title_claim">Реєстрація порушення</string>
 
     <string-array name="report_types">
         <item>Стоянка на пішохідному переході</item>
