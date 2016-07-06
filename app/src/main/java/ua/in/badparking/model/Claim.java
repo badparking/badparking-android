@@ -2,6 +2,10 @@ package ua.in.badparking.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Claim {
 
     @SerializedName("pk")
@@ -18,6 +22,8 @@ public class Claim {
     private String address;
     @SerializedName("crimetypes")
     private String crimetypes;
+    private List<File> photoFiles = new ArrayList<File>();
+
 
     public String getLicensePlates() {
         return licensePlates;
@@ -43,4 +49,31 @@ public class Claim {
         return crimetypes;
     }
 
+    public void setLicensePlates(String licensePlates) {
+        this.licensePlates = licensePlates;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setCrimetypes(String crimetypes) {
+        this.crimetypes = crimetypes;
+    }
+
+    public List<File> getPhotoFiles() {
+        return photoFiles;
+    }
 }

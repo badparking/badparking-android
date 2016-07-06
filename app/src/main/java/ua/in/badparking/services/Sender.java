@@ -1,6 +1,7 @@
 package ua.in.badparking.services;
 
 import com.google.gson.Gson;
+import com.google.inject.Inject;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.Headers;
@@ -18,10 +19,14 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import ua.in.badparking.data.Claim;
+import ua.in.badparking.api.requests.ClaimRequest;
+import ua.in.badparking.model.Claim;
 import ua.in.badparking.services.ClaimService;
+import ua.in.badparking.services.api.ClaimsService;
 
 /**
  * TODO: Use retrofit here!!!
@@ -43,43 +48,52 @@ public enum Sender {
 
     private final OkHttpClient client = new OkHttpClient();
 
+//    @Inject
+//    ClaimsService mClaimService;
+
     public void send(final SendCallback sendCallback) {
         client.setConnectTimeout(20, TimeUnit.SECONDS);
         client.setReadTimeout(50, TimeUnit.SECONDS);
         client.setWriteTimeout(50, TimeUnit.SECONDS);
         final Claim claim = ClaimService.INST.getClaim();
-        final String json = new Gson().toJson(claim);
-        RequestBody formBody = new FormEncodingBuilder()
-                .add("cmd", "save")
-                .add("data", json)
-                .build();
-        Request request = new Request.Builder()
-                .url(POST_URL)
-                .post(formBody)
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onResponse(Response response) throws IOException {
-                if (claim.getPhotoFiles().size() != 0) {
-                    try {
-                        final String responseString = response.body().string();
-                        JSONObject json = new JSONObject(responseString);
-                        uploadPhoto(json.getInt("id"), 0, sendCallback);
-                        sendCallback.onCallback(CODE_UPLOADING_PHOTO, "Завантажується фото №1...");
-                    } catch (JSONException e) {
-                        sendCallback.onCallback(CODE_PARSING_FAILED, "Помилка парсингу.");
-                        e.printStackTrace();
-                    }
-                } else {
-                    sendCallback.onCallback(response.code(), "");
-                }
-            }
 
-            @Override
-            public void onFailure(Request request, IOException e) {
-                sendCallback.onCallback(CODE_UNKNOWN_ERROR, e.getMessage());
-            }
-        });
+//        List<Claim> claims = new ArrayList<>();
+//        claims.add(claim);
+//        ClaimRequest claimRequest = new ClaimRequest(claims);
+//        mClaimService.postMyClaims(claimRequest);
+
+//        final String json = new Gson().toJson(claim);
+//        RequestBody formBody = new FormEncodingBuilder()
+//                .add("cmd", "save")
+//                .add("data", json)
+//                .build();
+//        Request request = new Request.Builder()
+//                .url(POST_URL)
+//                .post(formBody)
+//                .build();
+//        client.newCall(request).enqueue(new Callback() {
+//            @Override
+//            public void onResponse(Response response) throws IOException {
+//                if (claim.getPhotoFiles().size() != 0) {
+//                    try {
+//                        final String responseString = response.body().string();
+//                        JSONObject json = new JSONObject(responseString);
+//                        uploadPhoto(json.getInt("id"), 0, sendCallback);
+//                        sendCallback.onCallback(CODE_UPLOADING_PHOTO, "Завантажується фото №1...");
+//                    } catch (JSONException e) {
+//                        sendCallback.onCallback(CODE_PARSING_FAILED, "Помилка парсингу.");
+//                        e.printStackTrace();
+//                    }
+//                } else {
+//                    sendCallback.onCallback(response.code(), "");
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Request request, IOException e) {
+//                sendCallback.onCallback(CODE_UNKNOWN_ERROR, e.getMessage());
+//            }
+//        });
 
     }
 

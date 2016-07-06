@@ -1,6 +1,7 @@
 package ua.in.badparking.services.api;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import retrofit.RetrofitError;
 import ua.in.badparking.api.ApiGenerator;
@@ -16,4 +17,8 @@ public abstract class ApiService {
         EventBus.getDefault().post(new ErrorEvent());
     }
 
+    @Subscribe
+    public void onEvent(ErrorEvent event) {
+
+    }
 }
