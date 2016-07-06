@@ -5,6 +5,7 @@
       <item
           android:id="@+id/action_your_data"
           android:title="@string/your_data"
+          android:icon="@drawable/mr_ic_settings_light"
           android:orderInCategory="100"
-          app:showAsAction="never"/>
+          app:showAsAction="ifRoom"/>
 </menu>
