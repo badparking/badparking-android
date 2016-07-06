@@ -12,12 +12,13 @@ import android.widget.TextView;
 
 import ua.in.badparking.R;
 import ua.in.badparking.services.ClaimService;
+import ua.in.badparking.ui.MainActivity;
 
 /**
  * Design https://www.dropbox.com/sh/vbffs09uqzaj2mt/AAABkTvQbP7q10o5YP83Mzdia?dl=0
  * Created by Dima Kovalenko on 7/3/16.
  */
-public class ClaimTypeFragment extends Fragment {
+public class ClaimTypeFragment extends BaseFragment {
 
     private String[] reportTypes;
 
@@ -52,6 +53,13 @@ public class ClaimTypeFragment extends Fragment {
                 TextView textView = (TextView)itemView.findViewById(R.id.list_item);
                 textView.setText((String)getItem(i));
                 return itemView;
+            }
+        });
+
+        rootView.findViewById(R.id.next_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MainActivity)getActivity()).moveToNext();
             }
         });
 
