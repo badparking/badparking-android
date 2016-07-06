@@ -7,19 +7,13 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.google.inject.Inject;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import roboguice.inject.InjectView;
 import ua.in.badparking.R;
 import ua.in.badparking.api.requests.ClaimRequest;
 import ua.in.badparking.model.Claim;
 import ua.in.badparking.services.ClaimService;
-import ua.in.badparking.services.Sender;
 import ua.in.badparking.services.api.ClaimsService;
 
 /**
@@ -49,11 +43,9 @@ public class ClaimOverviewFragment extends BaseFragment {
             @Override
             public void onClick(View view) {
                 final Claim claim = ClaimService.INST.getClaim();
-                List<Claim> claims = new ArrayList<>();
-                claims.add(claim);
-                ClaimRequest claimRequest = new ClaimRequest(claims);
+                //TODO: 1. Add user data to request. 2. TBD - upload image
+                ClaimRequest claimRequest = new ClaimRequest(claim, null, null);
                 mClaimService.postMyClaims(claimRequest);
-//                ClaimRequest claimRequest = mClaimService.getClaimRequest();
             }
         });
     }

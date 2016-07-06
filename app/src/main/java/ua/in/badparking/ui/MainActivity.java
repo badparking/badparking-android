@@ -13,7 +13,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,7 +25,6 @@ import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
-import ua.in.badparking.services.Sender;
 import ua.in.badparking.ui.dialogs.EnableGPSDialog;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
@@ -71,17 +69,12 @@ public class MainActivity extends RoboActionBarActivity {
     private void checkLocationServices() {
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         boolean gps_enabled = false;
-        boolean network_enabled = false;
 
         try {
             gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
         } catch(Exception ex) {}
 
-        try {
-            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch(Exception ex) {}
-
-        if(!gps_enabled && !network_enabled) {
+        if(!gps_enabled) {
             // notify user
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
             dialog.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
@@ -89,7 +82,6 @@ public class MainActivity extends RoboActionBarActivity {
                     new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                    // TODO Auto-generated method stub
                     Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                     startActivity(myIntent);
                     //get gps
@@ -173,9 +165,6 @@ public class MainActivity extends RoboActionBarActivity {
                     }
                 });
                 sendingMessageView.setText("Вiдiслано, дякую!");
-                break;
-            case Sender.CODE_UPLOADING_PHOTO: // uploading photo
-                sendingMessageView.setText(message);
                 break;
             case 8001: // uploading photo
                 progressBar.setVisibility(View.GONE);
