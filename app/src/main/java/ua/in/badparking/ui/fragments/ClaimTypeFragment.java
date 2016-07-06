@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.in.badparking.R;
-import ua.in.badparking.services.ClaimService;
+import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.ui.MainActivity;
 
 /**
@@ -73,7 +73,7 @@ public class ClaimTypeFragment extends BaseFragment {
                 List<String> crimetypes = new ArrayList<String>();
                 //TODO: Implement multichoice
                 crimetypes.add(String.valueOf(reportTypes[position]));
-                ClaimService.INST.getClaim().setCrimetypes(crimetypes);
+                ClaimState.INST.getClaim().setCrimetypes(crimetypes);
             }
         });
         return rootView;

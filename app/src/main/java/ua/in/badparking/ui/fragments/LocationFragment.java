@@ -17,7 +17,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 
 import ua.in.badparking.R;
-import ua.in.badparking.services.ClaimService;
+import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.services.GeolocationService;
 import ua.in.badparking.ui.MainActivity;
 
@@ -68,8 +68,8 @@ public class LocationFragment extends BaseFragment {
                 LocationManager locManager = (LocationManager)getActivity().getSystemService(getActivity().LOCATION_SERVICE);
                 Location location = locManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-                ClaimService.INST.getClaim().setLatitude(Double.toString(location.getLatitude()));
-                ClaimService.INST.getClaim().setLongitude(Double.toString(location.getLongitude()));
+                ClaimState.INST.getClaim().setLatitude(Double.toString(location.getLatitude()));
+                ClaimState.INST.getClaim().setLongitude(Double.toString(location.getLongitude()));
 
                 ((MainActivity)getActivity()).moveToNext();
             }
