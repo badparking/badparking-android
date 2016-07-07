@@ -68,9 +68,10 @@ public class LocationFragment extends BaseFragment {
                 LocationManager locManager = (LocationManager)getActivity().getSystemService(getActivity().LOCATION_SERVICE);
                 Location location = locManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-                ClaimState.INST.getClaim().setLatitude(Double.toString(location.getLatitude()));
-                ClaimState.INST.getClaim().setLongitude(Double.toString(location.getLongitude()));
-
+                if(location != null) {
+                    ClaimState.INST.getClaim().setLatitude(Double.toString(location.getLatitude()));
+                    ClaimState.INST.getClaim().setLongitude(Double.toString(location.getLongitude()));
+                }
                 ((MainActivity)getActivity()).moveToNext();
             }
         });
