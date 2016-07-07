@@ -1,11 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView android:id="@id/list_item"
-          xmlns:android="http://schemas.android.com/apk/res/android"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:ellipsize="marquee"
-          android:textSize="18sp"
-          android:padding="10dp"
-          android:textColor="@android:color/black"
-          android:background="#ffdddddd"
-    />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@color/white"
+    android:weightSum="1">
+
+    <CheckBox android:id="@+id/checkBox"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:scaleX="1"
+        android:scaleY="1"
+        android:button="@null"
+        android:layout_toLeftOf="@+id/list_item"
+        android:background="@drawable/checkbox_background"
+        android:layout_marginLeft="20dp"
+        android:checked="false"
+        android:layout_gravity="center" />
+
+    <TextView android:id="@id/list_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:textSize="18sp"
+        android:padding="10dp"
+        android:textColor="@android:color/black"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/checkBox"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@+id/checkBox" />
+</LinearLayout>
