@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:state_checked="true"
+        android:drawable="@drawable/checked_crime_type" android:height="20dp" android:width="20dp"/>
+    <item android:drawable="@drawable/unchecked_crime_type" android:height="20dp" android:width="20dp"/>
+</selector>
+

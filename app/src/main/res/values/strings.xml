@@ -35,6 +35,8 @@
     </string>
     <string name="electronic_identification" />
     <string name="choose_bank" />
+    <string name="chooseCrimeType">Оберіть тип порушення:</string>
+    <string name="additionalInfo">Додаткова інформація:</string>
 
     <string-array name="report_types">
         <item>Стоянка на пішохідному переході</item>
