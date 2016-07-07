@@ -2,6 +2,7 @@ package ua.in.badparking.ui.fragments;
 
 import android.app.Activity;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 
 import ua.in.badparking.R;
+import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.services.GeolocationService;
 import ua.in.badparking.ui.MainActivity;
 
@@ -63,6 +65,12 @@ public class LocationFragment extends BaseFragment {
         rootView.findViewById(R.id.next_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                LocationManager locManager = (LocationManager)getActivity().getSystemService(getActivity().LOCATION_SERVICE);
+                Location location = locManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+                ClaimState.INST.getClaim().setLatitude(Double.toString(location.getLatitude()));
+                ClaimState.INST.getClaim().setLongitude(Double.toString(location.getLongitude()));
+
                 ((MainActivity)getActivity()).moveToNext();
             }
         });

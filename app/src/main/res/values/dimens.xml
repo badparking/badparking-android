@@ -5,4 +5,7 @@
     <dimen name="dialog_vertical_margin">10dp</dimen>
     <dimen name="photo_side">100dp</dimen>
     <dimen name="place_buttons_margin_bottom">200dp</dimen>
+    <dimen name="actionbar_icon_size">32dp</dimen>
+    <dimen name="actionbar_margin">24dp</dimen>
+    <dimen name="actionbar_text_size">16dp</dimen>
 </resources>

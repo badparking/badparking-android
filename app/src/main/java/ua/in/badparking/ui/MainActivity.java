@@ -2,13 +2,18 @@ package ua.in.badparking.ui;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,9 +21,10 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
+import roboguice.activity.RoboActionBarActivity;
+import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
-import ua.in.badparking.services.Sender;
 import ua.in.badparking.ui.dialogs.EnableGPSDialog;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
@@ -26,7 +32,8 @@ import ua.in.badparking.ui.fragments.ClaimTypeFragment;
 import ua.in.badparking.ui.fragments.LocationFragment;
 
 
-public class MainActivity extends FragmentActivity {
+@ContentView(R.layout.activity_main)
+public class MainActivity extends RoboActionBarActivity {
 
     private SectionsPagerAdapter pagerAdapter;
     private ViewPager viewPager;
@@ -47,15 +54,61 @@ public class MainActivity extends FragmentActivity {
         viewPager.setAdapter(pagerAdapter);
     }
 
-    private void setupToolbar() {
-        // TODO
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        checkLocationServices();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkLocationServices();
+    }
+
+    private void checkLocationServices() {
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+
+        if(!gps_enabled) {
+            // notify user
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
+            dialog.setPositiveButton(getResources().getString(R.string.open_location_settings),
+                    new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                    Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(myIntent);
+                    //get gps
+                }
+            });
+            dialog.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                   showEnableGpsDialogIfNeeded();
+                }
+            });
+            dialog.show();
+        }
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbarTop = (Toolbar) findViewById(R.id.toolbar_top);
+        setSupportActionBar(toolbarTop);
+   }
+
     private void showEnableGpsDialogIfNeeded() {
-        // TODO
-        EnableGPSDialog introDialog = new EnableGPSDialog(this, android.R.style.Theme_Black_NoTitleBar, new EnableGPSDialog.ActionListener() {
+        EnableGPSDialog introDialog = new EnableGPSDialog(this, android.R.style.Theme_Black_NoTitleBar,
+                new EnableGPSDialog.ActionListener() {
             @Override
             public void onAction() {
+
             }
         });
         introDialog.show();
@@ -112,9 +165,6 @@ public class MainActivity extends FragmentActivity {
                     }
                 });
                 sendingMessageView.setText("Вiдiслано, дякую!");
-                break;
-            case Sender.CODE_UPLOADING_PHOTO: // uploading photo
-                sendingMessageView.setText(message);
                 break;
             case 8001: // uploading photo
                 progressBar.setVisibility(View.GONE);
@@ -180,6 +230,5 @@ public class MainActivity extends FragmentActivity {
         }
 
     }
-
 
 }
