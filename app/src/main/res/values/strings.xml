@@ -19,7 +19,7 @@
     <string name="make_phonot">Зробити фото</string>
     <string name="from_gallery">З галереї</string>
     <string name="no_connection">Немає мережi</string>
-    <string name="choose_photo_mode">Вы можете зробити нове фото або додати фото з галереї</string>
+    <string name="choose_photo_mode">Ви можете зробити нове фото або додати фото з галереї</string>
     <string name="evaluating">Визначається ...</string>
     <string name="error">Помилка</string>
     <string name="simple_mode">Простий режим</string>
@@ -35,6 +35,9 @@
     </string>
     <string name="electronic_identification" />
     <string name="choose_bank" />
+    <string name="actionbar_title_claim">Реєстрація порушення</string>
+    <string name="gps_network_not_enabled">Для корректної роботи додатку потрібно знати місцезнаходження. Використовувати геоданні?</string>
+    <string name="open_location_settings">Налаштування</string>
 
     <string-array name="report_types">
         <item>Стоянка на пішохідному переході</item>
