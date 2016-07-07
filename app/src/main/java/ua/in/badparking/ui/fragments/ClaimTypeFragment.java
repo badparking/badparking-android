@@ -14,6 +14,7 @@ import java.util.List;
 
 import ua.in.badparking.R;
 import ua.in.badparking.model.CrimeType;
+import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.ui.MainActivity;
 import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
 
@@ -41,7 +42,7 @@ public class ClaimTypeFragment extends BaseFragment{
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO send all info
+                ClaimState.INST.getClaim().setCrimetypes(getSelectedCrimeTypes());
                 ((MainActivity)getActivity()).moveToNext();
             }
         });
@@ -66,12 +67,12 @@ public class ClaimTypeFragment extends BaseFragment{
         return ctList;
     }
 
-    public List<CrimeType> getSelectedCrimeTypes() {
-        List<CrimeType> selectedCrimeTypeList = new ArrayList<>();
+    public List<String> getSelectedCrimeTypes() {
+        List<String> selectedCrimeTypeList = new ArrayList<>();
 
         for (CrimeType ct : crimeTypeAdapter.getCrimeTypeList()) {
             if (ct.isSelected()){
-                selectedCrimeTypeList.add(ct);
+                selectedCrimeTypeList.add(ct.getId().toString());
             }
         }
 

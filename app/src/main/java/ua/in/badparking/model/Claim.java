@@ -2,9 +2,10 @@ package ua.in.badparking.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Claim {
+public class Claim implements Serializable{
 
     @SerializedName("pk")
     private String pk;

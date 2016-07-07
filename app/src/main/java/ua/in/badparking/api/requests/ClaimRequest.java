@@ -1,11 +1,12 @@
 package ua.in.badparking.api.requests;
 
+import java.io.Serializable;
 import java.util.List;
 
 import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.User;
 
-public class ClaimRequest {
+public class ClaimRequest implements Serializable {
 
     private Claim claimSerializer;
 
