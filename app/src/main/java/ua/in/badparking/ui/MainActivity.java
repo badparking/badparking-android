@@ -21,6 +21,8 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.badoualy.stepperindicator.StepperIndicator;
+
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
@@ -52,6 +54,9 @@ public class MainActivity extends RoboActionBarActivity {
         // Set up the ViewPager with the sections adapter.
         viewPager = (ViewPager)findViewById(R.id.pager);
         viewPager.setAdapter(pagerAdapter);
+        StepperIndicator indicator = (StepperIndicator) findViewById(R.id.stepper_indicator);
+        assert indicator != null;
+        indicator.setViewPager(viewPager, true);
     }
 
     @Override
