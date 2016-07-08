@@ -11,44 +11,7 @@
         android:layout_height="match_parent"
         android:divider="@android:color/transparent"
         android:dividerHeight="-11.0sp"
-        android:layout_above="@+id/additionalInfoLinearLayout" />
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/additionalInfoLinearLayout"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_weight="1">
-
-            <ImageView
-                android:layout_width="25dp"
-                android:layout_height="match_parent"
-                android:id="@+id/additionalInfoImageView"
-                android:src="@drawable/additional_info_icon"
-                android:layout_marginLeft="7dp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/additionalInfo"
-                android:id="@+id/additionalInfoTextView"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp" />
-        </LinearLayout>
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:inputType="textMultiLine"
-            android:id="@+id/additionalInfoEditText"
-            android:gravity="top|left"
-            android:layout_above="@+id/bottomPanel"
-            android:layout_below="@+id/additionalInfoLinearLayout"
-            android:layout_weight="2"/>
+        android:layout_above="@+id/bottomPanel" />
 
     <RelativeLayout
         android:id="@+id/bottomPanel"
