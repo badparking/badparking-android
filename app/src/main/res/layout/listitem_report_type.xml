@@ -7,12 +7,11 @@
     android:weightSum="1">
 
     <CheckBox android:id="@+id/checkBox"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:scaleX="1"
         android:scaleY="1"
         android:button="@null"
-        android:layout_toLeftOf="@+id/list_item"
         android:background="@drawable/checkbox_background"
         android:layout_marginLeft="20dp"
         android:checked="false"
@@ -24,10 +23,5 @@
         android:ellipsize="marquee"
         android:textSize="18sp"
         android:padding="10dp"
-        android:textColor="@android:color/black"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/checkBox"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignBottom="@+id/checkBox" />
+        android:textColor="@android:color/black" />
 </LinearLayout>
