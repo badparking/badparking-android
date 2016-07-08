@@ -1,37 +1,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
 
-    <include layout="@layout/toolbar" />
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#bbbbbb">
-
-        <com.badoualy.stepperindicator.StepperIndicator
-            android:id="@+id/stepper_indicator"
-            android:layout_width="272dp"
-            android:layout_height="wrap_content"
-            app:stpi_stepCount="3"
-            android:layout_gravity="center_horizontal"
-            app:stpi_circleColor="#D8D8D8"
-            app:stpi_lineDoneColor="#04B404"
-            app:stpi_lineColor="#D8D8D8"
-            app:stpi_indicatorColor="#04B404" />
-
-    </LinearLayout>
+    <include
+        layout="@layout/toolbar"/>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
-    </android.support.v4.view.ViewPager>
+        android:layout_height="match_parent"/>
 
 </LinearLayout>

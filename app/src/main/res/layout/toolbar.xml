@@ -1,32 +1,25 @@
-<android.support.v7.widget.Toolbar android:id="@+id/toolbar_top"
+<android.support.v7.widget.Toolbar
+    android:id="@+id/toolbar_top"
     style="@style/BadParkingActionBar"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="#bbbbbb"
+    android:background="@color/primaryColor"
     android:elevation="3dp"
-    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <com.badoualy.stepperindicator.StepperIndicator
+        android:id="@+id/stepper_indicator"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_gravity="center_horizontal"
+        app:stpi_circleColor="#D8D8D8"
+        app:stpi_indicatorColor="@color/secondaryColor"
+        app:stpi_lineColor="#D8D8D8"
+        app:stpi_lineDoneColor="@color/secondaryColor"
+        app:stpi_stepCount="4"/>
 
-        <ImageView
-            android:layout_width="@dimen/actionbar_icon_size"
-            android:layout_height="@dimen/actionbar_icon_size"
-            android:src="@drawable/user1" />
-
-        <TextView
-            android:id="@+id/toolbar_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/actionbar_margin"
-            android:textSize="@dimen/actionbar_text_size"
-            android:layout_gravity="center_vertical"
-            android:text="@string/actionbar_title_claim" />
-
-    </LinearLayout>
 
 </android.support.v7.widget.Toolbar>
+
