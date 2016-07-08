@@ -6,10 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
-
-import com.google.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +14,6 @@ import java.util.List;
 import ua.in.badparking.R;
 import ua.in.badparking.model.CrimeType;
 import ua.in.badparking.services.ClaimState;
-import ua.in.badparking.services.api.TypesService;
 import ua.in.badparking.ui.MainActivity;
 import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
 
@@ -25,10 +21,10 @@ import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
  * Design https://www.dropbox.com/sh/vbffs09uqzaj2mt/AAABkTvQbP7q10o5YP83Mzdia?dl=0
  * Created by Dima Kovalenko and Volodymyr Dranyk on 7/3/16.
  */
-public class ClaimTypeFragment extends BaseFragment{
+public class ClaimTypeFragment extends BaseFragment {
 
-    @Inject
-    private TypesService mTypesService;
+//    @Inject
+//    private TypesService mTypesService;
 
     CrimeTypeAdapter crimeTypeAdapter;
     ListView listView;
@@ -39,11 +35,12 @@ public class ClaimTypeFragment extends BaseFragment{
         View rootView = inflater.inflate(R.layout.fragment_claim_type, container, false);
         listView = (ListView)rootView.findViewById(R.id.reportTypeList);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        mTypesService.getTypes();
-        crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), ClaimState.INST.getCrimeTypes());
+//        mTypesService.getTypes();  TODO this should be done on startup of the app!
+        List<CrimeType> crimeTypes = ClaimState.INST.getCrimeTypes();
+        crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), crimeTypes);
         listView.setAdapter(crimeTypeAdapter);
 
-        Button nextButton = (Button) rootView.findViewById(R.id.next_button);
+        Button nextButton = (Button)rootView.findViewById(R.id.next_button);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -63,7 +60,7 @@ public class ClaimTypeFragment extends BaseFragment{
         List<CrimeType> selectedCrimeTypeList = new ArrayList<>();
 
         for (CrimeType ct : crimeTypeAdapter.getCrimeTypeList()) {
-            if (ct.isSelected()){
+            if (ct.isSelected()) {
                 selectedCrimeTypeList.add(ct);
             }
         }

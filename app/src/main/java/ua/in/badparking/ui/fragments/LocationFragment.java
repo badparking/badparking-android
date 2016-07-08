@@ -79,14 +79,9 @@ public class LocationFragment extends BaseFragment {
             }
         });
 
-        return rootView;
-    }
+        setCenter(new LatLng(50.45, 30.523611));
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        boolean locationObsolete = GeolocationService.INST.isLocationObsolete();
-        mapHolder.setVisibility(locationObsolete ? View.GONE : View.VISIBLE);
+        return rootView;
     }
 
     public void hideKeyboard(Activity activity) {

@@ -9,9 +9,10 @@
         android:id="@+id/reportTypeList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="-11.0sp"
-        android:layout_above="@+id/bottomPanel" />
+        android:layout_above="@+id/bottomPanel"
+        android:layout_marginTop="5dp"
+        android:divider="@null"
+        android:dividerHeight="0dp"/>
 
     <RelativeLayout
         android:id="@+id/bottomPanel"
@@ -20,43 +21,28 @@
         android:layout_alignParentBottom="true"
         android:background="@color/primaryColor">
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/chooseCrimeLinearLayout"
-            android:gravity="center"
-            android:layout_above="@+id/next_button"
-            android:layout_alignParentTop="true">
-
-            <ImageView
-                android:layout_width="25dp"
-                android:layout_height="match_parent"
-                android:id="@+id/chooseCrimeTypeImageView"
-                android:src="@drawable/choose_crime_type_icon"
-                android:layout_marginLeft="7dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="@string/chooseCrimeType"
-                android:id="@+id/chooseCrimeTextView" />
-        </LinearLayout>
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:text="@string/chooseCrimeType"
+            android:textColor="@android:color/white"
+            android:textSize="17sp"/>
 
         <Button
             android:id="@+id/next_button"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginRight="20dp"
+            android:layout_alignParentRight="true"
             android:layout_marginBottom="20dp"
+            android:layout_marginRight="20dp"
             android:background="@drawable/button_background"
             android:paddingLeft="45dp"
             android:paddingRight="45dp"
-            android:textSize="17sp"
             android:text="@string/next"
-            android:textAllCaps="false" />
+            android:textAllCaps="false"
+            android:textSize="17sp"/>
     </RelativeLayout>
 </RelativeLayout>
