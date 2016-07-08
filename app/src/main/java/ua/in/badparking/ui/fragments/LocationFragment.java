@@ -16,6 +16,8 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.text.DecimalFormat;
+
 import ua.in.badparking.R;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.services.GeolocationService;
@@ -68,9 +70,10 @@ public class LocationFragment extends BaseFragment {
                 LocationManager locManager = (LocationManager)getActivity().getSystemService(getActivity().LOCATION_SERVICE);
                 Location location = locManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-                if (location != null) {
-                    ClaimState.INST.getClaim().setLatitude(Double.toString(location.getLatitude()));
-                    ClaimState.INST.getClaim().setLongitude(Double.toString(location.getLongitude()));
+                if(location != null) {
+                    DecimalFormat df = new DecimalFormat("#.######");
+                    ClaimState.INST.getClaim().setLatitude(df.format(location.getLatitude()).replace(",", "."));
+                    ClaimState.INST.getClaim().setLongitude(df.format(location.getLongitude()).replace(",", "."));
                 }
                 ((MainActivity)getActivity()).moveToNext();
             }

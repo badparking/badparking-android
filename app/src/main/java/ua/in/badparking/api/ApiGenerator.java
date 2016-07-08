@@ -16,6 +16,7 @@ import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.Constants;
+import ua.in.badparking.services.AuthState;
 
 @Singleton
 public class ApiGenerator {
@@ -32,7 +33,7 @@ public class ApiGenerator {
         RequestInterceptor requestInterceptor = new RequestInterceptor() {
             @Override
             public void intercept(RequestFacade request) {
-                request.addHeader("X-Client", BuildConfig.VERSION_NAME);
+                request.addHeader("Authorization", "JWT " + AuthState.INST.getToken());
             }
         };
 

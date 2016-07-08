@@ -9,12 +9,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.google.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import ua.in.badparking.R;
+import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.CrimeType;
 import ua.in.badparking.services.ClaimState;
+import ua.in.badparking.services.api.ClaimsService;
+import ua.in.badparking.services.api.TypesService;
 import ua.in.badparking.ui.MainActivity;
 import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
 
@@ -23,6 +28,10 @@ import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
  * Created by Dima Kovalenko and Volodymyr Dranyk on 7/3/16.
  */
 public class ClaimTypeFragment extends BaseFragment{
+
+    @Inject
+    private TypesService mTypesService;
+
     CrimeTypeAdapter crimeTypeAdapter;
     ListView listView;
     EditText editText;
@@ -33,8 +42,8 @@ public class ClaimTypeFragment extends BaseFragment{
         View rootView = inflater.inflate(R.layout.fragment_claim_type, container, false);
         listView = (ListView)rootView.findViewById(R.id.reportTypeList);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-
-        crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), getModel());
+        mTypesService.getTypes();
+        crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), ClaimState.INST.getCrimeTypes());
         listView.setAdapter(crimeTypeAdapter);
 
         editText = (EditText)  rootView.findViewById(R.id.additionalInfoEditText);
@@ -54,25 +63,12 @@ public class ClaimTypeFragment extends BaseFragment{
         return new ClaimTypeFragment();
     }
 
-    //temp data
-    private List<CrimeType> getModel(){
-        String[] reportTypes = getResources().getStringArray(R.array.report_types);
-        List<CrimeType> ctList = new ArrayList<>();
-        for(int i= 0; i < reportTypes.length; i++){
-            CrimeType ct = new CrimeType();
-            ct.setId(i);
-            ct.setName(reportTypes[i]);
-            ctList.add(ct);
-        }
-        return ctList;
-    }
-
-    public List<String> getSelectedCrimeTypes() {
-        List<String> selectedCrimeTypeList = new ArrayList<>();
+    public List<CrimeType> getSelectedCrimeTypes() {
+        List<CrimeType> selectedCrimeTypeList = new ArrayList<>();
 
         for (CrimeType ct : crimeTypeAdapter.getCrimeTypeList()) {
             if (ct.isSelected()){
-                selectedCrimeTypeList.add(ct.getId().toString());
+                selectedCrimeTypeList.add(ct);
             }
         }
 

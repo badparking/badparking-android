@@ -28,6 +28,7 @@ import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
 import ua.in.badparking.ui.dialogs.EnableGPSDialog;
+import ua.in.badparking.ui.fragments.AuthFragment;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
 import ua.in.badparking.ui.fragments.ClaimTypeFragment;
@@ -221,10 +222,12 @@ public class MainActivity extends RoboActionBarActivity {
         @Override
         public Fragment getItem(int position) {
             if (position == 0) {
-                return CaptureFragment.newInstance();
+                return AuthFragment.newInstance();
             } else if (position == 1) {
-                return LocationFragment.newInstance();
+                return CaptureFragment.newInstance();
             } else if (position == 2) {
+                return LocationFragment.newInstance();
+            } else if (position == 3) {
                 return ClaimTypeFragment.newInstance();
             } else {
                 return ClaimOverviewFragment.newInstance();
@@ -233,7 +236,7 @@ public class MainActivity extends RoboActionBarActivity {
 
         @Override
         public int getCount() {
-            return 4;
+            return 5;
         }
 
     }
