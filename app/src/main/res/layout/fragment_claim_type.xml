@@ -5,74 +5,13 @@
                 android:background="@color/white"
                 android:orientation="vertical">
 
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/chooseCrimeLinearLayout">
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="match_parent"
-            android:id="@+id/chooseCrimeTypeImageView"
-            android:src="@drawable/choose_crime_type_icon"
-            android:layout_marginLeft="7dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/chooseCrimeType"
-            android:id="@+id/chooseCrimeTextView" />
-    </LinearLayout>
-
     <ListView
-    android:id="@+id/reportTypeList"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:divider="@android:color/darker_gray"
-    android:dividerHeight="1dp"
-    android:layout_below="@+id/chooseCrimeLinearLayout"
-        android:layout_above="@+id/additionalInfoLinearLayout" />
-
-    <LinearLayout
-        android:orientation="horizontal"
+        android:id="@+id/reportTypeList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/additionalInfoLinearLayout"
-        android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="match_parent"
-            android:id="@+id/additionalInfoImageView"
-            android:src="@drawable/additional_info_icon"
-            android:layout_marginLeft="7dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/additionalInfo"
-            android:id="@+id/additionalInfoTextView" />
-
-    </LinearLayout>
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
-        android:id="@+id/additionalInfoEditText"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/additionalInfoLinearLayout"
-        android:layout_above="@+id/bottomPanel"
-        android:gravity="top|left" />
+        android:layout_height="match_parent"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="-11.0sp"
+        android:layout_above="@+id/bottomPanel" />
 
     <RelativeLayout
         android:id="@+id/bottomPanel"
@@ -80,6 +19,30 @@
         android:layout_height="130dp"
         android:layout_alignParentBottom="true"
         android:background="@color/primaryColor">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/chooseCrimeLinearLayout"
+            android:gravity="center"
+            android:layout_above="@+id/next_button"
+            android:layout_alignParentTop="true">
+
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="match_parent"
+                android:id="@+id/chooseCrimeTypeImageView"
+                android:src="@drawable/choose_crime_type_icon"
+                android:layout_marginLeft="7dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/chooseCrimeType"
+                android:id="@+id/chooseCrimeTextView" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/next_button"
@@ -94,7 +57,6 @@
             android:paddingRight="45dp"
             android:textSize="17sp"
             android:text="@string/next"
-            android:textAllCaps="false"
-            />
+            android:textAllCaps="false" />
     </RelativeLayout>
 </RelativeLayout>

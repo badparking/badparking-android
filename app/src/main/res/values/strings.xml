@@ -33,9 +33,9 @@
         Дякуэмо за спiвпрацю!\n\n
         Щоб полiцiя прийняла заявку, потрiбно залогинитись через BankID.
     </string>
-    <string name="electronic_identification"/>
-    <string name="choose_bank"/>
-    <string name="chooseCrimeType">Оберіть тип порушення:</string>
+    <string name="electronic_identification" />
+    <string name="choose_bank" />
+    <string name="chooseCrimeType">Оберіть тип порушення</string>
     <string name="additionalInfo">Додаткова інформація:</string>
     <string name="actionbar_title_claim">Реєстрація порушення</string>
     <string name="gps_network_not_enabled">Для корректної роботи додатку потрібно знати місцезнаходження. Використовувати геоданні?</string>

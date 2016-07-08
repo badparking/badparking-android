@@ -15,10 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.in.badparking.R;
-import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.CrimeType;
 import ua.in.badparking.services.ClaimState;
-import ua.in.badparking.services.api.ClaimsService;
 import ua.in.badparking.services.api.TypesService;
 import ua.in.badparking.ui.MainActivity;
 import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
@@ -34,7 +32,6 @@ public class ClaimTypeFragment extends BaseFragment{
 
     CrimeTypeAdapter crimeTypeAdapter;
     ListView listView;
-    EditText editText;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,7 +43,6 @@ public class ClaimTypeFragment extends BaseFragment{
         crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), ClaimState.INST.getCrimeTypes());
         listView.setAdapter(crimeTypeAdapter);
 
-        editText = (EditText)  rootView.findViewById(R.id.additionalInfoEditText);
         Button nextButton = (Button) rootView.findViewById(R.id.next_button);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
