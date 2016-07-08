@@ -9,18 +9,18 @@ public class Claim implements Serializable{
 
     @SerializedName("pk")
     private String pk;
-    @SerializedName("license_plates")
-    private String licensePlates;
-    @SerializedName("longitude")
-    private String longitude;
     @SerializedName("latitude")
     private String latitude;
+    @SerializedName("longitude")
+    private String longitude;
+    @SerializedName("crimetypes")
+    private List<CrimeType> crimetypes;
     @SerializedName("city")
     private String city;
     @SerializedName("address")
     private String address;
-    @SerializedName("crimetypes")
-    private List<String> crimetypes;
+    @SerializedName("license_plates")
+    private String licensePlates;
     @SerializedName("images")
     private List<MediaFileSerializer> photoFiles;
     @SerializedName("user")
@@ -47,7 +47,7 @@ public class Claim implements Serializable{
         return address;
     }
 
-    public List<String> getCrimetypes() {
+    public List<CrimeType> getCrimetypes() {
         return crimetypes;
     }
 
@@ -71,7 +71,7 @@ public class Claim implements Serializable{
         this.address = address;
     }
 
-    public void setCrimetypes(List<String>crimetypes) {
+    public void setCrimetypes(List<CrimeType> crimetypes) {
         this.crimetypes = crimetypes;
     }
 
