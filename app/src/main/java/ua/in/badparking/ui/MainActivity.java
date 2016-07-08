@@ -54,7 +54,7 @@ public class MainActivity extends RoboActionBarActivity {
         // Set up the ViewPager with the sections adapter.
         viewPager = (ViewPager)findViewById(R.id.pager);
         viewPager.setAdapter(pagerAdapter);
-        StepperIndicator indicator = (StepperIndicator) findViewById(R.id.stepper_indicator);
+        StepperIndicator indicator = (StepperIndicator)findViewById(R.id.stepper_indicator);
         assert indicator != null;
         indicator.setViewPager(viewPager, true);
     }
@@ -72,31 +72,32 @@ public class MainActivity extends RoboActionBarActivity {
     }
 
     private void checkLocationServices() {
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         boolean gps_enabled = false;
 
         try {
             gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch(Exception ex) {}
+        } catch (Exception ex) {
+        }
 
-        if(!gps_enabled) {
+        if (!gps_enabled) {
             // notify user
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
             dialog.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
             dialog.setPositiveButton(getResources().getString(R.string.open_location_settings),
                     new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                    Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    startActivity(myIntent);
-                    //get gps
-                }
-            });
+                        @Override
+                        public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                            Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            startActivity(myIntent);
+                            //get gps
+                        }
+                    });
             dialog.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                   showEnableGpsDialogIfNeeded();
+                    showEnableGpsDialogIfNeeded();
                 }
             });
             dialog.show();
@@ -104,18 +105,19 @@ public class MainActivity extends RoboActionBarActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbarTop = (Toolbar) findViewById(R.id.toolbar_top);
+        Toolbar toolbarTop = (Toolbar)findViewById(R.id.toolbar_top);
         setSupportActionBar(toolbarTop);
-   }
+        toolbarTop.setTitle("");
+    }
 
     private void showEnableGpsDialogIfNeeded() {
         EnableGPSDialog introDialog = new EnableGPSDialog(this, android.R.style.Theme_Black_NoTitleBar,
                 new EnableGPSDialog.ActionListener() {
-            @Override
-            public void onAction() {
+                    @Override
+                    public void onAction() {
 
-            }
-        });
+                    }
+                });
         introDialog.show();
     }
 
