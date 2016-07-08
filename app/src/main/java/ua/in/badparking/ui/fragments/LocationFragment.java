@@ -68,7 +68,7 @@ public class LocationFragment extends BaseFragment {
                 LocationManager locManager = (LocationManager)getActivity().getSystemService(getActivity().LOCATION_SERVICE);
                 Location location = locManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-                if(location != null) {
+                if (location != null) {
                     ClaimState.INST.getClaim().setLatitude(Double.toString(location.getLatitude()));
                     ClaimState.INST.getClaim().setLongitude(Double.toString(location.getLongitude()));
                 }
@@ -76,14 +76,9 @@ public class LocationFragment extends BaseFragment {
             }
         });
 
-        return rootView;
-    }
+        setCenter(new LatLng(50.45, 30.523611));
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        boolean locationObsolete = GeolocationService.INST.isLocationObsolete();
-        mapHolder.setVisibility(locationObsolete ? View.GONE : View.VISIBLE);
+        return rootView;
     }
 
     public void hideKeyboard(Activity activity) {

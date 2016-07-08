@@ -10,20 +10,29 @@
         android:layout_alignParentBottom="true"
         android:background="@color/primaryColor">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:text="@string/positioning_in_progress"
+            android:textColor="@android:color/white"
+            android:textSize="17sp"/>
+
         <Button
             android:id="@+id/next_button"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginRight="20dp"
+            android:layout_alignParentRight="true"
             android:layout_marginBottom="20dp"
+            android:layout_marginRight="20dp"
             android:background="@drawable/button_background"
             android:paddingLeft="45dp"
             android:paddingRight="45dp"
-            android:textSize="17sp"
             android:text="@string/next"
             android:textAllCaps="false"
+            android:textSize="17sp"
             />
     </RelativeLayout>
 
@@ -33,9 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/bottomPanel"
-        android:layout_marginBottom="10dp"
-        android:orientation="vertical"
-        >
+        android:orientation="vertical">
 
         <com.google.android.gms.maps.MapView
             android:id="@+id/mvMap"

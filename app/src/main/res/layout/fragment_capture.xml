@@ -14,23 +14,34 @@
             android:id="@+id/next_button"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginRight="20dp"
+            android:layout_alignParentRight="true"
             android:layout_marginBottom="20dp"
+            android:layout_marginRight="20dp"
             android:background="@drawable/button_background"
             android:paddingLeft="45dp"
             android:paddingRight="45dp"
-            android:textSize="17sp"
             android:text="@string/next"
             android:textAllCaps="false"
+            android:textSize="17sp"
             />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:text="@string/capture_claim"
+            android:textColor="@android:color/white"
+            android:textSize="17sp"/>
 
         <LinearLayout
             android:id="@+id/photoHolder"
             android:layout_width="match_parent"
             android:layout_height="@dimen/photo_side"
-            android:layout_centerVertical="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="20dp"
             android:layout_toLeftOf="@id/next_button"
             android:orientation="horizontal">
 
@@ -89,6 +100,12 @@
         </LinearLayout>
 
     </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/cameraHolder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottomPanel"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/snap"
