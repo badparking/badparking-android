@@ -6,7 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.TextView;
 
+import com.google.inject.Inject;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
@@ -18,11 +20,18 @@ import java.io.IOException;
 import roboguice.inject.InjectView;
 import ua.in.badparking.Constants;
 import ua.in.badparking.R;
-import ua.in.badparking.services.AuthState;
+import ua.in.badparking.model.Claim;
+import ua.in.badparking.model.User;
+import ua.in.badparking.services.ClaimState;
+import ua.in.badparking.services.UserState;
+import ua.in.badparking.services.api.ClaimsService;
 
 public class AuthFragment extends BaseFragment {
 
     @InjectView(R.id.web_auth) private WebView mAuthWeb;
+    @InjectView(R.id.text_auth_response) private TextView mAuthResponse;
+    @Inject
+    private ClaimsService mClaimService;
 
     private final OkHttpClient client = new OkHttpClient();
 
@@ -53,12 +62,17 @@ public class AuthFragment extends BaseFragment {
         get(url, new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
-                String err = e.getMessage();
+                mAuthResponse.setText(e.getMessage());
             }
 
             @Override
             public void onResponse(Response response) throws IOException {
-               AuthState.INST.setToken(response.headers().get("X-JWT"));
+                ClaimState.INST.setToken(response.headers().get("X-JWT"));
+                final Claim claim = ClaimState.INST.getClaim();
+                final User user = UserState.INST.getUser();
+                //TODO: 1. Add user data to request. 2. TBD - upload image
+                mClaimService.postMyClaims(claim);
+                mAuthResponse.setText("Claim sent");
             }
         });
 

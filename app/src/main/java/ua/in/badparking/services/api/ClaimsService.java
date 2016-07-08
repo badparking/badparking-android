@@ -5,6 +5,7 @@ import com.google.inject.Singleton;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -14,24 +15,29 @@ import retrofit.client.Response;
 import retrofit.mime.TypedString;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.ClaimsApi;
+import ua.in.badparking.api.TypesApi;
 import ua.in.badparking.api.responses.BaseResponse;
 import ua.in.badparking.api.responses.ClaimsResponse;
 import ua.in.badparking.events.ClaimCancelledEvent;
 import ua.in.badparking.events.ClaimPostedEvent;
 import ua.in.badparking.events.ClaimPutEvent;
 import ua.in.badparking.events.ClaimsLoadedEvent;
+import ua.in.badparking.events.TypesLoadedEvent;
 import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.CrimeType;
+import ua.in.badparking.services.ClaimState;
 
 @Singleton
 public class ClaimsService extends ApiService {
 
+    private final TypesApi mTypesApi;
     private final ClaimsApi mClaimsApi;
 
     @Inject
     protected ClaimsService(ApiGenerator apiGenerator) {
         super(apiGenerator);
         mClaimsApi = apiGenerator.createApi(ClaimsApi.class);
+        mTypesApi = apiGenerator.createApi(TypesApi.class);
     }
 
     public void getClaims(String clientId, String clientSecret, String timestamp) {
@@ -77,7 +83,7 @@ public class ClaimsService extends ApiService {
         for(CrimeType crimetype : crimetypes) {
             crimeMap.put("crimetypes", crimetype.getId());
         }
-        mClaimsApi.postMyClaims(crimeMap, paramsMap, new Callback<ClaimsResponse>() {
+        mClaimsApi.postMyClaims("JWT " + ClaimState.INST.getToken(), crimeMap, paramsMap, new Callback<ClaimsResponse>() {
             @Override
             public void success(ClaimsResponse claimsResponse, Response response) {
                 EventBus.getDefault().post(new ClaimPostedEvent());
@@ -144,5 +150,36 @@ public class ClaimsService extends ApiService {
             }
         });
     }
+
+    public void getTypes() {
+        mTypesApi.getTypes(new Callback<List<CrimeType>>() {
+            @Override
+            public void success(List<CrimeType> crimeTypes, Response response) {
+                EventBus.getDefault().post(new TypesLoadedEvent(crimeTypes));
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+    }
+
+    public void getType(String pk) {
+        mTypesApi.getType(pk, new Callback<CrimeType>() {
+            @Override
+            public void success(CrimeType crimeType, Response response) {
+                List types = new ArrayList();
+                types.add(crimeType);
+                EventBus.getDefault().post(new TypesLoadedEvent(types));
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+    }
+
 
 }

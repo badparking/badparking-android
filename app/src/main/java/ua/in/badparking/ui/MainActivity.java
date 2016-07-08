@@ -22,11 +22,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.badoualy.stepperindicator.StepperIndicator;
+import com.google.inject.Inject;
 
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
+import ua.in.badparking.services.api.ClaimsService;
 import ua.in.badparking.ui.dialogs.EnableGPSDialog;
 import ua.in.badparking.ui.fragments.AuthFragment;
 import ua.in.badparking.ui.fragments.CaptureFragment;
@@ -41,6 +43,8 @@ public class MainActivity extends RoboActionBarActivity {
     private SectionsPagerAdapter pagerAdapter;
     private ViewPager viewPager;
     private Dialog senderProgressDialog;
+    @Inject
+    private ClaimsService mClaimsService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +62,7 @@ public class MainActivity extends RoboActionBarActivity {
         StepperIndicator indicator = (StepperIndicator)findViewById(R.id.stepper_indicator);
         assert indicator != null;
         indicator.setViewPager(viewPager, true);
+        mClaimsService.getTypes();
     }
 
     @Override
@@ -222,15 +227,15 @@ public class MainActivity extends RoboActionBarActivity {
         @Override
         public Fragment getItem(int position) {
             if (position == 0) {
-                return AuthFragment.newInstance();
-            } else if (position == 1) {
                 return CaptureFragment.newInstance();
-            } else if (position == 2) {
+            } else if (position == 1) {
                 return LocationFragment.newInstance();
-            } else if (position == 3) {
+            } else if (position == 2) {
                 return ClaimTypeFragment.newInstance();
-            } else {
+            } else if (position == 3){
                 return ClaimOverviewFragment.newInstance();
+            } else {
+                return AuthFragment.newInstance();
             }
         }
 

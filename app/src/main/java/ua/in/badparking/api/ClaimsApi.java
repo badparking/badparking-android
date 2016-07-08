@@ -6,6 +6,7 @@ import java.util.Map;
 import retrofit.Callback;
 import retrofit.http.Body;
 import retrofit.http.GET;
+import retrofit.http.Header;
 import retrofit.http.Multipart;
 import retrofit.http.PATCH;
 import retrofit.http.POST;
@@ -32,7 +33,8 @@ public interface ClaimsApi {
 
     @Multipart
     @POST("/claims/my")
-    void postMyClaims(@PartMap() Map crimetypes,
+    void postMyClaims(@Header("Authorization") String token,
+                      @PartMap() Map crimetypes,
                       @PartMap() Map claimData,
                       Callback<ClaimsResponse> responseCallback);
 

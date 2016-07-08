@@ -23,9 +23,6 @@ import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
  */
 public class ClaimTypeFragment extends BaseFragment {
 
-//    @Inject
-//    private TypesService mTypesService;
-
     CrimeTypeAdapter crimeTypeAdapter;
     ListView listView;
 
@@ -35,7 +32,6 @@ public class ClaimTypeFragment extends BaseFragment {
         View rootView = inflater.inflate(R.layout.fragment_claim_type, container, false);
         listView = (ListView)rootView.findViewById(R.id.reportTypeList);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-//        mTypesService.getTypes();  TODO this should be done on startup of the app!
         List<CrimeType> crimeTypes = ClaimState.INST.getCrimeTypes();
         crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), crimeTypes);
         listView.setAdapter(crimeTypeAdapter);

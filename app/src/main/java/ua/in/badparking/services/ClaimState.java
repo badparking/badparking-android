@@ -14,7 +14,15 @@ public enum ClaimState {
 
     private Claim claim = new Claim();
     private List<CrimeType> crimeTypes = new ArrayList<>();
+    private String token;
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
     public Claim getClaim() {
         return claim;
     }
