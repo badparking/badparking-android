@@ -107,7 +107,7 @@ public class MainActivity extends RoboActionBarActivity {
     private void setupToolbar() {
         Toolbar toolbarTop = (Toolbar)findViewById(R.id.toolbar_top);
         setSupportActionBar(toolbarTop);
-        toolbarTop.setTitle("");
+        getSupportActionBar().setTitle("");
     }
 
     private void showEnableGpsDialogIfNeeded() {

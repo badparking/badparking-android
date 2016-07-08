@@ -9,7 +9,7 @@
     <!--/>-->
 
     <solid
-        android:color="@color/primaryColor"
+        android:color="@color/secondaryColor"
         />
 
     <corners android:radius="1dp"/>
