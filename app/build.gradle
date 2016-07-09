@@ -12,12 +12,18 @@ apply plugin: 'crashlytics'
 
 repositories {
     maven { url 'http://download.crashlytics.com/maven' }
+    maven { url "https://jitpack.io" }
 }
 
-
 android {
-    compileSdkVersion 22
-    buildToolsVersion '22.0.1'
+    compileSdkVersion 23
+    buildToolsVersion '23.0.0'
+
+    dexOptions {
+        incremental true
+        javaMaxHeapSize "4g"
+    }
+
     defaultConfig {
         applicationId "ua.in.badparking"
         minSdkVersion 14
@@ -54,9 +60,9 @@ dependencies {
     testCompile 'junit:junit:4.12'
     androidTestCompile 'junit:junit:4.12'
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:design:22.2.0'
-    compile 'com.android.support:support-v4:22.2.0'
-    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:design:23.2.0'
+    compile 'com.android.support:support-v4:23.2.0'
+    compile 'com.android.support:appcompat-v7:23.2.0'
     compile 'com.google.android.gms:play-services:7.8.0'
     compile 'org.jdeferred:jdeferred-android-aar:1.2.4'
     compile 'com.google.code.gson:gson:2.2.4'
@@ -68,4 +74,5 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.7.5'
     compile 'org.greenrobot:eventbus:3.0.0'
     provided 'org.roboguice:roboblender:3.0.1'
+    compile 'com.github.badoualy:stepper-indicator:1.0.2'
 }

@@ -5,96 +5,44 @@
                 android:background="@color/white"
                 android:orientation="vertical">
 
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/chooseCrimeLinearLayout">
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="match_parent"
-            android:id="@+id/chooseCrimeTypeImageView"
-            android:src="@drawable/choose_crime_type_icon"
-            android:layout_marginLeft="7dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/chooseCrimeType"
-            android:id="@+id/chooseCrimeTextView" />
-    </LinearLayout>
-
     <ListView
-    android:id="@+id/reportTypeList"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:divider="@android:color/darker_gray"
-    android:dividerHeight="1dp"
-    android:layout_below="@+id/chooseCrimeLinearLayout"
-        android:layout_above="@+id/additionalInfoLinearLayout" />
-
-    <LinearLayout
-        android:orientation="horizontal"
+        android:id="@+id/reportTypeList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/additionalInfoLinearLayout"
-        android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="match_parent"
-            android:id="@+id/additionalInfoImageView"
-            android:src="@drawable/additional_info_icon"
-            android:layout_marginLeft="7dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/additionalInfo"
-            android:id="@+id/additionalInfoTextView" />
-
-    </LinearLayout>
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
-        android:id="@+id/additionalInfoEditText"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/additionalInfoLinearLayout"
+        android:layout_height="match_parent"
         android:layout_above="@+id/bottomPanel"
-        android:gravity="top|left" />
+        android:layout_marginTop="5dp"
+        android:divider="@null"
+        android:dividerHeight="0dp"/>
 
     <RelativeLayout
         android:id="@+id/bottomPanel"
         android:layout_width="match_parent"
         android:layout_height="130dp"
         android:layout_alignParentBottom="true"
-        android:background="@color/primaryColorDark">
+        android:background="@color/primaryColor">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:text="@string/chooseCrimeType"
+            android:textColor="@android:color/white"
+            android:textSize="17sp"/>
 
         <Button
             android:id="@+id/next_button"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
+            android:layout_marginBottom="20dp"
             android:layout_marginRight="20dp"
-            android:layout_marginTop="20dp"
             android:background="@drawable/button_background"
-            android:drawablePadding="15dp"
-            android:drawableRight="@drawable/right_arrow_icon"
-            android:paddingLeft="30dp"
-            android:paddingRight="15dp"
+            android:paddingLeft="45dp"
+            android:paddingRight="45dp"
             android:text="@string/next"
-            android:textAllCaps="false"/>
+            android:textAllCaps="false"
+            android:textSize="17sp"/>
     </RelativeLayout>
 </RelativeLayout>

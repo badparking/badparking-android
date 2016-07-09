@@ -11,13 +11,12 @@ import android.view.ViewGroup;
 import com.google.inject.Inject;
 
 import ua.in.badparking.R;
-import ua.in.badparking.api.requests.ClaimRequest;
 import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.User;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.services.UserState;
 import ua.in.badparking.services.api.ClaimsService;
-import ua.in.badparking.services.api.UserService;
+import ua.in.badparking.ui.MainActivity;
 
 /**
  * Design https://www.dropbox.com/sh/vbffs09uqzaj2mt/AAABkTvQbP7q10o5YP83Mzdia?dl=0
@@ -45,11 +44,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         view.findViewById(R.id.send_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final Claim claim = ClaimState.INST.getClaim();
-                final User user = UserState.INST.getUser();
-                //TODO: 1. Add user data to request. 2. TBD - upload image
-                ClaimRequest claimRequest = new ClaimRequest(claim, user, null);
-                mClaimService.postMyClaims(claimRequest);
+                ((MainActivity)getActivity()).moveToNext();
             }
         });
     }

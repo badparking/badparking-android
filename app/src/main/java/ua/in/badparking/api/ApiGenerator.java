@@ -14,8 +14,8 @@ import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
-import ua.in.badparking.BuildConfig;
 import ua.in.badparking.Constants;
+import ua.in.badparking.services.ClaimState;
 
 @Singleton
 public class ApiGenerator {
@@ -29,12 +29,12 @@ public class ApiGenerator {
         client.setConnectTimeout(30, TimeUnit.SECONDS);
         client.setReadTimeout(300, TimeUnit.SECONDS);
 
-        RequestInterceptor requestInterceptor = new RequestInterceptor() {
-            @Override
-            public void intercept(RequestFacade request) {
-                request.addHeader("X-Client", BuildConfig.VERSION_NAME);
-            }
-        };
+//        RequestInterceptor requestInterceptor = new RequestInterceptor() {
+//            @Override
+//            public void intercept(RequestFacade request) {
+//                request.addHeader("Authorization", "JWT " + ClaimState.INST.getToken());
+//            }
+//        };
 
 
         GsonBuilder gsonBuilder = new GsonBuilder();
@@ -43,7 +43,7 @@ public class ApiGenerator {
         builder = new RestAdapter.Builder()
                 .setConverter(new GsonConverter(gson))
                 .setEndpoint(Constants.API_BASE_URL)
-                .setRequestInterceptor(requestInterceptor)
+//                .setRequestInterceptor(requestInterceptor)
                 .setClient(new OkClient(client));
     }
 

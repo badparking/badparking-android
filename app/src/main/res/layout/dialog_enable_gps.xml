@@ -13,20 +13,5 @@
         android:textSize="16sp"
         android:textStyle="bold"/>
 
-    <Button
-        android:id="@+id/bankIdButton"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="5dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/button_background"
-        android:drawableRight="@drawable/right_arrow_icon"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:text="BankID"
-        android:textAllCaps="false"
-        android:textSize="15sp"/>
 
 </RelativeLayout>

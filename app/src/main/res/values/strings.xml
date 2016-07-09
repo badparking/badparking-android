@@ -20,14 +20,14 @@
     <string name="from_gallery">З галереї</string>
     <string name="no_connection">Немає мережi</string>
     <string name="choose_photo_mode">Ви можете зробити нове фото або додати фото з галереї</string>
-    <string name="evaluating">Визначається ...</string>
+    <string name="positioning_in_progress">Miсцезнаходження визначається …</string>
     <string name="error">Помилка</string>
     <string name="simple_mode">Простий режим</string>
     <string name="extended_mode">Розширений режим</string>
     <string name="only_2_pics">Ви можете послати тiльки двi фотографiї одночасно</string>
-    <string name="dialogGPSActivateQuestion">Щоб визначити мiсцеположення, треби увiмкнути GPS в налаштуваннях, зробити це?</string>
-    <string name="shoot_plates">Зробiть фото \nномерних знакiв →</string>
-    <string name="shoot_trespass">Зробiть фото \nправопорушення →</string>
+    <string name="dialogGPSActivateQuestion">Щоб визначити мiсцезнаходження, треби увiмкнути GPS в налаштуваннях, зробити це?</string>
+    <string name="capture_plates">Зробiть фото номерних знакiв </string>
+    <string name="capture_claim">Зробiть фото правопорушення </string>
     <string name="consent_text">
         1. Увiмкнiть  GPS.\n2. Зробiть фото правопорушення та фото номерiв.\n
         Дякуэмо за спiвпрацю!\n\n
@@ -35,7 +35,7 @@
     </string>
     <string name="electronic_identification" />
     <string name="choose_bank" />
-    <string name="chooseCrimeType">Оберіть тип порушення:</string>
+    <string name="chooseCrimeType">Оберіть тип порушення</string>
     <string name="additionalInfo">Додаткова інформація:</string>
     <string name="actionbar_title_claim">Реєстрація порушення</string>
     <string name="gps_network_not_enabled">Для корректної роботи додатку потрібно знати місцезнаходження. Використовувати геоданні?</string>
