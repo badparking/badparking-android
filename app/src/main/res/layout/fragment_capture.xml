@@ -102,10 +102,11 @@
     </RelativeLayout>
 
     <FrameLayout
-        android:id="@+id/cameraHolder"
+        android:id="@+id/cameraPreview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/bottomPanel"/>
+        android:layout_above="@id/bottomPanel"
+        />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/snap"
