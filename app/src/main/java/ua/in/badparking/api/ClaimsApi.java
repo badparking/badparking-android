@@ -6,7 +6,6 @@ import java.util.Map;
 import retrofit.Callback;
 import retrofit.http.Body;
 import retrofit.http.GET;
-import retrofit.http.Header;
 import retrofit.http.Multipart;
 import retrofit.http.PATCH;
 import retrofit.http.POST;
@@ -14,10 +13,8 @@ import retrofit.http.PUT;
 import retrofit.http.Part;
 import retrofit.http.PartMap;
 import retrofit.http.Path;
-import retrofit.http.Query;
 import retrofit.mime.TypedString;
 import ua.in.badparking.api.responses.BaseResponse;
-import ua.in.badparking.api.responses.ClaimsResponse;
 import ua.in.badparking.model.Claim;
 
 public interface ClaimsApi {
@@ -33,19 +30,18 @@ public interface ClaimsApi {
 
     @Multipart
     @POST("/claims/my")
-    void postMyClaims(@Header("Authorization") String token,
-                      @PartMap() Map crimetypes,
+    void postMyClaims(@PartMap() Map crimetypes,
                       @PartMap() Map claimData,
-                      Callback<ClaimsResponse> responseCallback);
+                      Callback<Claim> responseCallback);
 
     @PUT("/claims/my/{pk}")
-    void putMyClaims(@Path("pk") String pk, @Body Claim claimRequest, Callback<ClaimsResponse> responseCallback);
+    void putMyClaims(@Path("pk") String pk, @Body Claim claimRequest, Callback<Claim> responseCallback);
 
     @PATCH("/claims/my/{pk}")
-    void patchMyClaims(@Path("pk") String pk, @Body Claim claimRequest, Callback<ClaimsResponse> responseCallback);
+    void patchMyClaims(@Path("pk") String pk, @Body Claim claimRequest, Callback<Claim> responseCallback);
 
     @GET("/claims/my/{pk}")
-    void getClaim(@Path("pk") String pk, Callback<ClaimsResponse> responseCallback);
+    void getClaim(@Path("pk") String pk, Callback<Claim> responseCallback);
 
     @POST("/claims/my/{pk}/cancel")
     void cancelClaim(@Path("pk") String pk, Callback<BaseResponse> responseCallback);
