@@ -20,7 +20,8 @@ import ua.in.badparking.services.ClaimState;
 @Singleton
 public class ApiGenerator {
 
-    private final RestAdapter.Builder builder;
+    private final RestAdapter.Builder mBuilder;
+    private final RestAdapter.Builder mBuilderwithInterceptor;
 
     @Inject
     public ApiGenerator(Context context) {
@@ -29,22 +30,27 @@ public class ApiGenerator {
         client.setConnectTimeout(30, TimeUnit.SECONDS);
         client.setReadTimeout(300, TimeUnit.SECONDS);
 
-//        RequestInterceptor requestInterceptor = new RequestInterceptor() {
-//            @Override
-//            public void intercept(RequestFacade request) {
-//                request.addHeader("Authorization", "JWT " + ClaimState.INST.getToken());
-//            }
-//        };
+        RequestInterceptor requestInterceptor = new RequestInterceptor() {
+            @Override
+            public void intercept(RequestFacade request) {
+                request.addHeader("Authorization", "JWT " + ClaimState.INST.getToken());
+            }
+        };
 
 
         GsonBuilder gsonBuilder = new GsonBuilder();
         Gson gson = gsonBuilder.create();
 
-        builder = new RestAdapter.Builder()
+        mBuilder = new RestAdapter.Builder()
                 .setConverter(new GsonConverter(gson))
                 .setEndpoint(Constants.API_BASE_URL)
-//                .setRequestInterceptor(requestInterceptor)
                 .setClient(new OkClient(client));
+
+        mBuilderwithInterceptor = new RestAdapter.Builder()
+                .setConverter(new GsonConverter(gson))
+                .setEndpoint(Constants.API_BASE_URL)
+                .setClient(new OkClient(client))
+                .setRequestInterceptor(requestInterceptor);
     }
 
     private <S> S buildApi(Class<S> apiClass, RestAdapter.Builder builder) {
@@ -53,7 +59,11 @@ public class ApiGenerator {
         return adapter.create(apiClass);
     }
 
-    public <S> S createApi(Class<S> apiClass) {
+    public <S> S createApi(Class<S> apiClass, boolean requiresAuth) {
+        RestAdapter.Builder builder = mBuilder;
+        if (requiresAuth) {
+            builder = mBuilderwithInterceptor;
+        }
         return buildApi(apiClass, builder);
     }
 

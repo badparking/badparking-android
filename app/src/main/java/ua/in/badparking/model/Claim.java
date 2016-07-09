@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.List;
 
-public class Claim implements Serializable{
+public class Claim implements Serializable {
 
     @SerializedName("pk")
     private String pk;
@@ -14,7 +14,7 @@ public class Claim implements Serializable{
     @SerializedName("longitude")
     private String longitude;
     @SerializedName("crimetypes")
-    private List<CrimeType> crimetypes;
+    private List<Integer> crimetypes;
     @SerializedName("city")
     private String city;
     @SerializedName("address")
@@ -25,7 +25,12 @@ public class Claim implements Serializable{
     private List<MediaFileSerializer> photoFiles;
     @SerializedName("user")
     private User user;
+    @SerializedName("status")
+    private String status;
 
+    public String getStatus() {
+        return status;
+    }
 
     public String getLicensePlates() {
         return licensePlates;
@@ -47,7 +52,7 @@ public class Claim implements Serializable{
         return address;
     }
 
-    public List<CrimeType> getCrimetypes() {
+    public List<Integer> getCrimetypes() {
         return crimetypes;
     }
 
@@ -71,7 +76,7 @@ public class Claim implements Serializable{
         this.address = address;
     }
 
-    public void setCrimetypes(List<CrimeType> crimetypes) {
+    public void setCrimetypes(List<Integer> crimetypes) {
         this.crimetypes = crimetypes;
     }
 
@@ -101,5 +106,20 @@ public class Claim implements Serializable{
 
     public class MediaFileSerializer {
 
+    }
+
+    @Override
+    public String toString() {
+        return "Claim{" +
+                "pk='" + pk + '\'' +
+                ", latitude='" + latitude + '\'' +
+                ", longitude='" + longitude + '\'' +
+                ", crimetypes=" + crimetypes +
+                ", city='" + city + '\'' +
+                ", address='" + address + '\'' +
+                ", licensePlates='" + licensePlates + '\'' +
+                ", photoFiles=" + photoFiles +
+                ", user=" + user +
+                '}';
     }
 }

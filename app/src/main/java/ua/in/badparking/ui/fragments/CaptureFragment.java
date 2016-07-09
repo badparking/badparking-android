@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import ua.in.badparking.R;
-import ua.in.badparking.ui.MainActivity;
+import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.utils.CameraPreview;
 
 /**
