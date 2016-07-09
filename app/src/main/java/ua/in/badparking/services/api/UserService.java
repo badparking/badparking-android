@@ -18,7 +18,7 @@ public class UserService extends ApiService {
 
     protected UserService( ApiGenerator apiGenerator) {
         super(apiGenerator);
-        mUserApi = apiGenerator.createApi(UserApi.class);
+        mUserApi = apiGenerator.createApi(UserApi.class, true);
     }
 
     public void getUser() {
