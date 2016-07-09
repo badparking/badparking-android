@@ -8,8 +8,6 @@ import retrofit.RetrofitError;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.events.AuthCompleteEvent;
 import ua.in.badparking.events.ErrorEvent;
-import ua.in.badparking.events.TypesLoadedEvent;
-import ua.in.badparking.services.AuthState;
 import ua.in.badparking.services.ClaimState;
 
 public abstract class ApiService {
@@ -25,9 +23,10 @@ public abstract class ApiService {
     RequestInterceptor requestInterceptor = new RequestInterceptor() {
         @Override
         public void intercept(RequestFacade request) {
-            request.addHeader("Authorization", "JWT " + AuthState.INST.getToken());
+            request.addHeader("Authorization", "JWT " + ClaimState.INST.getToken());
         }
     };
+
     @Subscribe
     public void onEvent(ErrorEvent event) {
 
@@ -35,12 +34,7 @@ public abstract class ApiService {
 
     @Subscribe
     public void onAuthComplete(AuthCompleteEvent event) {
-        AuthState.INST.setToken(event.getToken());
-    }
-
-    @Subscribe
-    public void onTypesLoaded(TypesLoadedEvent event) {
-        ClaimState.INST.setCrimeTypes(event.getCrimeTypes());
+        ClaimState.INST.setToken(event.getToken());
     }
 
 }

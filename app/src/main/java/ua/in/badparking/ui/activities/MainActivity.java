@@ -1,4 +1,4 @@
-package ua.in.badparking.ui;
+package ua.in.badparking.ui.activities;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -28,7 +28,7 @@ import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
 import ua.in.badparking.ui.dialogs.EnableGPSDialog;
-import ua.in.badparking.ui.fragments.AuthFragment;
+import ua.in.badparking.ui.fragments.ResultFragment;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
 import ua.in.badparking.ui.fragments.ClaimTypeFragment;
@@ -73,32 +73,31 @@ public class MainActivity extends RoboActionBarActivity {
     }
 
     private void checkLocationServices() {
-        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         boolean gps_enabled = false;
 
         try {
             gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch (Exception ex) {
-        }
+        } catch(Exception ex) {}
 
-        if (!gps_enabled) {
+        if(!gps_enabled) {
             // notify user
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
             dialog.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
             dialog.setPositiveButton(getResources().getString(R.string.open_location_settings),
                     new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                            Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivity(myIntent);
-                            //get gps
-                        }
-                    });
+                @Override
+                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                    Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(myIntent);
+                    //get gps
+                }
+            });
             dialog.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                    showEnableGpsDialogIfNeeded();
+                   showEnableGpsDialogIfNeeded();
                 }
             });
             dialog.show();
@@ -114,11 +113,11 @@ public class MainActivity extends RoboActionBarActivity {
     private void showEnableGpsDialogIfNeeded() {
         EnableGPSDialog introDialog = new EnableGPSDialog(this, android.R.style.Theme_Black_NoTitleBar,
                 new EnableGPSDialog.ActionListener() {
-                    @Override
-                    public void onAction() {
+            @Override
+            public void onAction() {
 
-                    }
-                });
+            }
+        });
         introDialog.show();
     }
 
@@ -222,15 +221,15 @@ public class MainActivity extends RoboActionBarActivity {
         @Override
         public Fragment getItem(int position) {
             if (position == 0) {
-                return AuthFragment.newInstance();
-            } else if (position == 1) {
                 return CaptureFragment.newInstance();
-            } else if (position == 2) {
+            } else if (position == 1) {
                 return LocationFragment.newInstance();
-            } else if (position == 3) {
+            } else if (position == 2) {
                 return ClaimTypeFragment.newInstance();
-            } else {
+            } else if (position == 3){
                 return ClaimOverviewFragment.newInstance();
+            } else {
+                return ResultFragment.newInstance();
             }
         }
 

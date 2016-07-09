@@ -21,7 +21,7 @@ import java.text.DecimalFormat;
 import ua.in.badparking.R;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.services.GeolocationService;
-import ua.in.badparking.ui.MainActivity;
+import ua.in.badparking.ui.activities.MainActivity;
 
 /**
  * @author Dima Kovalenko

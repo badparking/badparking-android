@@ -5,6 +5,7 @@ import com.google.inject.Singleton;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -14,24 +15,27 @@ import retrofit.client.Response;
 import retrofit.mime.TypedString;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.ClaimsApi;
+import ua.in.badparking.api.TypesApi;
 import ua.in.badparking.api.responses.BaseResponse;
-import ua.in.badparking.api.responses.ClaimsResponse;
 import ua.in.badparking.events.ClaimCancelledEvent;
 import ua.in.badparking.events.ClaimPostedEvent;
 import ua.in.badparking.events.ClaimPutEvent;
 import ua.in.badparking.events.ClaimsLoadedEvent;
+import ua.in.badparking.events.TypesLoadedEvent;
 import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.CrimeType;
 
 @Singleton
 public class ClaimsService extends ApiService {
 
+    private final TypesApi mTypesApi;
     private final ClaimsApi mClaimsApi;
 
     @Inject
     protected ClaimsService(ApiGenerator apiGenerator) {
         super(apiGenerator);
-        mClaimsApi = apiGenerator.createApi(ClaimsApi.class);
+        mClaimsApi = apiGenerator.createApi(ClaimsApi.class, true);
+        mTypesApi = apiGenerator.createApi(TypesApi.class, false);
     }
 
     public void getClaims(String clientId, String clientSecret, String timestamp) {
@@ -66,7 +70,7 @@ public class ClaimsService extends ApiService {
     public void postMyClaims(Claim claim) {
         String latitude = claim.getLatitude();
         String longitude = claim.getLongitude();
-        List<CrimeType> crimetypes = claim.getCrimetypes();
+        List<Integer> crimetypes = claim.getCrimetypes();
         LinkedHashMap<String, Integer> crimeMap= new LinkedHashMap<>();
         LinkedHashMap<String, String> paramsMap= new LinkedHashMap<>();
         paramsMap.put("latitude", latitude);
@@ -74,13 +78,13 @@ public class ClaimsService extends ApiService {
         paramsMap.put("city", claim.getCity());
         paramsMap.put("address", claim.getAddress());
         paramsMap.put("license_plates", claim.getLicensePlates());
-        for(CrimeType crimetype : crimetypes) {
-            crimeMap.put("crimetypes", crimetype.getId());
+        for(Integer crimetype : crimetypes) {
+            crimeMap.put("crimetypes", crimetype);
         }
-        mClaimsApi.postMyClaims(crimeMap, paramsMap, new Callback<ClaimsResponse>() {
+        mClaimsApi.postMyClaims(crimeMap, paramsMap, new Callback<Claim>() {
             @Override
-            public void success(ClaimsResponse claimsResponse, Response response) {
-                EventBus.getDefault().post(new ClaimPostedEvent());
+            public void success(Claim claimsResponse, Response response) {
+                EventBus.getDefault().post(new ClaimPostedEvent(claimsResponse.toString()));
             }
 
             @Override
@@ -91,9 +95,9 @@ public class ClaimsService extends ApiService {
     }
 
     public void putMyClaims(String pk, Claim claim) {
-        mClaimsApi.putMyClaims(pk, claim, new Callback<ClaimsResponse>() {
+        mClaimsApi.putMyClaims(pk, claim, new Callback<Claim>() {
             @Override
-            public void success(ClaimsResponse claimsResponse, Response response) {
+            public void success(Claim claimsResponse, Response response) {
                 EventBus.getDefault().post(new ClaimPutEvent());
             }
 
@@ -105,9 +109,9 @@ public class ClaimsService extends ApiService {
     }
 
     public void patchMyClaims(String pk, Claim claim) {
-        mClaimsApi.patchMyClaims(pk, claim, new Callback<ClaimsResponse>() {
+        mClaimsApi.patchMyClaims(pk, claim, new Callback<Claim>() {
             @Override
-            public void success(ClaimsResponse claimsResponse, Response response) {
+            public void success(Claim claimsResponse, Response response) {
                 EventBus.getDefault().post(new ClaimPutEvent());
             }
 
@@ -119,9 +123,9 @@ public class ClaimsService extends ApiService {
     }
 
     public void getClaim(String pk) {
-        mClaimsApi.getClaim(pk, new Callback<ClaimsResponse>() {
+        mClaimsApi.getClaim(pk, new Callback<Claim>() {
             @Override
-            public void success(ClaimsResponse claimsResponse, Response response) {
+            public void success(Claim claimsResponse, Response response) {
                 EventBus.getDefault().post(new ClaimsLoadedEvent());
             }
 
@@ -144,5 +148,36 @@ public class ClaimsService extends ApiService {
             }
         });
     }
+
+    public void getTypes() {
+        mTypesApi.getTypes(new Callback<List<CrimeType>>() {
+            @Override
+            public void success(List<CrimeType> crimeTypes, Response response) {
+                EventBus.getDefault().post(new TypesLoadedEvent(crimeTypes));
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+    }
+
+    public void getType(String pk) {
+        mTypesApi.getType(pk, new Callback<CrimeType>() {
+            @Override
+            public void success(CrimeType crimeType, Response response) {
+                List types = new ArrayList();
+                types.add(crimeType);
+                EventBus.getDefault().post(new TypesLoadedEvent(types));
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+    }
+
 
 }

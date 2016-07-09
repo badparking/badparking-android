@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 import ua.in.badparking.R;
-import ua.in.badparking.ui.MainActivity;
+import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.utils.CameraPreview;
 
 /**

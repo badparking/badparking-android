@@ -18,7 +18,7 @@ public class TokenService extends ApiService {
 
     protected TokenService(ApiGenerator apiGenerator) {
         super(apiGenerator);
-        mTokenApi = apiGenerator.createApi(TokenApi.class);
+        mTokenApi = apiGenerator.createApi(TokenApi.class, false);
     }
 
     public void refreshToken(TokenRequest tokenRequest) {
