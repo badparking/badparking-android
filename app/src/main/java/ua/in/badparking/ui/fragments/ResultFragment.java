@@ -20,17 +20,31 @@ import ua.in.badparking.services.api.ClaimsService;
 
 public class ResultFragment extends BaseFragment {
 
-    @InjectView(R.id.web_auth) private WebView mAuthWeb;
-    @InjectView(R.id.text_auth_response) private TextView mAuthResponse;
-    @Inject private ClaimsService mClaimService;
+    @InjectView(R.id.web_auth)
+    private WebView mAuthWeb;
+    @InjectView(R.id.text_auth_response)
+    private TextView mAuthResponse;
+    @Inject
+    private ClaimsService mClaimService;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_auth, container, false);
-        EventBus.getDefault().register(this);
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 
     @Subscribe
