@@ -35,77 +35,26 @@
             android:textColor="@android:color/white"
             android:textSize="17sp"/>
 
-        <LinearLayout
-            android:id="@+id/photoHolder"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="@dimen/photo_side"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="20dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
             android:layout_toLeftOf="@id/next_button"
-            android:orientation="horizontal">
-
-            <RelativeLayout
-                android:id="@+id/first_image_holder"
-                android:layout_width="@dimen/photo_side"
-                android:layout_height="@dimen/photo_side"
-                android:background="@drawable/white_dashed_frame"
-                android:visibility="gone">
-
-                <ImageView
-                    android:id="@+id/first_image"
-                    android:layout_width="@dimen/photo_side"
-                    android:layout_height="@dimen/photo_side"
-                    android:scaleType="centerCrop"
-                    />
-
-                <ImageView
-                    android:id="@+id/close_first"
-                    android:layout_width="@dimen/abc_action_bar_default_height_material"
-                    android:layout_height="@dimen/abc_action_bar_default_height_material"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:background="@drawable/circle_close"
-                    />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/second_image_holder"
-                android:layout_width="@dimen/photo_side"
-                android:layout_height="@dimen/photo_side"
-                android:layout_marginLeft="10dp"
-                android:background="@drawable/white_dashed_frame"
-                android:visibility="gone">
-
-                <ImageView
-                    android:id="@+id/second_image"
-                    android:layout_width="@dimen/photo_side"
-                    android:layout_height="@dimen/photo_side"
-                    android:scaleType="centerCrop"
-                    />
-
-                <ImageView
-                    android:id="@+id/close_second"
-                    android:layout_width="@dimen/abc_action_bar_default_height_material"
-                    android:layout_height="@dimen/abc_action_bar_default_height_material"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:background="@drawable/circle_close"
-
-                    />
-
-            </RelativeLayout>
-
-        </LinearLayout>
+            android:clipToPadding="false"
+            android:paddingLeft="15dp"
+            android:paddingRight="10dp"
+            android:scrollbars="none"/>
 
     </RelativeLayout>
 
     <FrameLayout
-        android:id="@+id/cameraHolder"
+        android:id="@+id/cameraPreview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/bottomPanel"/>
+        android:layout_above="@id/bottomPanel"
+        />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/snap"
