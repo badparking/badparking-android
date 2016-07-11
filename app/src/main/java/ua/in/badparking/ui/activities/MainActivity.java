@@ -29,7 +29,6 @@ import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
 import ua.in.badparking.ui.dialogs.EnableGPSDialog;
-import ua.in.badparking.ui.fragments.ResultFragment;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
 import ua.in.badparking.ui.fragments.ClaimTypeFragment;
@@ -209,6 +208,10 @@ public class MainActivity extends RoboActionBarActivity {
         viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
     }
 
+    public void moveToFirst() {
+        viewPager.setCurrentItem(0);
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -227,10 +230,8 @@ public class MainActivity extends RoboActionBarActivity {
                 return LocationFragment.newInstance();
             } else if (position == 2) {
                 return ClaimTypeFragment.newInstance();
-            } else if (position == 3){
-                return ClaimOverviewFragment.newInstance();
             } else {
-                return ResultFragment.newInstance();
+                return ClaimOverviewFragment.newInstance();
             }
         }
 

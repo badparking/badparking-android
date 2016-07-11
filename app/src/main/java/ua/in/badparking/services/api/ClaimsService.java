@@ -84,12 +84,12 @@ public class ClaimsService extends ApiService {
         mClaimsApi.postMyClaims(crimeMap, paramsMap, new Callback<Claim>() {
             @Override
             public void success(Claim claimsResponse, Response response) {
-                EventBus.getDefault().post(new ClaimPostedEvent(claimsResponse.toString()));
+                EventBus.getDefault().post(new ClaimPostedEvent("Відправлено", true));
             }
 
             @Override
             public void failure(RetrofitError error) {
-
+                EventBus.getDefault().post(new ClaimPostedEvent("Помилка. Спробуйте ще", false));
             }
         });
     }

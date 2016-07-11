@@ -1,9 +1,11 @@
 package ua.in.badparking.ui.fragments;
 
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 
@@ -27,6 +30,7 @@ import ua.in.badparking.model.User;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.services.UserState;
 import ua.in.badparking.services.api.ClaimsService;
+import ua.in.badparking.services.api.TokenService;
 import ua.in.badparking.ui.activities.MainActivity;
 
 /**
@@ -37,7 +41,11 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     @Inject
     private ClaimsService mClaimService;
+    @Inject
+    private TokenService mTokenService;
     private final OkHttpClient client = new OkHttpClient();
+    private AlertDialog waitDialog;
+    private AlertDialog readyDialog;
 
     public static Fragment newInstance() {
         return new ClaimOverviewFragment();
@@ -47,7 +55,14 @@ public class ClaimOverviewFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_claim_overview, container, false);
+        EventBus.getDefault().register(this);
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -56,25 +71,25 @@ public class ClaimOverviewFragment extends BaseFragment {
         view.findViewById(R.id.send_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                mTokenService.verifyToken(ClaimState.INST.getToken());
                 String url = Constants.BASE_URL + "/profiles/login/dummy";
-
                 get(url, new Callback() {
                     @Override
                     public void onFailure(Request request, IOException e) {
-                        EventBus.getDefault().post(new ClaimPostedEvent(e.getMessage()));
+//                    EventBus.getDefault().post(new ClaimPostedEvent(e.getMessage()));
                     }
 
                     @Override
                     public void onResponse(Response response) throws IOException {
                         ClaimState.INST.setToken(response.headers().get("X-JWT"));
-                        final Claim claim = ClaimState.INST.getClaim();
-                        final User user = UserState.INST.getUser();
-                        //TODO: 1. Add user data to request. 2. TBD - upload image
-                        mClaimService.postMyClaims(claim);
                     }
                 });
-
-                ((MainActivity)getActivity()).moveToNext();
+//        }
+                final Claim claim = ClaimState.INST.getClaim();
+                final User user = UserState.INST.getUser();
+                //TODO: 1. Add user data to request. 2. TBD - upload image
+                showSendClaimDialog();
+                mClaimService.postMyClaims(claim);
             }
         });
     }
@@ -86,5 +101,52 @@ public class ClaimOverviewFragment extends BaseFragment {
         Call call = client.newCall(request);
         call.enqueue(callback);
         return call;
+    }
+
+//TODO: Verify token
+//    @Subscribe
+//    public void onTokenVerified(TokenVerifiedEvent event) {
+////        if(event.getVerificationResult().equals(false)) {
+//            String url = Constants.BASE_URL + "/profiles/login/dummy";
+//            get(url, new Callback() {
+//                @Override
+//                public void onFailure(Request request, IOException e) {
+////                    EventBus.getDefault().post(new ClaimPostedEvent(e.getMessage()));
+//                }
+//
+//                @Override
+//                public void onResponse(Response response) throws IOException {
+//                    ClaimState.INST.setToken(response.headers().get("X-JWT"));
+//                }
+//            });
+////        }
+//        final Claim claim = ClaimState.INST.getClaim();
+//        final User user = UserState.INST.getUser();
+//        //TODO: 1. Add user data to request. 2. TBD - upload image
+//        showSendClaimDialog();
+//        mClaimService.postMyClaims(claim);
+//    }
+
+    private void showSendClaimDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("Відправлення...");
+        waitDialog = builder.create();
+        waitDialog.show();
+    }
+
+    @Subscribe
+    public void onShowResult(final ClaimPostedEvent event) {
+        waitDialog.hide();
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(event.getMessage());
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                if(event.getPosted()) {
+                    ((MainActivity) getActivity()).moveToFirst();
+                }
+            }
+        });
+        readyDialog = builder.create();
+        readyDialog.show();
     }
 }
