@@ -3,6 +3,7 @@ package ua.in.badparking.model;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Claim implements Serializable {
@@ -22,7 +23,7 @@ public class Claim implements Serializable {
     @SerializedName("license_plates")
     private String licensePlates;
     @SerializedName("images")
-    private List<MediaFileSerializer> photoFiles;
+    private List<MediaFile> photoFiles = new ArrayList<MediaFile>();
     @SerializedName("user")
     private User user;
     @SerializedName("status")
@@ -80,8 +81,16 @@ public class Claim implements Serializable {
         this.crimetypes = crimetypes;
     }
 
-    public List<MediaFileSerializer> getPhotoFiles() {
+    public List<MediaFile> getPhotoFiles() {
         return photoFiles;
+    }
+
+    public void addPhoto(String filePath) {
+        photoFiles.add(new MediaFile(filePath, System.currentTimeMillis()));
+    }
+
+    public void removePhoto(MediaFile mediaFile) {
+        photoFiles.remove(mediaFile);
     }
 
     public String getPk() {
@@ -92,7 +101,7 @@ public class Claim implements Serializable {
         this.pk = pk;
     }
 
-    public void setPhotoFiles(List<MediaFileSerializer> photoFiles) {
+    public void setPhotoFiles(List<MediaFile> photoFiles) {
         this.photoFiles = photoFiles;
     }
 
@@ -102,10 +111,6 @@ public class Claim implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public class MediaFileSerializer {
-
     }
 
     @Override

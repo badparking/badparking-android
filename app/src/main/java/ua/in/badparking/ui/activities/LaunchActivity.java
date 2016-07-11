@@ -25,7 +25,6 @@ public class LaunchActivity extends RoboActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
-        setContentView(R.layout.activity_launch);
         mClaimsService.getTypes();
     }
 
