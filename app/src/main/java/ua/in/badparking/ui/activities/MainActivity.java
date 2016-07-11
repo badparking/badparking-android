@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -237,7 +238,16 @@ public class MainActivity extends RoboActionBarActivity {
         public int getCount() {
             return 5;
         }
-
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        int currentItem = viewPager.getCurrentItem();
+        if (keyCode == KeyEvent.KEYCODE_BACK && currentItem > 0) {
+            viewPager.setCurrentItem(currentItem - 1, true);
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
 }
