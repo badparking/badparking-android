@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,7 +29,6 @@ import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
 import ua.in.badparking.ui.dialogs.EnableGPSDialog;
-import ua.in.badparking.ui.fragments.ResultFragment;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
 import ua.in.badparking.ui.fragments.ClaimTypeFragment;
@@ -208,6 +208,10 @@ public class MainActivity extends RoboActionBarActivity {
         viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
     }
 
+    public void moveToFirst() {
+        viewPager.setCurrentItem(0);
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -226,10 +230,8 @@ public class MainActivity extends RoboActionBarActivity {
                 return LocationFragment.newInstance();
             } else if (position == 2) {
                 return ClaimTypeFragment.newInstance();
-            } else if (position == 3){
-                return ClaimOverviewFragment.newInstance();
             } else {
-                return ResultFragment.newInstance();
+                return ClaimOverviewFragment.newInstance();
             }
         }
 
@@ -237,7 +239,16 @@ public class MainActivity extends RoboActionBarActivity {
         public int getCount() {
             return 5;
         }
-
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        int currentItem = viewPager.getCurrentItem();
+        if (keyCode == KeyEvent.KEYCODE_BACK && currentItem > 0) {
+            viewPager.setCurrentItem(currentItem - 1, true);
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
 }
