@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +24,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 
+import roboguice.inject.InjectView;
 import ua.in.badparking.Constants;
 import ua.in.badparking.R;
 import ua.in.badparking.events.ClaimPostedEvent;
@@ -32,12 +35,17 @@ import ua.in.badparking.services.UserState;
 import ua.in.badparking.services.api.ClaimsService;
 import ua.in.badparking.services.api.TokenService;
 import ua.in.badparking.ui.activities.MainActivity;
+import ua.in.badparking.ui.adapters.PhotoAdapter;
 
 /**
  * Design https://www.dropbox.com/sh/vbffs09uqzaj2mt/AAABkTvQbP7q10o5YP83Mzdia?dl=0
  * Created by Dima Kovalenko on 7/3/16.
  */
 public class ClaimOverviewFragment extends BaseFragment {
+
+
+    @InjectView(R.id.recyclerView)
+    protected RecyclerView recyclerView;
 
     @Inject
     private ClaimsService mClaimService;
@@ -46,6 +54,8 @@ public class ClaimOverviewFragment extends BaseFragment {
     private final OkHttpClient client = new OkHttpClient();
     private AlertDialog waitDialog;
     private AlertDialog readyDialog;
+
+    private PhotoAdapter photoAdapter;
 
     public static Fragment newInstance() {
         return new ClaimOverviewFragment();
@@ -92,6 +102,15 @@ public class ClaimOverviewFragment extends BaseFragment {
                 mClaimService.postMyClaims(claim);
             }
         });
+
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        recyclerView.setLayoutManager(layoutManager);
+
+        photoAdapter = new PhotoAdapter(getActivity());
+        recyclerView.setAdapter(photoAdapter);
+        recyclerView.setHasFixedSize(true);
     }
 
     Call get(String url, Callback callback) {
