@@ -1,8 +1,269 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottomPanel">
+
+        <LinearLayout
+            android:id="@+id/claimOverviewLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/bottomPanel"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/sendClaimTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:text="Відправлення скарги"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/accent"
+                android:textSize="20dp"
+                android:layout_marginBottom="8dp" />
+
+            <RelativeLayout
+                android:id="@+id/cameraRelativeLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="80dp"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp">
+
+                <LinearLayout
+                    android:id="@+id/cameraLinearLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@+id/sendClaimTextView"
+                    android:orientation="horizontal"
+                    android:weightSum="1">
+
+                    <ImageView
+                        android:id="@+id/cameraImageView"
+                        android:layout_width="30dp"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_local_see_black_24dp"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="8dp" />
+
+                    <LinearLayout
+                        android:id="@+id/twoPhotosLinearLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:weightSum="1"
+                        android:layout_marginLeft="8dp">
+
+                        <ImageView
+                            android:id="@+id/firstPhotoImageView"
+                            android:layout_width="132dp"
+                            android:layout_height="80dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentRight="true"
+                            android:layout_below="@+id/sendClaimTextView"
+                            android:layout_marginEnd="17dp"
+                            android:layout_marginRight="17dp"
+                            android:layout_weight="0.30"
+                            android:src="@drawable/ic_directions_car_black_24dp"
+                            android:background="@drawable/dotted_canvas"/>
+
+                        <ImageView
+                            android:id="@+id/secondPhotoImageView"
+                            android:layout_width="132dp"
+                            android:layout_height="80dp"
+                            android:layout_below="@+id/sendClaimTextView"
+                            android:layout_toLeftOf="@+id/firstPhotoImageView"
+                            android:layout_toStartOf="@+id/firstPhotoImageView"
+                            android:layout_weight="0.30"
+                            android:src="@drawable/ic_directions_car_black_24dp"
+                            android:background="@drawable/dotted_canvas"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/addressLinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp">
+
+                <ImageView
+                    android:id="@+id/addressImageView"
+                    android:layout_width="30dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_place_black_24dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="8dp" />
+
+                <LinearLayout
+                    android:id="@+id/specificAddressLinearLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/addressWordTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Адреса:"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <TextView
+                        android:id="@+id/addressTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="м.Київ, вул. Теодора Драйзера 34/51"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@color/accent"
+                        android:layout_marginLeft="6dp" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/crimeTypeLinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp">
+
+                <ImageView
+                    android:id="@+id/crimeTypeImageView"
+                    android:layout_width="30dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_warning_black_24dp"
+                    android:layout_gravity="center"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginLeft="5dp" />
+
+                <LinearLayout
+                    android:id="@+id/specificCrimeTypeLinearLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/crimeWordTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Порушення:"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                    <TextView
+                        android:id="@+id/crimeTypesTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="– Стоянка на перехресті\n– Стоянка другим рядом\n– Блокупання міського транспорту"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@color/accent"
+                        android:layout_marginLeft="6dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/additionalInfoLinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp">
+
+                <ImageView
+                    android:id="@+id/additionalInfoImageView"
+                    android:layout_width="30dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_create_black_24dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="8dp" />
+
+                <LinearLayout
+                    android:id="@+id/specificAdditionalInfoLinearLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/additionalInfoTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Додаткова інформація:"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:layout_marginBottom="-3dp" />
+
+                    <EditText
+                        android:id="@+id/additionalInfoEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:ems="10"
+                        android:inputType="textMultiLine"
+                        android:text="сцяв під забором, плювався, смітив,кидався недопалками! бикувате гівно"
+                        android:layout_marginLeft="6dp"
+                        android:gravity="top|left"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/identificationLinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="5dp">
+
+                <TextView
+                    android:id="@+id/identificationTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center"
+                    android:text="Реестрація, ферифікація, ідентифікація…\nВся необхідна інформація щодо користувача"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textStyle="italic"
+                    android:textColor="#1964a4"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp" />
+
+                <ImageView
+                    android:id="@+id/identificationImageView"
+                    android:layout_width="180dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/bankid"
+                    android:layout_marginBottom="5dp" />
+
+                <Button
+                    android:id="@+id/identificationButton"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Верифікація\nгромадянина"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:layout_width="160dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/identification_button"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
     <RelativeLayout
         android:id="@+id/bottomPanel"
@@ -25,7 +286,6 @@
             android:paddingRight="30dp"
             android:text="@string/send"
             android:textAllCaps="false"
-            android:textSize="17sp"/>
+            android:textSize="17sp" />
     </RelativeLayout>
-
 </RelativeLayout>

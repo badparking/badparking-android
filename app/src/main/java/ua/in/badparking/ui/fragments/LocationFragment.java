@@ -14,6 +14,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.text.DecimalFormat;
@@ -55,7 +56,14 @@ public class LocationFragment extends BaseFragment {
         mapView.onCreate(savedInstanceState);
         MapsInitializer.initialize(getActivity());
 
-        googleMap = mapView.getMap();
+        mapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                LocationFragment.this.googleMap = googleMap;
+                MapsInitializer.initialize(LocationFragment.this.getActivity());
+                setCenter(new LatLng(50.45, 30.523611));
+            }
+        });
 
         GeolocationService.INST.subscribe(new GeolocationService.ILocationListener() {
             @Override
@@ -78,8 +86,6 @@ public class LocationFragment extends BaseFragment {
                 ((MainActivity)getActivity()).moveToNext();
             }
         });
-
-        setCenter(new LatLng(50.45, 30.523611));
 
         return rootView;
     }
