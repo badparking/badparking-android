@@ -1,11 +1,15 @@
 package ua.in.badparking.ui.fragments;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -40,13 +44,15 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
+    private static final int REQUEST_IMAGE_CAPTURE = 102;
 
-    private CameraPreview mPreview;
+//    private CameraPreview mPreview;
+    private File tempImage;
 
     @InjectView(R.id.recyclerView)
-    protected RecyclerView _recyclerView;
+    protected RecyclerView recyclerView;
 
-    private Camera mCamera;
+//    private Camera mCamera;
     private View snapButton;
     private View nextButton;
 
@@ -76,22 +82,22 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        _recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(layoutManager);
 
         photoAdapter = new PhotoAdapter(getActivity());
-        _recyclerView.setAdapter(photoAdapter);
-        _recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(photoAdapter);
+        recyclerView.setHasFixedSize(true);
 
         // Create an instance of Camera
-        mCamera = getCameraInstance();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            mCamera.enableShutterSound(true);
-        }
-
-        // Create our Preview view and set it as the content of our activity.
-        mPreview = new CameraPreview(getContext(), mCamera);
-        FrameLayout preview = (FrameLayout)view.findViewById(R.id.cameraPreview);
-        preview.addView(mPreview);
+//        mCamera = getCameraInstance();
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+//            mCamera.enableShutterSound(true);
+//        }
+//
+//        // Create our Preview view and set it as the content of our activity.
+//        mPreview = new CameraPreview(getContext(), mCamera);
+//        FrameLayout preview = (FrameLayout)view.findViewById(R.id.cameraPreview);
+//        preview.addView(mPreview);
     }
 
     /**
@@ -114,10 +120,10 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void releaseCamera() {
-        if (mCamera != null) {
-            mCamera.release();        // release the camera for other applications
-            mCamera = null;
-        }
+//        if (mCamera != null) {
+//            mCamera.release();        // release the camera for other applications
+//            mCamera = null;
+//        }
     }
 
     private Camera.PictureCallback pictureCallback = new Camera.PictureCallback() {
@@ -196,11 +202,50 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         return mediaFile;
     }
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
+            String path = tempImage.getPath();
+            ClaimState.INST.getClaim().addPhoto(path);
+            photoAdapter.notifyDataSetChanged();
+
+        }
+    }
+
+
+    private void openCamera() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            try {
+                File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                tempImage = File.createTempFile(String.valueOf(System.currentTimeMillis()), ".jpg", storageDir);
+
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempImage));
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+
+    private String getPathFromUri(Uri uri) {
+        String selected;
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getActivity().getContentResolver().query(uri, filePathColumn, null, null, null);
+        cursor.moveToFirst();
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        selected = cursor.getString(columnIndex);
+        cursor.close();
+        return selected;
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.snap:
-                capture();
+//                capture(); TODO uncomment
+                openCamera();
                 break;
             case R.id.next_button:
                 ((MainActivity)getActivity()).moveToNext();
@@ -210,7 +255,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     private void capture() {
         // get an image from the camera
-        mCamera.takePicture(null, null, pictureCallback);
+//        mCamera.takePicture(null, null, pictureCallback);
     }
 
 }

@@ -90,16 +90,10 @@ public class MainActivity extends RoboActionBarActivity {
                         public void onClick(DialogInterface paramDialogInterface, int paramInt) {
                             Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                             startActivity(myIntent);
-                            //get gps
+                            paramDialogInterface.dismiss();
                         }
                     });
-            dialog.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-
-                @Override
-                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                    showEnableGpsDialogIfNeeded();
-                }
-            });
+            dialog.setCancelable(false);
             dialog.show();
         }
     }

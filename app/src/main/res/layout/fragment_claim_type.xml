@@ -10,6 +10,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/bottomPanel"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="true"
+        android:scrollbarFadeDuration="5000"
         android:layout_marginTop="5dp"
         android:divider="@null"
         android:dividerHeight="0dp"/>

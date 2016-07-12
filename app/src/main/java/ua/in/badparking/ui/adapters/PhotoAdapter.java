@@ -14,7 +14,6 @@ import android.widget.ImageView;
 
 import java.util.List;
 
-import roboguice.RoboGuice;
 import roboguice.inject.InjectView;
 import ua.in.badparking.R;
 import ua.in.badparking.model.MediaFile;
@@ -77,7 +76,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
          */
         public MovieViewHolder(View itemView) {
             super(itemView);
-            RoboGuice.getInjector(_context).injectViewMembers(this);
+            _photoView = (ImageView)itemView.findViewById(R.id.image);
+            _deleteCross = (ImageView)itemView.findViewById(R.id.deleteCross);
         }
 
         /**
@@ -98,7 +98,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
         }
 
 
-        // TODO move all of this to helper class
+        // TODO use Glide here
         private void setPic(ImageView view, String currentPhotoPath) {
             int targetW = _context.getResources().getDimensionPixelSize(R.dimen.photo_side);
             int targetH = _context.getResources().getDimensionPixelSize(R.dimen.photo_side);
