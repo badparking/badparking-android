@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -19,10 +20,12 @@ import ua.in.badparking.model.CrimeType;
  */
 public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
     private final List<CrimeType> crimeTypeList;
+    private Button nextButton;
 
-    public CrimeTypeAdapter(Context context, List<CrimeType> objects) {
+    public CrimeTypeAdapter(Context context, List<CrimeType> objects, Button nextButton) {
         super(context, R.id.list_item, objects);
         this.crimeTypeList = objects;
+        this.nextButton = nextButton;
     }
 
     @Override
@@ -47,6 +50,14 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     int getPosition = (Integer) buttonView.getTag();
                     crimeTypeList.get(getPosition).setSelected(buttonView.isChecked());
+
+                    for (CrimeType ct :crimeTypeList) {
+                        if (ct.isSelected()) {
+                            nextButton.setEnabled(true);
+                            break;
+                        }
+                        nextButton.setEnabled(false);
+                    }
                 }
             });
 

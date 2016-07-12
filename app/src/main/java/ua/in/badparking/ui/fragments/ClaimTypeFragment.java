@@ -1,6 +1,7 @@
 package ua.in.badparking.ui.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import roboguice.inject.InjectView;
 import ua.in.badparking.R;
 import ua.in.badparking.model.CrimeType;
 import ua.in.badparking.services.ClaimState;
@@ -23,20 +25,27 @@ import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
  */
 public class ClaimTypeFragment extends BaseFragment {
 
-    CrimeTypeAdapter crimeTypeAdapter;
-    ListView listView;
+    private CrimeTypeAdapter crimeTypeAdapter;
+    @InjectView(R.id.reportTypeList)
+    private ListView listView;
+    @InjectView(R.id.next_button)
+    private Button nextButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_claim_type, container, false);
-        listView = (ListView)rootView.findViewById(R.id.reportTypeList);
+        return rootView;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         List<CrimeType> crimeTypes = ClaimState.INST.getCrimeTypes();
-        crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), crimeTypes);
+        crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), crimeTypes, nextButton);
         listView.setAdapter(crimeTypeAdapter);
 
-        Button nextButton = (Button)rootView.findViewById(R.id.next_button);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -45,11 +54,10 @@ public class ClaimTypeFragment extends BaseFragment {
                     crimetypesIds.add(crimeType.getId());
                 }
                 ClaimState.INST.getClaim().setCrimetypes(crimetypesIds);
-                ((MainActivity)getActivity()).moveToNext();
+                ((MainActivity) getActivity()).moveToNext();
             }
         });
-
-        return rootView;
+        nextButton.setEnabled(false);
     }
 
     public static Fragment newInstance() {
