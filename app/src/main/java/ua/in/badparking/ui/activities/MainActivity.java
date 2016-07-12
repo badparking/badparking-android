@@ -221,9 +221,9 @@ public class MainActivity extends RoboActionBarActivity {
             if (position == 0) {
                 return CaptureFragment.newInstance();
             } else if (position == 1) {
-                return LocationFragment.newInstance();
-            } else if (position == 2) {
                 return ClaimTypeFragment.newInstance();
+            } else if (position == 2) {
+                return LocationFragment.newInstance();
             } else {
                 return ClaimOverviewFragment.newInstance();
             }

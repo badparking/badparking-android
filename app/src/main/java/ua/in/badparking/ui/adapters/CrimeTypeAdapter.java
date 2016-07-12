@@ -23,7 +23,7 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
     private Button nextButton;
 
     public CrimeTypeAdapter(Context context, List<CrimeType> objects, Button nextButton) {
-        super(context, R.id.list_item, objects);
+        super(context, R.layout.listitem_report_type, objects);
         this.crimeTypeList = objects;
         this.nextButton = nextButton;
     }
@@ -33,30 +33,30 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
 
         ViewHolder viewHolder = null;
         if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) getContext()
+            LayoutInflater inflater = (LayoutInflater)getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.listitem_report_type,
                     parent, false);
 
             viewHolder = new ViewHolder();
 
-            viewHolder.todoName = (TextView) convertView
+            viewHolder.todoName = (TextView)convertView
                     .findViewById(R.id.list_item);
-            viewHolder.checkBox = (CheckBox) convertView
+            viewHolder.checkBox = (CheckBox)convertView
                     .findViewById(R.id.checkBox);
             viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    int getPosition = (Integer) buttonView.getTag();
+                    int getPosition = (Integer)buttonView.getTag();
                     crimeTypeList.get(getPosition).setSelected(buttonView.isChecked());
 
-                    for (CrimeType ct :crimeTypeList) {
+                    for (CrimeType ct : crimeTypeList) {
                         if (ct.isSelected()) {
-                            nextButton.setEnabled(true);
+                            nextButton.setVisibility(View.VISIBLE);
                             break;
                         }
-                        nextButton.setEnabled(false);
+                        nextButton.setVisibility(View.GONE);
                     }
                 }
             });
@@ -65,7 +65,7 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
             convertView.setTag(R.id.list_item, viewHolder.todoName);
             convertView.setTag(R.id.checkBox, viewHolder.checkBox);
         } else {
-            viewHolder = (ViewHolder) convertView.getTag();
+            viewHolder = (ViewHolder)convertView.getTag();
         }
 
         viewHolder.checkBox.setTag(position);
@@ -81,7 +81,7 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
         public CheckBox checkBox;
     }
 
-    public List<CrimeType> getCrimeTypeList(){
+    public List<CrimeType> getCrimeTypeList() {
         return crimeTypeList;
     }
 }
