@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.google.inject.Inject;
 import com.squareup.okhttp.Call;
@@ -46,6 +47,10 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     @InjectView(R.id.recyclerView)
     protected RecyclerView recyclerView;
+    @InjectView(R.id.identificationButton)
+    Button mVerificationButton;
+    @InjectView(R.id.send_button)
+    Button mSendButton;
 
     @Inject
     private ClaimsService mClaimService;
@@ -78,10 +83,11 @@ public class ClaimOverviewFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.findViewById(R.id.send_button).setOnClickListener(new View.OnClickListener() {
+        mVerificationButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-//                mTokenService.verifyToken(ClaimState.INST.getToken());
+            public void onClick(View v) {
+                //TODO: verify user with bank id
+                mSendButton.setEnabled(true);
                 String url = Constants.BASE_URL + "/profiles/login/dummy";
                 get(url, new Callback() {
                     @Override
@@ -95,9 +101,15 @@ public class ClaimOverviewFragment extends BaseFragment {
                     }
                 });
 //        }
+            }
+        });
+        mSendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                mTokenService.verifyToken(ClaimState.INST.getToken());
+                //TODO: 1. Add user data to request. 2. TBD - upload image
                 final Claim claim = ClaimState.INST.getClaim();
                 final User user = UserState.INST.getUser();
-                //TODO: 1. Add user data to request. 2. TBD - upload image
                 showSendClaimDialog();
                 mClaimService.postMyClaims(claim);
             }

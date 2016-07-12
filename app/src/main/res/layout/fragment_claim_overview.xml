@@ -265,6 +265,7 @@
             android:paddingRight="30dp"
             android:text="@string/send"
             android:textAllCaps="false"
-            android:textSize="17sp"/>
+            android:textSize="17sp"
+            android:enabled="false"/>
     </RelativeLayout>
 </RelativeLayout>
