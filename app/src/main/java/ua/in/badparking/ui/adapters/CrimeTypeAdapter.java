@@ -14,17 +14,18 @@ import java.util.List;
 
 import ua.in.badparking.R;
 import ua.in.badparking.model.CrimeType;
+import ua.in.badparking.services.ClaimState;
 
 /**
  * Created by Volodymyr Dranyk on 7/6/2016.
  */
 public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
-    private final List<CrimeType> crimeTypeList;
+    //private final List<CrimeType> crimeTypeList;
     private Button nextButton;
 
     public CrimeTypeAdapter(Context context, List<CrimeType> objects, Button nextButton) {
         super(context, R.layout.listitem_report_type, objects);
-        this.crimeTypeList = objects;
+        ClaimState.INST.setCrimeTypes(objects);
         this.nextButton = nextButton;
     }
 
@@ -39,7 +40,6 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
                     parent, false);
 
             viewHolder = new ViewHolder();
-
             viewHolder.todoName = (TextView)convertView
                     .findViewById(R.id.list_item);
             viewHolder.checkBox = (CheckBox)convertView
@@ -49,15 +49,11 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     int getPosition = (Integer)buttonView.getTag();
-                    crimeTypeList.get(getPosition).setSelected(buttonView.isChecked());
+                    ClaimState.INST.getCrimeTypes().get(getPosition).setSelected(buttonView.isChecked());
 
-                    for (CrimeType ct : crimeTypeList) {
-                        if (ct.isSelected()) {
-                            nextButton.setVisibility(View.VISIBLE);
-                            break;
-                        }
+                    if(ClaimState.INST.getSelectedCrimeTypes().isEmpty()){
                         nextButton.setVisibility(View.GONE);
-                    }
+                    } else nextButton.setVisibility(View.VISIBLE);
                 }
             });
 
@@ -69,9 +65,8 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
         }
 
         viewHolder.checkBox.setTag(position);
-
-        viewHolder.todoName.setText(crimeTypeList.get(position).getName());
-        viewHolder.checkBox.setChecked(crimeTypeList.get(position).isSelected());
+        viewHolder.todoName.setText(ClaimState.INST.getCrimeTypes().get(position).getName());
+        viewHolder.checkBox.setChecked(ClaimState.INST.getCrimeTypes().get(position).isSelected());
 
         return convertView;
     }
@@ -80,9 +75,4 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
         public TextView todoName;
         public CheckBox checkBox;
     }
-
-    public List<CrimeType> getCrimeTypeList() {
-        return crimeTypeList;
-    }
 }
-

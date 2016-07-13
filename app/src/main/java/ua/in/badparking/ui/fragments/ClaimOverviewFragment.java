@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.squareup.okhttp.Call;
@@ -44,13 +45,14 @@ import ua.in.badparking.ui.adapters.PhotoAdapter;
  */
 public class ClaimOverviewFragment extends BaseFragment {
 
-
     @InjectView(R.id.recyclerView)
     protected RecyclerView recyclerView;
     @InjectView(R.id.identificationButton)
     Button mVerificationButton;
     @InjectView(R.id.send_button)
     Button mSendButton;
+    @InjectView(R.id.crimeTypesTextView)
+    TextView crimeTypeTextView;
 
     @Inject
     private ClaimsService mClaimService;
@@ -83,6 +85,7 @@ public class ClaimOverviewFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        crimeTypeTextView.setText(ClaimState.INST.getSelectedCrimeTypesNames());
         mVerificationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -103,6 +106,7 @@ public class ClaimOverviewFragment extends BaseFragment {
 //        }
             }
         });
+
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -114,7 +118,6 @@ public class ClaimOverviewFragment extends BaseFragment {
                 mClaimService.postMyClaims(claim);
             }
         });
-
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
