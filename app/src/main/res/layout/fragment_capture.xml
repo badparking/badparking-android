@@ -1,7 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:background="@android:color/black">
 
     <RelativeLayout
         android:id="@+id/bottomPanel"
@@ -24,6 +25,7 @@
             android:text="@string/next"
             android:textAllCaps="false"
             android:textSize="17sp"
+            android:visibility="gone"
             />
 
         <TextView

@@ -24,9 +24,16 @@ import ua.in.badparking.services.ClaimState;
  */
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHolder> {
 
+
+    public interface PhotosUpdatedListener {
+        void onPhotosUpdated();
+    }
+
     private static final String TAG = PhotoAdapter.class.getName();
     private final LayoutInflater _layoutInflater;
     private Context _context;
+
+    private PhotosUpdatedListener _listener;
 
     /**
      * Constructor
@@ -57,6 +64,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
         return ClaimState.INST.getClaim().getPhotoFiles();
     }
 
+
+    public void setListener(PhotosUpdatedListener listener) {
+        _listener = listener;
+    }
 
     /**
      * {@link android.support.v7.widget.RecyclerView.ViewHolder}
@@ -93,6 +104,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
                 public void onClick(View view) {
                     ClaimState.INST.getClaim().removePhoto(mediaFile);
                     notifyDataSetChanged();
+                    if (_listener != null) {
+                        _listener.onPhotosUpdated();
+                    }
                 }
             });
         }

@@ -16,6 +16,13 @@
         <item name="colorAccent">@color/accent</item>
     </style>
 
+    <style name="AppTheme.FullScreen" parent="AppTheme">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
     <style name="BadParkingActionBar"
            parent="@style/ThemeOverlay.AppCompat.ActionBar">
         <item name="android:color">@color/material_blue_grey_800</item>

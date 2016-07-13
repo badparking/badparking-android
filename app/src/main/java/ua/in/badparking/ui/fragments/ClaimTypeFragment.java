@@ -70,7 +70,7 @@ public class ClaimTypeFragment extends BaseFragment {
                 ((MainActivity) getActivity()).moveToNext();
             }
         });
-        nextButton.setEnabled(false);
+        nextButton.setVisibility(View.GONE);
     }
 
     public static Fragment newInstance() {

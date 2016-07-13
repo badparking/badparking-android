@@ -6,7 +6,6 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.hardware.Camera;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -17,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,13 +30,12 @@ import ua.in.badparking.R;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.PhotoAdapter;
-import ua.in.badparking.ui.utils.CameraPreview;
 
 /**
  * @author Dima Kovalenko
  * @author Vadik Kovalsky
  */
-public class CaptureFragment extends BaseFragment implements View.OnClickListener {
+public class CaptureFragment extends BaseFragment implements View.OnClickListener, PhotoAdapter.PhotosUpdatedListener {
 
     private static final String TAG = CaptureFragment.class.getName();
 
@@ -46,13 +43,13 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     public static final int MEDIA_TYPE_VIDEO = 2;
     private static final int REQUEST_IMAGE_CAPTURE = 102;
 
-//    private CameraPreview mPreview;
+    //    private CameraPreview mPreview;
     private File tempImage;
 
     @InjectView(R.id.recyclerView)
     protected RecyclerView recyclerView;
 
-//    private Camera mCamera;
+    //    private Camera mCamera;
     private View snapButton;
     private View nextButton;
 
@@ -85,8 +82,10 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         recyclerView.setLayoutManager(layoutManager);
 
         photoAdapter = new PhotoAdapter(getActivity());
+        photoAdapter.setListener(this);
         recyclerView.setAdapter(photoAdapter);
         recyclerView.setHasFixedSize(true);
+        _showButtons();
 
         // Create an instance of Camera
 //        mCamera = getCameraInstance();
@@ -98,6 +97,12 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 //        mPreview = new CameraPreview(getContext(), mCamera);
 //        FrameLayout preview = (FrameLayout)view.findViewById(R.id.cameraPreview);
 //        preview.addView(mPreview);
+    }
+
+    private void _showButtons() {
+        int photosTaken = ClaimState.INST.getClaim().getPhotoFiles().size();
+        nextButton.setVisibility(photosTaken > 1 ? View.VISIBLE : View.GONE);
+        snapButton.setVisibility(photosTaken > 1 ? View.GONE : View.VISIBLE);
     }
 
     /**
@@ -157,6 +162,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         int numberOfPhotosTaken = ClaimState.INST.getClaim().getPhotoFiles().size();
         snapButton.setVisibility(numberOfPhotosTaken > 2 ? View.GONE : View.VISIBLE);
         photoAdapter.notifyDataSetChanged();
+        _showButtons();
     }
 
     /**
@@ -209,10 +215,10 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             String path = tempImage.getPath();
             ClaimState.INST.getClaim().addPhoto(path);
             photoAdapter.notifyDataSetChanged();
+            _showButtons();
 
         }
     }
-
 
     private void openCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -258,4 +264,8 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 //        mCamera.takePicture(null, null, pictureCallback);
     }
 
+    @Override
+    public void onPhotosUpdated() {
+        _showButtons();
+    }
 }
