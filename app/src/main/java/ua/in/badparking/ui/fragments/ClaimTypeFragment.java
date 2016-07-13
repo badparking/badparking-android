@@ -8,8 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import roboguice.inject.InjectView;
@@ -34,8 +36,7 @@ public class ClaimTypeFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_claim_type, container, false);
-        return rootView;
+        return inflater.inflate(R.layout.fragment_claim_type, container, false);
     }
 
     @Override
@@ -50,9 +51,21 @@ public class ClaimTypeFragment extends BaseFragment {
             @Override
             public void onClick(View view) {
                 List<Integer> crimetypesIds = new ArrayList<>();
-                for (CrimeType crimeType : getSelectedCrimeTypes()) {
-                    crimetypesIds.add(crimeType.getId());
+                StringBuilder stringBuilder = new StringBuilder();
+
+                Iterator<CrimeType> crimeTypeIterator = getSelectedCrimeTypes().iterator();
+                while (crimeTypeIterator.hasNext()){
+                    CrimeType ct = crimeTypeIterator.next();
+                    crimetypesIds.add(ct.getId());
+                    stringBuilder.append("- ")
+                            .append(ct.getName());
+                    if(crimeTypeIterator.hasNext()) {
+                        stringBuilder.append("\n");
+                    }
                 }
+
+                TextView claimTypesTextView = (TextView) getActivity().findViewById(R.id.crimeTypesTextView);
+                claimTypesTextView.setText(stringBuilder.toString());
                 ClaimState.INST.getClaim().setCrimetypes(crimetypesIds);
                 ((MainActivity) getActivity()).moveToNext();
             }
