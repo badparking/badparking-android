@@ -8,6 +8,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -70,7 +71,7 @@ public class ClaimsService extends ApiService {
     public void postMyClaims(Claim claim) {
         String latitude = claim.getLatitude();
         String longitude = claim.getLongitude();
-        List<Integer> crimetypes = claim.getCrimetypes();
+        Set<Integer> crimetypes = claim.getCrimetypes();
         LinkedHashMap<String, Integer> crimeMap= new LinkedHashMap<>();
         LinkedHashMap<String, String> paramsMap= new LinkedHashMap<>();
         paramsMap.put("latitude", latitude);

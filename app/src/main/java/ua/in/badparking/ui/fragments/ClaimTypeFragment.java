@@ -8,15 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import roboguice.inject.InjectView;
 import ua.in.badparking.R;
-import ua.in.badparking.model.CrimeType;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
@@ -27,7 +21,6 @@ import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
  */
 public class ClaimTypeFragment extends BaseFragment {
 
-    private CrimeTypeAdapter crimeTypeAdapter;
     @InjectView(R.id.reportTypeList)
     private ListView listView;
     @InjectView(R.id.next_button)
@@ -43,30 +36,12 @@ public class ClaimTypeFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        List<CrimeType> crimeTypes = ClaimState.INST.getCrimeTypes();
-        crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), crimeTypes, nextButton);
+        CrimeTypeAdapter crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), ClaimState.INST.getCrimeTypes(), nextButton);
         listView.setAdapter(crimeTypeAdapter);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List<Integer> crimetypesIds = new ArrayList<>();
-                StringBuilder stringBuilder = new StringBuilder();
-
-                Iterator<CrimeType> crimeTypeIterator = getSelectedCrimeTypes().iterator();
-                while (crimeTypeIterator.hasNext()){
-                    CrimeType ct = crimeTypeIterator.next();
-                    crimetypesIds.add(ct.getId());
-                    stringBuilder.append("- ")
-                            .append(ct.getName());
-                    if(crimeTypeIterator.hasNext()) {
-                        stringBuilder.append("\n");
-                    }
-                }
-
-                TextView claimTypesTextView = (TextView) getActivity().findViewById(R.id.crimeTypesTextView);
-                claimTypesTextView.setText(stringBuilder.toString());
-                ClaimState.INST.getClaim().setCrimetypes(crimetypesIds);
                 ((MainActivity) getActivity()).moveToNext();
             }
         });
@@ -75,17 +50,5 @@ public class ClaimTypeFragment extends BaseFragment {
 
     public static Fragment newInstance() {
         return new ClaimTypeFragment();
-    }
-
-    public List<CrimeType> getSelectedCrimeTypes() {
-        List<CrimeType> selectedCrimeTypeList = new ArrayList<>();
-
-        for (CrimeType ct : crimeTypeAdapter.getCrimeTypeList()) {
-            if (ct.isSelected()) {
-                selectedCrimeTypeList.add(ct);
-            }
-        }
-
-        return selectedCrimeTypeList;
     }
 }

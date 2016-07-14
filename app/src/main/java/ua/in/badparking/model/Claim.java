@@ -4,7 +4,9 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Claim implements Serializable {
 
@@ -15,7 +17,7 @@ public class Claim implements Serializable {
     @SerializedName("longitude")
     private String longitude;
     @SerializedName("crimetypes")
-    private List<Integer> crimetypes;
+    private Set<Integer> crimetypes = new HashSet<>();
     @SerializedName("city")
     private String city;
     @SerializedName("address")
@@ -53,7 +55,7 @@ public class Claim implements Serializable {
         return address;
     }
 
-    public List<Integer> getCrimetypes() {
+    public Set<Integer> getCrimetypes() {
         return crimetypes;
     }
 
@@ -77,7 +79,7 @@ public class Claim implements Serializable {
         this.address = address;
     }
 
-    public void setCrimetypes(List<Integer> crimetypes) {
+    public void setCrimetypes(Set<Integer> crimetypes) {
         this.crimetypes = crimetypes;
     }
 
