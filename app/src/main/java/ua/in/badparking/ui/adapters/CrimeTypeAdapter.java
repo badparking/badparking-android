@@ -11,6 +11,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.Set;
 
 import ua.in.badparking.R;
 import ua.in.badparking.model.CrimeType;
@@ -20,7 +21,6 @@ import ua.in.badparking.services.ClaimState;
  * Created by Volodymyr Dranyk on 7/6/2016.
  */
 public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
-    //private final List<CrimeType> crimeTypeList;
     private Button nextButton;
 
     public CrimeTypeAdapter(Context context, List<CrimeType> objects, Button nextButton) {
@@ -51,7 +51,13 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
                     int getPosition = (Integer)buttonView.getTag();
                     ClaimState.INST.getCrimeTypes().get(getPosition).setSelected(buttonView.isChecked());
 
-                    if(ClaimState.INST.getSelectedCrimeTypes().isEmpty()){
+                    Integer id = ClaimState.INST.getCrimeTypes().get(getPosition).getId();
+                    Set<Integer> crimeTypeIds = ClaimState.INST.getClaim().getCrimetypes();
+                    if (buttonView.isChecked()) {
+                        crimeTypeIds.add(id);
+                    } else crimeTypeIds.remove(id);
+
+                    if(crimeTypeIds.isEmpty()){
                         nextButton.setVisibility(View.GONE);
                     } else nextButton.setVisibility(View.VISIBLE);
                 }

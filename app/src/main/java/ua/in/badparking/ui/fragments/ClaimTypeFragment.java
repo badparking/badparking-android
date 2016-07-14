@@ -21,7 +21,6 @@ import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
  */
 public class ClaimTypeFragment extends BaseFragment {
 
-    private CrimeTypeAdapter crimeTypeAdapter;
     @InjectView(R.id.reportTypeList)
     private ListView listView;
     @InjectView(R.id.next_button)
@@ -37,13 +36,12 @@ public class ClaimTypeFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), ClaimState.INST.getCrimeTypes(), nextButton);
+        CrimeTypeAdapter crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), ClaimState.INST.getCrimeTypes(), nextButton);
         listView.setAdapter(crimeTypeAdapter);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ClaimState.INST.getClaim().setCrimetypes(ClaimState.INST.getSelectedCrimeTypeIds());
                 ((MainActivity) getActivity()).moveToNext();
             }
         });

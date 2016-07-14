@@ -62,13 +62,4 @@ public enum ClaimState {
         }
         return sb.toString();
     }
-
-    public List<Integer> getSelectedCrimeTypeIds(){
-        List<Integer> selectedCrimeTypeIds = new ArrayList<>();
-
-        for (CrimeType ct : getSelectedCrimeTypes()) {
-            selectedCrimeTypeIds.add(ct.getId());
-        }
-        return selectedCrimeTypeIds;
-    }
 }
