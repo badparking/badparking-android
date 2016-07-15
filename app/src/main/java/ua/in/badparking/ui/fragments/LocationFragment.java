@@ -83,6 +83,9 @@ public class LocationFragment extends BaseFragment {
                     ClaimState.INST.getClaim().setLatitude(df.format(location.getLatitude()).replace(",", "."));
                     ClaimState.INST.getClaim().setLongitude(df.format(location.getLongitude()).replace(",", "."));
                 }
+                ClaimState.INST.getClaim().setCity("Київ");
+                ClaimState.INST.getClaim().setAddress("вул. Теодора Драйзера 34/51");
+                ClaimState.INST.getClaim().setLicensePlates("AA0000AA");
                 ((MainActivity)getActivity()).moveToNext();
             }
         });
