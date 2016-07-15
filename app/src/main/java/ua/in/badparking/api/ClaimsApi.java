@@ -25,6 +25,24 @@ public interface ClaimsApi {
                    @Part("timestamp") TypedString timestamp,
                    Callback<List<Claim>> responseCallback);
 
+    @Multipart
+    @POST("/claims")
+    void postClaims(@PartMap() Map crimetypes,
+                    @PartMap() Map claimData,
+                    @PartMap() Map userData,
+                    @PartMap() Map fileData,
+                    @PartMap() Map claimStateData,
+                    Callback<Claim> responseCallback);
+
+    @Multipart
+    @POST("/claims/{pk}/authorize")
+    void authorizeClaim(@PartMap() Map crimetypes,
+                        @PartMap() Map claimData,
+                        @PartMap() Map userData,
+                        @PartMap() Map fileData,
+                        @PartMap() Map claimStateData,
+                        Callback<Claim> responseCallback);
+
     @GET("/claims/my")
     void getMyClaims(Callback<List<Claim>> responseCallback);
 

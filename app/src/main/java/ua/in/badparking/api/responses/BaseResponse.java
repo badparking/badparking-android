@@ -1,4 +1,6 @@
 package ua.in.badparking.api.responses;
 
-public class BaseResponse {
+import java.io.Serializable;
+
+public class BaseResponse implements Serializable {
 }

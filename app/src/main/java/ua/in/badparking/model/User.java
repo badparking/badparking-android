@@ -15,6 +15,7 @@ public class User {
     private String dob;
     private String inn;
     private String phone;
+    private String token;
     @SerializedName("is_complete")
     private String isComplete;
 
@@ -52,5 +53,9 @@ public class User {
 
     public String getIsComplete() {
         return isComplete;
+    }
+
+    public String getToken() {
+        return token;
     }
 }
