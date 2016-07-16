@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Parking Hero</string>
 
+    <string name="facebook_app_id">973984766052427</string>
+
     <string name="title_section1">Подiя</string>
     <string name="title_section2">Мiсце</string>
 

@@ -4,6 +4,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -14,6 +17,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,6 +28,16 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.badoualy.stepperindicator.StepperIndicator;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
@@ -38,6 +53,7 @@ import ua.in.badparking.ui.fragments.LocationFragment;
 @ContentView(R.layout.activity_main)
 public class MainActivity extends RoboActionBarActivity {
 
+    private static final boolean DEBUG = BuildConfig.DEBUG;
     private SectionsPagerAdapter pagerAdapter;
     private ViewPager viewPager;
     private Dialog senderProgressDialog;
@@ -45,6 +61,8 @@ public class MainActivity extends RoboActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this);
 
         setupToolbar();
         // Create the adapter that will return a fragment for each of the three
@@ -57,6 +75,28 @@ public class MainActivity extends RoboActionBarActivity {
         StepperIndicator indicator = (StepperIndicator)findViewById(R.id.stepper_indicator);
         assert indicator != null;
         indicator.setViewPager(viewPager, true);
+        if(DEBUG){
+            printDevHashKey();
+        }
+    }
+
+    private void printDevHashKey() {
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo(
+                    getPackageName(),
+                    PackageManager.GET_SIGNATURES);
+            for (Signature signature : info.signatures) {
+                MessageDigest md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+            }
+        }
+        catch (PackageManager.NameNotFoundException e) {
+
+        }
+        catch (NoSuchAlgorithmException e) {
+
+        }
     }
 
     @Override

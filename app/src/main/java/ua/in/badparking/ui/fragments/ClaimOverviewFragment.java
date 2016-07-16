@@ -14,6 +14,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.inject.Inject;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
@@ -47,12 +52,15 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     @InjectView(R.id.recyclerView)
     protected RecyclerView recyclerView;
-    @InjectView(R.id.identificationButton)
-    Button mVerificationButton;
+
     @InjectView(R.id.send_button)
     Button mSendButton;
+
     @InjectView(R.id.crimeTypesTextView)
     TextView crimeTypeTextView;
+
+    @InjectView(R.id.login_button)
+    LoginButton loginButton;
 
     @Inject
     private ClaimsService mClaimService;
@@ -63,6 +71,7 @@ public class ClaimOverviewFragment extends BaseFragment {
     private AlertDialog readyDialog;
 
     private PhotoAdapter photoAdapter;
+    private CallbackManager callbackManager;
 
     public static Fragment newInstance() {
         return new ClaimOverviewFragment();
@@ -86,26 +95,26 @@ public class ClaimOverviewFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         crimeTypeTextView.setText(ClaimState.INST.getSelectedCrimeTypesNames());
-        mVerificationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO: verify user with bank id
-                mSendButton.setEnabled(true);
-                String url = Constants.BASE_URL + "/profiles/login/dummy";
-                get(url, new Callback() {
-                    @Override
-                    public void onFailure(Request request, IOException e) {
-//                    EventBus.getDefault().post(new ClaimPostedEvent(e.getMessage()));
-                    }
-
-                    @Override
-                    public void onResponse(Response response) throws IOException {
-                        ClaimState.INST.setToken(response.headers().get("X-JWT"));
-                    }
-                });
-//        }
-            }
-        });
+//        mVerificationButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                //TODO: verify user with bank id
+//                mSendButton.setEnabled(true);
+//                String url = Constants.BASE_URL + "/profiles/login/dummy";
+//                get(url, new Callback() {
+//                    @Override
+//                    public void onFailure(Request request, IOException e) {
+////                    EventBus.getDefault().post(new ClaimPostedEvent(e.getMessage()));
+//                    }
+//
+//                    @Override
+//                    public void onResponse(Response response) throws IOException {
+//                        ClaimState.INST.setToken(response.headers().get("X-JWT"));
+//                    }
+//                });
+////        }
+//            }
+//        });
 
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,6 +135,31 @@ public class ClaimOverviewFragment extends BaseFragment {
         photoAdapter = new PhotoAdapter(getActivity());
         recyclerView.setAdapter(photoAdapter);
         recyclerView.setHasFixedSize(true);
+
+        callbackManager = CallbackManager.Factory.create();
+
+        loginButton.setReadPermissions("email, name");
+        // If using in a fragment
+        loginButton.setFragment(this);
+        // Other app specific specialization
+        loginButton.registerCallback(callbackManager,
+                new FacebookCallback<LoginResult>() {
+                    @Override
+                    public void onSuccess(LoginResult loginResult) {
+                        // App code
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        // App code
+                    }
+
+                    @Override
+                    public void onError(FacebookException exception) {
+                        // App code
+                    }
+                });
+
     }
 
     Call get(String url, Callback callback) {
@@ -175,8 +209,8 @@ public class ClaimOverviewFragment extends BaseFragment {
         builder.setMessage(event.getMessage());
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                if(event.getPosted()) {
-                    ((MainActivity) getActivity()).moveToFirst();
+                if (event.getPosted()) {
+                    ((MainActivity)getActivity()).moveToFirst();
                 }
             }
         });
