@@ -2,13 +2,16 @@ package ua.in.badparking.ui.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.hardware.Camera;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,6 +47,8 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
     private static final int REQUEST_IMAGE_CAPTURE = 102;
+    private static final int REQUEST_CAMERA_RESULT = 103;
+
 
     //    private CameraPreview mPreview;
     private File tempImage;
@@ -248,8 +254,20 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.snap:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.CAMERA)
+                            == PackageManager.PERMISSION_GRANTED) {
+                        openCamera();
+                    } else {
+                        if (shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) {
+                            Toast.makeText(getActivity(), "No Permission to use the Camera services", Toast.LENGTH_SHORT).show();
+                        }
+                        requestPermissions(new String[] {android.Manifest.permission.CAMERA}, REQUEST_CAMERA_RESULT);
+                    }
+                } else {
 //                capture(); TODO uncomment
-                openCamera();
+                    openCamera();
+                }
                 break;
             case R.id.next_button:
                 ((MainActivity)getActivity()).moveToNext();
