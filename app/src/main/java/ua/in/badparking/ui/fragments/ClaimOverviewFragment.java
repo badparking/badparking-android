@@ -31,6 +31,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import roboguice.inject.InjectView;
 import ua.in.badparking.R;
+import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.ClaimPostedEvent;
 import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.User;
@@ -38,6 +39,7 @@ import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.services.UserState;
 import ua.in.badparking.services.api.ClaimsService;
 import ua.in.badparking.services.api.TokenService;
+import ua.in.badparking.services.api.UserService;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.PhotoAdapter;
 
@@ -63,7 +65,11 @@ public class ClaimOverviewFragment extends BaseFragment {
     private ClaimsService mClaimService;
 
     @Inject
+    private UserService userService;
+
+    @Inject
     private TokenService mTokenService;
+
     private final OkHttpClient client = new OkHttpClient();
 
     private AlertDialog waitDialog;
@@ -142,16 +148,15 @@ public class ClaimOverviewFragment extends BaseFragment {
                     public void onSuccess(LoginResult loginResult) {
                         loginButton.setVisibility(View.GONE);
                         mSendButton.setVisibility(View.VISIBLE);
+                        userService.authorizeWithFacebook(loginResult.getAccessToken().getToken());
                     }
 
                     @Override
                     public void onCancel() {
-                        int a =0;
                     }
 
                     @Override
                     public void onError(FacebookException exception) {
-                       int a =0;
                     }
                 });
 
@@ -226,6 +231,12 @@ public class ClaimOverviewFragment extends BaseFragment {
         });
         readyDialog = builder.create();
         readyDialog.show();
+    }
+
+
+    @Subscribe
+    public void onAuthorizedWithFacebook(final AuthorizedWithFacebookEvent event) {
+        send();
     }
 
     @Override

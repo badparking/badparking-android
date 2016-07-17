@@ -27,5 +27,5 @@ public interface UserApi {
 
     @Multipart
     @POST("/user/auth/facebook")
-    void authorizeFacebook(@PartMap() Map userdata, Callback<User> responseCallback);
+    void authorizeWithFacebook(@PartMap() Map userdata, Callback<User> responseCallback);
 }
