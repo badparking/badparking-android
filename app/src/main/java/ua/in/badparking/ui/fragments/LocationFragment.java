@@ -54,31 +54,36 @@ public class LocationFragment extends BaseFragment {
         mapHolder = rootView.findViewById(R.id.mapHolder);
         mapView = (MapView)rootView.findViewById(R.id.mvMap);
         mapView.onCreate(savedInstanceState);
-        MapsInitializer.initialize(getActivity());
-
-        mapView.getMapAsync(new OnMapReadyCallback() {
+        mapView.postDelayed(new Runnable() {
             @Override
-            public void onMapReady(GoogleMap googleMap) {
-                LocationFragment.this.googleMap = googleMap;
-                MapsInitializer.initialize(LocationFragment.this.getActivity());
-                setCenter(new LatLng(50.45, 30.523611));
-            }
-        });
+            public void run() {
+                MapsInitializer.initialize(getActivity());
 
-        GeolocationService.INST.subscribe(new GeolocationService.ILocationListener() {
-            @Override
-            public void onLocationObtained(Location location) {
-                mapHolder.setVisibility(View.VISIBLE);
-                setCenter(new LatLng(location.getLatitude(), location.getLongitude()));
+                mapView.getMapAsync(new OnMapReadyCallback() {
+                    @Override
+                    public void onMapReady(GoogleMap googleMap) {
+                        LocationFragment.this.googleMap = googleMap;
+                        MapsInitializer.initialize(LocationFragment.this.getActivity());
+                        setCenter(new LatLng(50.45, 30.523611));
+                    }
+                });
+
+                GeolocationService.INST.subscribe(new GeolocationService.ILocationListener() {
+                    @Override
+                    public void onLocationObtained(Location location) {
+                        mapHolder.setVisibility(View.VISIBLE);
+                        setCenter(new LatLng(location.getLatitude(), location.getLongitude()));
+                    }
+                });
             }
-        });
+        }, 500);
         rootView.findViewById(R.id.next_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 LocationManager locManager = (LocationManager)getActivity().getSystemService(getActivity().LOCATION_SERVICE);
                 Location location = locManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-                if(location != null) {
+                if (location != null) {
                     DecimalFormat df = new DecimalFormat("#.######");
                     ClaimState.INST.getClaim().setLatitude(df.format(location.getLatitude()).replace(",", "."));
                     ClaimState.INST.getClaim().setLongitude(df.format(location.getLongitude()).replace(",", "."));

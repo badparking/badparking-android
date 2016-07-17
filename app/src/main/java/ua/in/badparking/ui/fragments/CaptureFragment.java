@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -48,6 +49,9 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     @InjectView(R.id.recyclerView)
     protected RecyclerView recyclerView;
+
+    @InjectView(R.id.message)
+    protected TextView messageView;
 
     //    private Camera mCamera;
     private View snapButton;
@@ -85,7 +89,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         photoAdapter.setListener(this);
         recyclerView.setAdapter(photoAdapter);
         recyclerView.setHasFixedSize(true);
-        _showButtons();
+        onPhotosUpdated();
 
         // Create an instance of Camera
 //        mCamera = getCameraInstance();
@@ -97,12 +101,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 //        mPreview = new CameraPreview(getContext(), mCamera);
 //        FrameLayout preview = (FrameLayout)view.findViewById(R.id.cameraPreview);
 //        preview.addView(mPreview);
-    }
-
-    private void _showButtons() {
-        int photosTaken = ClaimState.INST.getClaim().getPhotoFiles().size();
-        nextButton.setVisibility(photosTaken > 1 ? View.VISIBLE : View.GONE);
-        snapButton.setVisibility(photosTaken > 1 ? View.GONE : View.VISIBLE);
     }
 
     /**
@@ -162,7 +160,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         int numberOfPhotosTaken = ClaimState.INST.getClaim().getPhotoFiles().size();
         snapButton.setVisibility(numberOfPhotosTaken > 2 ? View.GONE : View.VISIBLE);
         photoAdapter.notifyDataSetChanged();
-        _showButtons();
+        onPhotosUpdated();
     }
 
     /**
@@ -215,7 +213,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             String path = tempImage.getPath();
             ClaimState.INST.getClaim().addPhoto(path);
             photoAdapter.notifyDataSetChanged();
-            _showButtons();
+            onPhotosUpdated();
 
         }
     }
@@ -266,6 +264,16 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void onPhotosUpdated() {
-        _showButtons();
+        int photosTaken = ClaimState.INST.getClaim().getPhotoFiles().size();
+        nextButton.setVisibility(photosTaken > 1 ? View.VISIBLE : View.GONE);
+        snapButton.setVisibility(photosTaken > 1 ? View.GONE : View.VISIBLE);
+        if (photosTaken == 0) {
+            messageView.setText(R.string.capture_claim);
+        } else if (photosTaken == 1) {
+            messageView.setText(R.string.capture_plates);
+        } else {
+            messageView.setText("");
+        }
+
     }
 }
