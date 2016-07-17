@@ -28,13 +28,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.badoualy.stepperindicator.StepperIndicator;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
-import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -75,7 +70,7 @@ public class MainActivity extends RoboActionBarActivity {
         StepperIndicator indicator = (StepperIndicator)findViewById(R.id.stepper_indicator);
         assert indicator != null;
         indicator.setViewPager(viewPager, true);
-        if(DEBUG){
+        if (DEBUG) {
             printDevHashKey();
         }
     }
@@ -90,11 +85,9 @@ public class MainActivity extends RoboActionBarActivity {
                 md.update(signature.toByteArray());
                 Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
             }
-        }
-        catch (PackageManager.NameNotFoundException e) {
+        } catch (PackageManager.NameNotFoundException e) {
 
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
 
         }
     }

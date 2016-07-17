@@ -2,6 +2,7 @@ package ua.in.badparking.ui.fragments;
 
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -24,15 +25,11 @@ import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.IOException;
-
 import roboguice.inject.InjectView;
-import ua.in.badparking.Constants;
 import ua.in.badparking.R;
 import ua.in.badparking.events.ClaimPostedEvent;
 import ua.in.badparking.model.Claim;
@@ -64,9 +61,11 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     @Inject
     private ClaimsService mClaimService;
+
     @Inject
     private TokenService mTokenService;
     private final OkHttpClient client = new OkHttpClient();
+
     private AlertDialog waitDialog;
     private AlertDialog readyDialog;
 
@@ -119,12 +118,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                mTokenService.verifyToken(ClaimState.INST.getToken());
-                //TODO: 1. Add user data to request. 2. TBD - upload image
-                final Claim claim = ClaimState.INST.getClaim();
-                final User user = UserState.INST.getUser();
-                showSendClaimDialog();
-                mClaimService.postMyClaims(claim);
+                send();
             }
         });
 
@@ -138,7 +132,7 @@ public class ClaimOverviewFragment extends BaseFragment {
 
         callbackManager = CallbackManager.Factory.create();
 
-        loginButton.setReadPermissions("email, name");
+        loginButton.setReadPermissions("email, public_profile");
         // If using in a fragment
         loginButton.setFragment(this);
         // Other app specific specialization
@@ -146,20 +140,36 @@ public class ClaimOverviewFragment extends BaseFragment {
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
-                        // App code
+                        loginButton.setVisibility(View.GONE);
+                        mSendButton.setVisibility(View.VISIBLE);
                     }
 
                     @Override
                     public void onCancel() {
-                        // App code
+                        int a =0;
                     }
 
                     @Override
                     public void onError(FacebookException exception) {
-                        // App code
+                       int a =0;
                     }
                 });
 
+    }
+
+    private void send() {
+        if (!ClaimState.INST.getClaim().isComplete()) {
+            // TODO show "not complete" message
+            return;
+        } else if (UserState.INST.getUser() == null) {
+            loginButton.setVisibility(View.VISIBLE);
+            mSendButton.setVisibility(View.GONE);
+            return;
+        }
+        final Claim claim = ClaimState.INST.getClaim();
+        final User user = UserState.INST.getUser();
+        showSendClaimDialog();
+        mClaimService.postMyClaims(claim);
     }
 
     Call get(String url, Callback callback) {
@@ -216,5 +226,11 @@ public class ClaimOverviewFragment extends BaseFragment {
         });
         readyDialog = builder.create();
         readyDialog.show();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 }

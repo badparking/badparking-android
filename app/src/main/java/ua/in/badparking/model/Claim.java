@@ -129,4 +129,8 @@ public class Claim implements Serializable {
                 ", user=" + user +
                 '}';
     }
+
+    public boolean isComplete() {
+        return true;
+    }
 }
