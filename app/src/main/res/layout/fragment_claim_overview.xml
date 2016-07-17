@@ -25,7 +25,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="8dp"
-                android:text="Відправлення скарги"
+                android:text="Надсилання скарги"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/accent"
                 android:textSize="20dp"/>

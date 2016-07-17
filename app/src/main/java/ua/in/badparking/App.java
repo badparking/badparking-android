@@ -15,9 +15,9 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (!BuildConfig.DEBUG) {
+//        if (!BuildConfig.DEBUG) {
             Crashlytics.start(this);
-        }
+//        }
         GeolocationService.INST.init(this);
         UserState.INST.init(this);
     }

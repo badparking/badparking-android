@@ -20,7 +20,7 @@
     <RelativeLayout
         android:id="@+id/bottomPanel"
         android:layout_width="match_parent"
-        android:layout_height="130dp"
+        android:layout_height="110dp"
         android:layout_alignParentBottom="true"
         android:background="@color/primaryColor">
 
