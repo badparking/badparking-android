@@ -166,6 +166,8 @@ public class MainActivity extends RoboActionBarActivity {
         if (id == R.id.action_your_data) {
 //            Dialog senderInfoDialog = new SenderInfoDialog(this);
 //            senderInfoDialog.show();
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 

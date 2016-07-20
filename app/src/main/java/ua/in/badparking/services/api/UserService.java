@@ -9,8 +9,6 @@ import java.util.HashMap;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import retrofit.http.PartMap;
-import retrofit.http.QueryMap;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.UserApi;
 import ua.in.badparking.api.requests.UserRequest;
@@ -18,6 +16,7 @@ import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.UserLoadedEvent;
 import ua.in.badparking.events.UserUpdatedEvent;
 import ua.in.badparking.model.User;
+import ua.in.badparking.services.UserState;
 
 public class UserService extends ApiService {
 
@@ -74,13 +73,14 @@ public class UserService extends ApiService {
     public void authorizeWithFacebook(String fbToken) {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("access_token", fbToken);
-//        params.put("client_id", clientId); TODO: put this in config file, but don't add to git!!!!
+//        params.put("client_id", clientId);// TODO: put this in config file, but don't add to git!!!!
 //        params.put("client_secret", clientSecret);
-//        params.put("timestamp", timestamp); // in sec
+        params.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000)); // in sec
         mUserApi.authorizeWithFacebook(params, new Callback<User>() {
             @Override
             public void success(User user, Response response) {
                 //TODO get token from our API here, save it in SecurePrefs!!!
+                UserState.INST.setUser(user);
                 EventBus.getDefault().post(new AuthorizedWithFacebookEvent());
             }
 
