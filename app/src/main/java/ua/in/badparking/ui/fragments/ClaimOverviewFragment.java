@@ -15,16 +15,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.inject.Inject;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -73,8 +70,6 @@ public class ClaimOverviewFragment extends BaseFragment {
     @Inject
     private TokenService mTokenService;
 
-    private final OkHttpClient client = new OkHttpClient();
-
     private AlertDialog waitDialog;
     private AlertDialog readyDialog;
 
@@ -108,19 +103,9 @@ public class ClaimOverviewFragment extends BaseFragment {
 //            @Override
 //            public void onClick(View v) {
 //                //TODO: verify user with bank id
-//                mSendButton.setEnabled(true);
-//                String url = Constants.BASE_URL + "/profiles/login/dummy";
-//                get(url, new Callback() {
-//                    @Override
-//                    public void onFailure(Request request, IOException e) {
-////                    EventBus.getDefault().post(new ClaimPostedEvent(e.getMessage()));
-//                    }
-//
-//                    @Override
-//                    public void onResponse(Response response) throws IOException {
-//                        ClaimState.INST.setToken(response.headers().get("X-JWT"));
-//                    }
-//                });
+                mSendButton.setEnabled(true);
+
+
 ////        }
 //            }
 //        });
@@ -166,6 +151,18 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (isLoggedIn()) {
+            loginButton.setVisibility(View.GONE);
+            mSendButton.setVisibility(View.VISIBLE);
+        } else {
+            loginButton.setVisibility(View.VISIBLE);
+            mSendButton.setVisibility(View.GONE);
+        }
+    }
+
     private void send() {
         if (!ClaimState.INST.getClaim().isComplete()) {
             // TODO show "not complete" message
@@ -181,13 +178,10 @@ public class ClaimOverviewFragment extends BaseFragment {
         mClaimService.postMyClaims(claim);
     }
 
-    Call get(String url, Callback callback) {
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        Call call = client.newCall(request);
-        call.enqueue(callback);
-        return call;
+
+    public boolean isLoggedIn() {
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        return accessToken != null;
     }
 
 //TODO: Verify token
@@ -240,6 +234,7 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     @Subscribe
     public void onAuthorizedWithFacebook(final AuthorizedWithFacebookEvent event) {
+        User user = new User();
         send();
     }
 
