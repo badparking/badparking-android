@@ -26,7 +26,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key_kovalenych"/>
+            android:value="@string/google_maps_key_vdranik"/>
 
         <activity
             android:name=".ui.activities.LaunchActivity"

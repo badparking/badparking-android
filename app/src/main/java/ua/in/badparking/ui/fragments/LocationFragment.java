@@ -7,6 +7,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +32,7 @@ import java.util.Locale;
 
 import roboguice.inject.InjectView;
 import ua.in.badparking.R;
+import ua.in.badparking.model.Claim;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.ui.activities.MainActivity;
 
@@ -43,42 +47,37 @@ public class LocationFragment extends BaseFragment implements GoogleMap.OnMyLoca
 
     private GoogleMap mMap;
     private Location location;
-    private Geocoder geocoder;
     private LocationManager locationManager;
+    private Geocoder geocoder;
+    private Claim claim = ClaimState.INST.getClaim();
     @InjectView(R.id.positioning_text_view)
     private TextView positioningText;
     @InjectView(R.id.next_button)
     private Button nextButton;
 
-    public static LocationFragment newInstance() {
+    public static Fragment newInstance() {
         return new LocationFragment();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_location, container, false);
+
+        View rootView = inflater.inflate(R.layout.fragment_location, container, false);
+
+        SupportMapFragment fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        fragment.getMapAsync(this);
+
+        locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        geocoder = new Geocoder(getContext(), Locale.getDefault());
+
+        return rootView;
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        SupportMapFragment fragment = (SupportMapFragment) this.getChildFragmentManager()
-                .findFragmentById(R.id.map);
-        if (fragment == null) {
-            fragment = SupportMapFragment.newInstance();
-            this.getChildFragmentManager().beginTransaction().replace(R.id.map, fragment).commit();
-        }
-
-        fragment.getMapAsync(this);
-        locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
-        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (location != null) {
-            locationPositioning(location);
-        }
-
-        geocoder = new Geocoder(getContext(), Locale.getDefault());
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,8 +85,6 @@ public class LocationFragment extends BaseFragment implements GoogleMap.OnMyLoca
                 ((MainActivity) getActivity()).moveToNext();
             }
         });
-
-
         nextButton.setVisibility(View.GONE);
     }
 
@@ -102,8 +99,6 @@ public class LocationFragment extends BaseFragment implements GoogleMap.OnMyLoca
             uiSettings.setTiltGesturesEnabled(false);
             uiSettings.setCompassEnabled(false);
         }
-
-        locationPositioning(location);
     }
 
     @Override
@@ -127,7 +122,22 @@ public class LocationFragment extends BaseFragment implements GoogleMap.OnMyLoca
     private LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            locationPositioning(location);
+            mapPositioning(location.getLatitude(), location.getLongitude());
+            Address address = getAddress(location);
+
+            if(address != null){
+                DecimalFormat df = new DecimalFormat("#.######");
+                claim.setCity(address.getLocality());
+                claim.setAddress(address.getAddressLine(0));
+                claim.setLatitude(df.format(address.getLatitude()).replace(",", "."));
+                claim.setLongitude(df.format(address.getLongitude()).replace(",", "."));
+
+                positioningText.setText(ClaimState.INST.getFullAddress());
+                nextButton.setVisibility(View.VISIBLE);
+            } else {
+                positioningText.setText("Miсцезнаходження визначається …");
+                nextButton.setVisibility(View.GONE);
+            }
         }
 
         @Override
@@ -143,50 +153,34 @@ public class LocationFragment extends BaseFragment implements GoogleMap.OnMyLoca
         }
     };
 
-    private boolean initGeolocation(Location location) {
+    private Address getAddress(Location location) {
         try {
             List<Address> addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-            if (addressList != null ) {
-                Address address = addressList.get(0);
 
-                DecimalFormat df = new DecimalFormat("#.######");
-                ClaimState.INST.getClaim().setCity(address.getLocality());
-                ClaimState.INST.getClaim().setAddress(address.getAddressLine(0));
-                ClaimState.INST.getClaim().setLatitude(df.format(location.getLatitude()).replace(",", "."));
-                ClaimState.INST.getClaim().setLongitude(df.format(location.getLongitude()).replace(",", "."));
-
-                return true;
+            if (addressList != null) {
+                return addressList.get(0);
             }
+
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(getContext(), "Помилка геопозиціонування", Toast.LENGTH_SHORT).show();
         }
 
-        return false;
+        return null;
     }
 
-    private void locationPositioning(Location location){
-        String showText = "Miсцезнаходження визначається …";
+    private void mapPositioning(double latitude, double longitude){
+        LatLng coordinates = new LatLng(latitude, longitude);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 13));
 
-        if (location != null && mMap != null) {
-            LatLng coordinates = new LatLng(location.getLatitude(), location.getLongitude());
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                    coordinates, 13));
-
-            CameraPosition cameraPosition = new CameraPosition.Builder()
+        CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(coordinates)
                     .zoom(17)
                     .bearing(90)
                     .tilt(40)
                     .build();
 
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-            if(initGeolocation(location)) {
-                showText = ClaimState.INST.getFullAddress();
-                nextButton.setVisibility(View.VISIBLE);
-            } else nextButton.setVisibility(View.GONE);
-        }
-
-        positioningText.setText(showText);
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 }
+
