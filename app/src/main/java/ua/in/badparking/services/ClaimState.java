@@ -62,4 +62,8 @@ public enum ClaimState {
         }
         return sb.toString();
     }
+
+    public String getFullAddress(){
+        return claim.getCity() + ", " + claim.getAddress(); //test
+    }
 }

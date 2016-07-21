@@ -1,47 +1,55 @@
 package ua.in.badparking.ui.fragments;
 
-import android.app.Activity;
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Locale;
 
+import roboguice.inject.InjectView;
 import ua.in.badparking.R;
 import ua.in.badparking.services.ClaimState;
-import ua.in.badparking.services.GeolocationService;
 import ua.in.badparking.ui.activities.MainActivity;
 
 /**
- * @author Dima Kovalenko
+ * @author Dima Kovalenko & Vladimir Dranik
  */
-public class LocationFragment extends BaseFragment {
+public class LocationFragment extends BaseFragment implements GoogleMap.OnMyLocationButtonClickListener, OnMapReadyCallback{
 
     private static final String TAG = LocationFragment.class.getName();
+    private static final int WAITING_TIME_MILLIS = 1000;
+    private static final int ACCURANCY_IN_METERS = 3;
 
+    private GoogleMap mMap;
+    private Location location;
+    private Geocoder geocoder;
+    private LocationManager locationManager;
+    @InjectView(R.id.positioning_text_view)
+    private TextView positioningText;
+    @InjectView(R.id.next_button)
+    private Button nextButton;
 
-    private MapView mapView;
-
-    private GoogleMap googleMap;
-    private LatLng lastLatLng;
-    private View mapHolder;
-
-    /**
-     * Returns a new instance of this fragment for the given section
-     * number.
-     */
     public static LocationFragment newInstance() {
         return new LocationFragment();
     }
@@ -49,92 +57,136 @@ public class LocationFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_location, container, false);
+        return inflater.inflate(R.layout.fragment_location, container, false);
+    }
 
-        mapHolder = rootView.findViewById(R.id.mapHolder);
-        mapView = (MapView)rootView.findViewById(R.id.mvMap);
-        mapView.onCreate(savedInstanceState);
-        mapView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                MapsInitializer.initialize(getActivity());
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-                mapView.getMapAsync(new OnMapReadyCallback() {
-                    @Override
-                    public void onMapReady(GoogleMap googleMap) {
-                        LocationFragment.this.googleMap = googleMap;
-                        MapsInitializer.initialize(LocationFragment.this.getActivity());
-                        setCenter(new LatLng(50.45, 30.523611));
-                    }
-                });
+        SupportMapFragment fragment = (SupportMapFragment) this.getChildFragmentManager()
+                .findFragmentById(R.id.map);
+        if (fragment == null) {
+            fragment = SupportMapFragment.newInstance();
+            this.getChildFragmentManager().beginTransaction().replace(R.id.map, fragment).commit();
+        }
 
-                GeolocationService.INST.subscribe(new GeolocationService.ILocationListener() {
-                    @Override
-                    public void onLocationObtained(Location location) {
-                        mapHolder.setVisibility(View.VISIBLE);
-                        setCenter(new LatLng(location.getLatitude(), location.getLongitude()));
-                    }
-                });
-            }
-        }, 500);
-        rootView.findViewById(R.id.next_button).setOnClickListener(new View.OnClickListener() {
+        fragment.getMapAsync(this);
+        locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (location != null) {
+            locationPositioning(location);
+        }
+
+        geocoder = new Geocoder(getContext(), Locale.getDefault());
+
+        nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LocationManager locManager = (LocationManager)getActivity().getSystemService(getActivity().LOCATION_SERVICE);
-                Location location = locManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-                if (location != null) {
-                    DecimalFormat df = new DecimalFormat("#.######");
-                    ClaimState.INST.getClaim().setLatitude(df.format(location.getLatitude()).replace(",", "."));
-                    ClaimState.INST.getClaim().setLongitude(df.format(location.getLongitude()).replace(",", "."));
-                }
-                ClaimState.INST.getClaim().setCity("Київ");
-                ClaimState.INST.getClaim().setAddress("вул. Теодора Драйзера 34/51");
-                ClaimState.INST.getClaim().setLicensePlates("AA0000AA");
-                ((MainActivity)getActivity()).moveToNext();
+                ((MainActivity) getActivity()).moveToNext();
             }
         });
 
-        return rootView;
+
+        nextButton.setVisibility(View.GONE);
     }
 
-    public void hideKeyboard(Activity activity) {
-        InputMethodManager inputMethodManager = (InputMethodManager)activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //Find the currently focused view, so we can grab the correct window token from it.
-        View view = activity.getCurrentFocus();
-        //If no view currently has focus, create a new one, just so we can grab a window token from it
-        if (view == null) {
-            view = new View(activity);
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        if(mMap != null) {
+            UiSettings uiSettings = mMap.getUiSettings();
+            mMap.setMyLocationEnabled(true);
+            mMap.setOnMyLocationButtonClickListener(this);
+            uiSettings.setMyLocationButtonEnabled(true);
+            uiSettings.setTiltGesturesEnabled(false);
+            uiSettings.setCompassEnabled(false);
         }
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+        locationPositioning(location);
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        return false;
     }
 
     @Override
     public void onResume() {
-        mapView.onResume();
         super.onResume();
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, WAITING_TIME_MILLIS,
+                ACCURANCY_IN_METERS, locationListener);
     }
 
     @Override
     public void onPause() {
-        mapView.onPause();
         super.onPause();
+        locationManager.removeUpdates(locationListener);
     }
 
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mapView.onLowMemory();
-    }
-
-    public void setCenter(final LatLng latLng) {
-        Log.i(TAG, "Set camera center: lat - " + latLng.latitude + ", lng - " + latLng.longitude);
-        lastLatLng = latLng;
-        try {
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng, 19));
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Exception setting map center", e);
+    private LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            locationPositioning(location);
         }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+    };
+
+    private boolean initGeolocation(Location location) {
+        try {
+            List<Address> addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            if (addressList != null ) {
+                Address address = addressList.get(0);
+
+                DecimalFormat df = new DecimalFormat("#.######");
+                ClaimState.INST.getClaim().setCity(address.getLocality());
+                ClaimState.INST.getClaim().setAddress(address.getAddressLine(0));
+                ClaimState.INST.getClaim().setLatitude(df.format(location.getLatitude()).replace(",", "."));
+                ClaimState.INST.getClaim().setLongitude(df.format(location.getLongitude()).replace(",", "."));
+
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Помилка геопозиціонування", Toast.LENGTH_SHORT).show();
+        }
+
+        return false;
     }
 
+    private void locationPositioning(Location location){
+        String showText = "Miсцезнаходження визначається …";
+
+        if (location != null && mMap != null) {
+            LatLng coordinates = new LatLng(location.getLatitude(), location.getLongitude());
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                    coordinates, 13));
+
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(coordinates)
+                    .zoom(17)
+                    .bearing(90)
+                    .tilt(40)
+                    .build();
+
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            if(initGeolocation(location)) {
+                showText = ClaimState.INST.getFullAddress();
+                nextButton.setVisibility(View.VISIBLE);
+            } else nextButton.setVisibility(View.GONE);
+        }
+
+        positioningText.setText(showText);
+    }
 }

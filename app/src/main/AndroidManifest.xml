@@ -5,7 +5,6 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -25,18 +24,9 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
 
-        <!--Semer7-->
-        <!--<meta-data android:name="com.google.android.geo.API_KEY"-->
-        <!--android:value="AIzaSyA8AuoO9GKN3MPqIqntXCOYpIC6-A95FYA" />-->
-
-        <!--kovalenych-->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyA23gHRlDRK1NyrWH2Or1gLNz2GtVhPWHc"/>
-
-        <!--<meta-data-->
-        <!--android:name="com.google.android.gms.version"-->
-        <!--android:value="7.8.0" />-->
+            android:value="@string/google_maps_key_kovalenych"/>
 
         <activity
             android:name=".ui.activities.LaunchActivity"

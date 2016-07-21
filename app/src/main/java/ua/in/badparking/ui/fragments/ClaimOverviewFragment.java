@@ -58,6 +58,9 @@ public class ClaimOverviewFragment extends BaseFragment {
     @InjectView(R.id.crimeTypesTextView)
     TextView crimeTypeTextView;
 
+    @InjectView(R.id.addressTextView)
+    TextView addressTextView;
+
     @InjectView(R.id.login_button)
     LoginButton loginButton;
 
@@ -100,6 +103,7 @@ public class ClaimOverviewFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         crimeTypeTextView.setText(ClaimState.INST.getSelectedCrimeTypesNames());
+        addressTextView.setText(ClaimState.INST.getFullAddress());
 //        mVerificationButton.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
