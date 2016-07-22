@@ -11,6 +11,7 @@
         android:background="@color/primaryColor">
 
         <TextView
+            android:id="@+id/positioning_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -36,35 +37,13 @@
             />
     </RelativeLayout>
 
-
-    <RelativeLayout
-        android:id="@+id/mapHolder"
+    <fragment
+        android:id="@+id/map"
+        class="com.google.android.gms.maps.SupportMapFragment"
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/bottomPanel"
-        android:orientation="vertical">
-
-        <com.google.android.gms.maps.MapView
-            android:id="@+id/mvMap"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"/>
-
-        <View
-            android:layout_width="50dp"
-            android:layout_height="2dp"
-            android:layout_centerInParent="true"
-            android:background="#ff4400"
-            />
-
-        <View
-            android:layout_width="2dp"
-            android:layout_height="50dp"
-            android:layout_centerInParent="true"
-            android:background="#ff4400"
-            />
-
-    </RelativeLayout>
-
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bottomPanel"
+        android:layout_alignParentTop="true" />
 
 </RelativeLayout>

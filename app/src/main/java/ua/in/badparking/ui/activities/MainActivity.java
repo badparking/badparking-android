@@ -259,9 +259,7 @@ public class MainActivity extends RoboActionBarActivity {
                 return ClaimTypeFragment.newInstance();
             } else if (position == 2) {
                 return LocationFragment.newInstance();
-            } else {
-                return ClaimOverviewFragment.newInstance();
-            }
+            } else return ClaimOverviewFragment.newInstance();
         }
 
         @Override

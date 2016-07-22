@@ -1,5 +1,7 @@
 package ua.in.badparking.services;
 
+import android.location.Address;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -61,5 +63,12 @@ public enum ClaimState {
             }
         }
         return sb.toString();
+    }
+
+    public String getFullAddress(){
+        if(claim.getCity()!= null && claim.getAddress()!= null) {
+            return getClaim().getCity() + ", " + getClaim().getAddress();
+        }
+        return "";
     }
 }
