@@ -97,8 +97,6 @@ public class ClaimOverviewFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        crimeTypeTextView.setText(ClaimState.INST.getSelectedCrimeTypesNames());
-        addressTextView.setText(ClaimState.INST.getFullAddress());
 //        mVerificationButton.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
@@ -148,7 +146,15 @@ public class ClaimOverviewFragment extends BaseFragment {
                     public void onError(FacebookException exception) {
                     }
                 });
+    }
 
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && isResumed()){
+            crimeTypeTextView.setText(ClaimState.INST.getSelectedCrimeTypesNames());
+            addressTextView.setText(ClaimState.INST.getFullAddress());
+        }
     }
 
     @Override
