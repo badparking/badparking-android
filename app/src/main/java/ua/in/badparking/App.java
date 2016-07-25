@@ -21,7 +21,7 @@ public class App extends MultiDexApplication {
 //        if (!BuildConfig.DEBUG) {
             Crashlytics.start(this);
 //        }
-        //GeolocationState.INST.init(this);
+        GeolocationState.INST.init(this);
         UserState.INST.init(this);
         App.context = getApplicationContext();
     }

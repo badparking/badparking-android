@@ -47,6 +47,7 @@ public class LocationFragment extends BaseFragment{
 
         SupportMapFragment fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         fragment.getMapAsync(GeolocationState.INST);
+
         return rootView;
     }
 
@@ -66,11 +67,11 @@ public class LocationFragment extends BaseFragment{
     @Override
     public void onResume() {
         super.onResume();
-        GeolocationState.INST.getLocationManager()
-                .requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                        GeolocationState.WAITING_TIME_MILLIS,
-                        GeolocationState.ACCURANCY_IN_METERS,
-                        locationListener);
+        GeolocationState.INST.getLocationManager().requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                GeolocationState.WAITING_TIME_MILLIS,
+                GeolocationState.ACCURANCY_IN_METERS,
+                locationListener);
     }
 
     @Override
@@ -82,21 +83,24 @@ public class LocationFragment extends BaseFragment{
     private LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            GeolocationState.INST.mapPositioning(location.getLatitude(), location.getLongitude());
-            Address address = GeolocationState.INST.getAddress(location);
+            if(location != null) {
 
-            if(address != null){
+                Address address = GeolocationState.INST.getAddress(location);
+
+                if (address != null) {
+                    ClaimState.INST.getClaim().setCity(address.getLocality());
+                    ClaimState.INST.getClaim().setAddress(address.getAddressLine(0));
+                    positioningText.setText(ClaimState.INST.getFullAddress());
+                    nextButton.setVisibility(View.VISIBLE);
+                } else {
+                    positioningText.setText("Miсцезнаходження визначається …");
+                    nextButton.setVisibility(View.GONE);
+                }
+
                 DecimalFormat df = new DecimalFormat("#.######");
-                ClaimState.INST.getClaim().setCity(address.getLocality());
-                ClaimState.INST.getClaim().setAddress(address.getAddressLine(0));
-                ClaimState.INST.getClaim().setLatitude(df.format(address.getLatitude()).replace(",", "."));
-                ClaimState.INST.getClaim().setLongitude(df.format(address.getLongitude()).replace(",", "."));
-
-                positioningText.setText(ClaimState.INST.getFullAddress());
-                nextButton.setVisibility(View.VISIBLE);
-            } else {
-                positioningText.setText("Miсцезнаходження визначається …");
-                nextButton.setVisibility(View.GONE);
+                ClaimState.INST.getClaim().setLatitude(df.format(location.getLatitude()).replace(",", "."));
+                ClaimState.INST.getClaim().setLongitude(df.format(location.getLongitude()).replace(",", "."));
+                GeolocationState.INST.mapPositioning(location.getLatitude(), location.getLongitude());
             }
         }
 

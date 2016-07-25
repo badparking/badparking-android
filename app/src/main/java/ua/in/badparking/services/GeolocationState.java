@@ -10,7 +10,6 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -26,19 +25,17 @@ public enum GeolocationState implements GoogleMap.OnMyLocationButtonClickListene
 
     private static final String TAG = "Geolocation";
 
-    public static final int WAITING_TIME_MILLIS = 0;
-    public static final int ACCURANCY_IN_METERS = 3;
+    public static final long WAITING_TIME_MILLIS = 3000L;
+    public static final float ACCURANCY_IN_METERS = 3f;
 
     private Context context;
     private GoogleMap mMap;
-    //private Location location;
     private LocationManager locationManager;
     private Geocoder geocoder;
 
-    public void init(final Context context) {
+    public void init(Context context) {
         this.context = context;
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        //location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         geocoder = new Geocoder(context, Locale.getDefault());
     }
 
@@ -51,12 +48,9 @@ public enum GeolocationState implements GoogleMap.OnMyLocationButtonClickListene
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         if(mMap != null) {
-            UiSettings uiSettings = mMap.getUiSettings();
             mMap.setMyLocationEnabled(true);
             mMap.setOnMyLocationButtonClickListener(this);
-            uiSettings.setMyLocationButtonEnabled(true);
-            uiSettings.setTiltGesturesEnabled(false);
-            uiSettings.setCompassEnabled(false);
+            mMap.getUiSettings().setCompassEnabled(false);
         }
     }
 
@@ -72,7 +66,6 @@ public enum GeolocationState implements GoogleMap.OnMyLocationButtonClickListene
             e.printStackTrace();
             Toast.makeText(context, "Помилка геопозиціонування", Toast.LENGTH_SHORT).show();
         }
-
         return null;
     }
 
@@ -84,7 +77,7 @@ public enum GeolocationState implements GoogleMap.OnMyLocationButtonClickListene
                     .target(coordinates)
                     .zoom(17)
                     .bearing(90)
-                    .tilt(40)
+                    .tilt(0)
                     .build();
 
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
