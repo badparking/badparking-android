@@ -1,5 +1,9 @@
 package ua.in.badparking.services.api;
 
+import android.content.Intent;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
+
 import com.google.inject.Inject;
 
 import org.greenrobot.eventbus.EventBus;
@@ -9,6 +13,8 @@ import java.util.HashMap;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import ua.in.badparking.App;
+import ua.in.badparking.Utils;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.UserApi;
 import ua.in.badparking.api.requests.UserRequest;
@@ -73,8 +79,8 @@ public class UserService extends ApiService {
     public void authorizeWithFacebook(String fbToken) {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("access_token", fbToken);
-//        params.put("client_id", clientId);// TODO: put this in config file, but don't add to git!!!!
-//        params.put("client_secret", clientSecret);
+        params.put("client_id", Utils.getConfigValue(App.getAppContext(), "client_id"));// TODO: put this in config file, but don't add to git!!!!
+        params.put("client_secret", Utils.getConfigValue(App.getAppContext(), "client_secret"));
         params.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000)); // in sec
         mUserApi.authorizeWithFacebook(params, new Callback<User>() {
             @Override
@@ -90,5 +96,6 @@ public class UserService extends ApiService {
             }
         });
     }
+
 
 }
