@@ -38,6 +38,7 @@ import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
+import ua.in.badparking.services.GeolocationState;
 import ua.in.badparking.ui.dialogs.EnableGPSDialog;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
@@ -56,6 +57,7 @@ public class MainActivity extends RoboActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        GeolocationState.INST.init(this);
         FacebookSdk.sdkInitialize(getApplicationContext());
         AppEventsLogger.activateApp(this);
 

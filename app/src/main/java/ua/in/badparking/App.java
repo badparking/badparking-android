@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.crashlytics.android.Crashlytics;
 
+import ua.in.badparking.services.GeolocationState;
 import ua.in.badparking.services.UserState;
 
 /**
