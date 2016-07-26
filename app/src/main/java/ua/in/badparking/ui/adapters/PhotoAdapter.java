@@ -14,7 +14,8 @@ import android.widget.ImageView;
 
 import java.util.List;
 
-import roboguice.inject.InjectView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import ua.in.badparking.R;
 import ua.in.badparking.model.MediaFile;
 import ua.in.badparking.services.ClaimState;
@@ -23,7 +24,6 @@ import ua.in.badparking.services.ClaimState;
  * @author Dima Kovalenko
  */
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHolder> {
-
 
     public interface PhotosUpdatedListener {
         void onPhotosUpdated();
@@ -74,10 +74,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
      */
     class MovieViewHolder extends RecyclerView.ViewHolder {
 
-        @InjectView(R.id.image)
+        @BindView(R.id.image)
         protected ImageView _photoView;
 
-        @InjectView(R.id.deleteCross)
+        @BindView(R.id.deleteCross)
         protected ImageView _deleteCross;
 
         /**
@@ -87,8 +87,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
          */
         public MovieViewHolder(View itemView) {
             super(itemView);
-            _photoView = (ImageView)itemView.findViewById(R.id.image);
-            _deleteCross = (ImageView)itemView.findViewById(R.id.deleteCross);
+            ButterKnife.bind(this, itemView);
         }
 
         /**
@@ -110,7 +109,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
                 }
             });
         }
-
 
         // TODO use Glide here
         private void setPic(ImageView view, String currentPhotoPath) {
@@ -144,6 +142,5 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
             cursor.close();
             return selected;
         }
-
     }
 }

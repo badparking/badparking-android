@@ -9,6 +9,7 @@ buildscript {
 }
 apply plugin: 'com.android.application'
 apply plugin: 'crashlytics'
+apply plugin: 'android-apt'
 
 repositories {
     maven { url 'http://download.crashlytics.com/maven' }
@@ -76,4 +77,6 @@ dependencies {
     compile 'com.github.badoualy:stepper-indicator:1.0.2'
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     compile 'com.android.support:multidex:1.0.1'
+    compile 'com.jakewharton:butterknife:8.2.1'
+    apt 'com.jakewharton:butterknife-compiler:8.2.1'
 }

@@ -13,6 +13,8 @@ import android.widget.TextView;
 import java.util.List;
 import java.util.Set;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import ua.in.badparking.R;
 import ua.in.badparking.model.CrimeType;
 import ua.in.badparking.services.ClaimState;
@@ -39,11 +41,7 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
             convertView = inflater.inflate(R.layout.listitem_report_type,
                     parent, false);
 
-            viewHolder = new ViewHolder();
-            viewHolder.todoName = (TextView)convertView
-                    .findViewById(R.id.list_item);
-            viewHolder.checkBox = (CheckBox)convertView
-                    .findViewById(R.id.checkBox);
+            viewHolder = new ViewHolder(convertView);
             viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
                 @Override
@@ -78,7 +76,11 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
     }
 
     static class ViewHolder {
-        public TextView todoName;
-        public CheckBox checkBox;
+        @BindView(R.id.list_item) TextView todoName;
+        @BindView(R.id.checkBox) CheckBox checkBox;
+
+        public ViewHolder(View view) {
+            ButterKnife.bind(this, view);
+        }
     }
 }
