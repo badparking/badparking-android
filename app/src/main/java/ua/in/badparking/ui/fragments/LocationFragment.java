@@ -7,12 +7,17 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
 import java.text.DecimalFormat;
@@ -26,10 +31,11 @@ import ua.in.badparking.ui.activities.MainActivity;
 /**
  * @author Dima Kovalenko & Vladimir Dranik
  */
-public class LocationFragment extends BaseFragment{
+public class LocationFragment extends BaseFragment implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener{
 
     private static final String TAG = LocationFragment.class.getName();
 
+    private GoogleMap mMap;
     @InjectView(R.id.positioning_text_view)
     private TextView positioningText;
     @InjectView(R.id.next_button)
@@ -46,7 +52,7 @@ public class LocationFragment extends BaseFragment{
         View rootView = inflater.inflate(R.layout.fragment_location, container, false);
 
         SupportMapFragment fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        fragment.getMapAsync(GeolocationState.INST);
+        fragment.getMapAsync(this);
 
         return rootView;
     }
@@ -83,8 +89,7 @@ public class LocationFragment extends BaseFragment{
     private LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            if(location != null) {
-
+            if(location != null && mMap != null) {
                 Address address = GeolocationState.INST.getAddress(location);
 
                 if (address != null) {
@@ -100,7 +105,7 @@ public class LocationFragment extends BaseFragment{
                 DecimalFormat df = new DecimalFormat("#.######");
                 ClaimState.INST.getClaim().setLatitude(df.format(location.getLatitude()).replace(",", "."));
                 ClaimState.INST.getClaim().setLongitude(df.format(location.getLongitude()).replace(",", "."));
-                GeolocationState.INST.mapPositioning(location.getLatitude(), location.getLongitude());
+                GeolocationState.INST.mapPositioning(mMap, location.getLatitude(), location.getLongitude());
             }
         }
 
@@ -116,5 +121,35 @@ public class LocationFragment extends BaseFragment{
         public void onStatusChanged(String provider, int status, Bundle extras) {
         }
     };
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        if(mMap != null) {
+            mMap.setMyLocationEnabled(true);
+            mMap.setOnMyLocationButtonClickListener(this);
+            mMap.getUiSettings().setCompassEnabled(false);
+        }
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        return false;
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && isResumed()){
+            Toast toast = Toast.makeText(getContext(), "Будь ласка, зачекайте для більш точного геопозиціювання", Toast.LENGTH_LONG);
+            LinearLayout layout = (LinearLayout) toast.getView();
+            if (layout.getChildCount() > 0) {
+                TextView tv = (TextView) layout.getChildAt(0);
+                tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+            }
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+        }
+    }
 }
 
