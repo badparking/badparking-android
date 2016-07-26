@@ -26,7 +26,9 @@ import com.google.inject.Inject;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import roboguice.inject.InjectView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import ua.in.badparking.R;
 import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.ClaimPostedEvent;
@@ -46,20 +48,21 @@ import ua.in.badparking.ui.adapters.PhotoAdapter;
  */
 public class ClaimOverviewFragment extends BaseFragment {
 
-    @InjectView(R.id.recyclerView)
+    @BindView(R.id.recyclerView)
     protected RecyclerView recyclerView;
 
-    @InjectView(R.id.send_button)
+    @BindView(R.id.send_button)
     Button mSendButton;
 
-    @InjectView(R.id.crimeTypesTextView)
+    @BindView(R.id.crimeTypesTextView)
     TextView crimeTypeTextView;
 
-    @InjectView(R.id.addressTextView)
+    @BindView(R.id.addressTextView)
     TextView addressTextView;
 
-    @InjectView(R.id.login_button)
+    @BindView(R.id.login_button)
     LoginButton loginButton;
+    private Unbinder unbinder;
 
     @Inject
     private ClaimsService mClaimService;
@@ -84,6 +87,7 @@ public class ClaimOverviewFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_claim_overview, container, false);
+        unbinder = ButterKnife.bind(this, rootView);
         EventBus.getDefault().register(this);
         return rootView;
     }
@@ -92,6 +96,7 @@ public class ClaimOverviewFragment extends BaseFragment {
     public void onDestroyView() {
         super.onDestroyView();
         EventBus.getDefault().unregister(this);
+        unbinder.unbind();
     }
 
     @Override

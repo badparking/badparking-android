@@ -22,7 +22,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 
 import java.text.DecimalFormat;
 
-import roboguice.inject.InjectView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import ua.in.badparking.R;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.services.GeolocationState;
@@ -36,10 +38,11 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     private static final String TAG = LocationFragment.class.getName();
 
     private GoogleMap mMap;
-    @InjectView(R.id.positioning_text_view)
-    private TextView positioningText;
-    @InjectView(R.id.next_button)
-    private Button nextButton;
+    @BindView(R.id.positioning_text_view)
+    TextView positioningText;
+    @BindView(R.id.next_button)
+    Button nextButton;
+    private Unbinder unbinder;
 
     public static Fragment newInstance() {
         return new LocationFragment();
@@ -50,6 +53,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_location, container, false);
+        unbinder = ButterKnife.bind(this, rootView);
 
         SupportMapFragment fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         fragment.getMapAsync(this);
@@ -97,9 +101,6 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                     ClaimState.INST.getClaim().setAddress(address.getAddressLine(0));
                     positioningText.setText(ClaimState.INST.getFullAddress());
                     nextButton.setVisibility(View.VISIBLE);
-                } else {
-                    positioningText.setText("Miсцезнаходження визначається …");
-                    nextButton.setVisibility(View.GONE);
                 }
 
                 DecimalFormat df = new DecimalFormat("#.######");
@@ -150,6 +151,11 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
         }
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 }
 
