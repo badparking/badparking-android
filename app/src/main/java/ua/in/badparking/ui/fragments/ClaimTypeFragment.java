@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 
-import roboguice.inject.InjectView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import ua.in.badparking.R;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.ui.activities.MainActivity;
@@ -21,15 +23,19 @@ import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
  */
 public class ClaimTypeFragment extends BaseFragment {
 
-    @InjectView(R.id.reportTypeList)
-    private ListView listView;
-    @InjectView(R.id.next_button)
-    private Button nextButton;
+    @BindView(R.id.reportTypeList)
+    ListView listView;
+    @BindView(R.id.next_button)
+    Button nextButton;
+    private Unbinder unbinder;
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_claim_type, container, false);
+
+        View rootView = inflater.inflate(R.layout.fragment_claim_type, container, false);
+        unbinder = ButterKnife.bind(this, rootView);
+        return rootView;
     }
 
     @Override
@@ -50,5 +56,10 @@ public class ClaimTypeFragment extends BaseFragment {
 
     public static Fragment newInstance() {
         return new ClaimTypeFragment();
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 }

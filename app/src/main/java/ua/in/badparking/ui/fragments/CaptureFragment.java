@@ -30,7 +30,9 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
-import roboguice.inject.InjectView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import ua.in.badparking.R;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.ui.activities.MainActivity;
@@ -53,15 +55,19 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     //    private CameraPreview mPreview;
     private File tempImage;
 
-    @InjectView(R.id.recyclerView)
+    @BindView(R.id.recyclerView)
     protected RecyclerView recyclerView;
 
-    @InjectView(R.id.message)
+    @BindView(R.id.message)
     protected TextView messageView;
 
     //    private Camera mCamera;
-    private View snapButton;
-    private View nextButton;
+    @BindView(R.id.snap)
+    View snapButton;
+
+    @BindView(R.id.next_button)
+    View nextButton;
+    private Unbinder unbinder;
 
     private PhotoAdapter photoAdapter;
 
@@ -71,7 +77,9 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_capture, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_capture, container, false);
+        unbinder = ButterKnife.bind(this, rootView);
+        return rootView;
     }
 
     @Override
@@ -82,8 +90,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.listitem_report_type, Arrays.asList(trespassTypes));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        snapButton = view.findViewById(R.id.snap);
-        nextButton = view.findViewById(R.id.next_button);
         snapButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
 
@@ -126,6 +132,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     public void onDestroyView() {
         super.onDestroyView();
         releaseCamera();              // release the camera immediately on pause event
+        unbinder.unbind();
     }
 
     private void releaseCamera() {
@@ -161,7 +168,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     };
 
     private void onImageFileCreated(File file) {
-
         ClaimState.INST.getClaim().addPhoto(file.getPath());
         int numberOfPhotosTaken = ClaimState.INST.getClaim().getPhotoFiles().size();
         snapButton.setVisibility(numberOfPhotosTaken > 2 ? View.GONE : View.VISIBLE);
@@ -220,7 +226,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             ClaimState.INST.getClaim().addPhoto(path);
             photoAdapter.notifyDataSetChanged();
             onPhotosUpdated();
-
         }
     }
 
@@ -292,6 +297,5 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         } else {
             messageView.setText("");
         }
-
     }
 }
