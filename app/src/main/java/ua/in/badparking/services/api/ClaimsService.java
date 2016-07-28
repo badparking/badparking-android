@@ -16,6 +16,8 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.mime.TypedFile;
 import retrofit.mime.TypedString;
+import ua.in.badparking.App;
+import ua.in.badparking.R;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.ClaimsApi;
 import ua.in.badparking.api.TypesApi;
@@ -89,12 +91,12 @@ public class ClaimsService extends ApiService {
         mClaimsApi.postMyClaims(crimeMap, paramsMap, new Callback<Claim>() {
             @Override
             public void success(Claim claimsResponse, Response response) {
-                EventBus.getDefault().post(new ClaimPostedEvent(claimsResponse.getPk(), "Скаргу відправлено", true));
+                EventBus.getDefault().post(new ClaimPostedEvent(claimsResponse.getPk(), App.getAppContext().getString(R.string.claim_sent), true));
             }
 
             @Override
             public void failure(RetrofitError error) {
-                EventBus.getDefault().post(new ClaimPostedEvent(null, "Помилка. Спробуйте ще", false));
+                EventBus.getDefault().post(new ClaimPostedEvent(null, App.getAppContext().getString(R.string.error_claim_sent), false));
             }
         });
     }
@@ -164,7 +166,7 @@ public class ClaimsService extends ApiService {
 
             @Override
             public void failure(RetrofitError error) {
-
+                EventBus.getDefault().post(new ImageUploadedEvent(-1));
             }
         });
     }

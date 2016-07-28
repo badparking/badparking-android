@@ -15,7 +15,7 @@
     <string name="add_photo">Додати\n фото</string>
     <string name="comment">Коментар (необов\'язково)</string>
     <string name="comment_hint">наприклад: бачу ворожий Бук</string>
-    <string name="location">Мiсце подii</string>
+    <string name="location">Мiсце подiї</string>
     <string name="location_hint">наприклад: Донецьк, Київский район</string>
 
     <string name="make_phonot">Зробити фото</string>
@@ -43,6 +43,11 @@
     <string name="gps_network_not_enabled">Для корректної роботи додатку увiмкнiть будь-ласка геолокацiю в налаштуваннях телефона.</string>
     <string name="open_location_settings">Налаштування</string>
     <string name="ok">OK</string>
+    <string name="claim_sent">Скаргу відправлено</string>
+    <string name="error_claim_sent">Помилка. Спробуйте ще</string>
+    <string name="photo_uploaded">"Заватнажено фото "</string>
+    <string name="claim_sending">Відправлення...</string>
+    <string name="error_uploading_image">Помилка завантаження зображення</string>
 
     <string-array name="report_types">
         <item>Стоянка на пішохідному переході</item>

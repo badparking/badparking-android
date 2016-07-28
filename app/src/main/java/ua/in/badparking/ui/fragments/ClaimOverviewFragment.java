@@ -31,6 +31,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import ua.in.badparking.App;
 import ua.in.badparking.R;
 import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.ClaimPostedEvent;
@@ -225,15 +226,20 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     private void showSendClaimDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Відправлення...");
+        builder.setMessage(App.getAppContext().getString(R.string.claim_sending));
         waitDialog = builder.create();
         waitDialog.show();
     }
+
     @Subscribe
     public void onImagePosted(final ImageUploadedEvent event) {
         readyDialog.hide();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Заватнажено фото " + event.getImageCounter() + "/" + ClaimState.INST.getPictures().size());
+        if(event.getImageCounter() != -1) {
+            builder.setMessage(App.getAppContext().getString(R.string.photo_uploaded) + event.getImageCounter() + "/" + ClaimState.INST.getPictures().size());
+        } else {
+            builder.setMessage(App.getAppContext().getString(R.string.error_uploading_image));
+        }
         if (ClaimState.INST.getPictures().size() == event.getImageCounter()) {
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
