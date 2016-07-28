@@ -1,13 +1,12 @@
 package ua.in.badparking.services;
 
-import android.location.Address;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.CrimeType;
+import ua.in.badparking.model.MediaFile;
 
 /**
  * Created by Dima Kovalenko on 8/15/15.
@@ -18,6 +17,7 @@ public enum ClaimState {
     private Claim claim = new Claim();
     private List<CrimeType> crimeTypes = new ArrayList<>();
     private String token;
+    private String pk;
 
     public String getToken() {
         return token;
@@ -70,5 +70,13 @@ public enum ClaimState {
             return getClaim().getCity() + ", " + getClaim().getAddress();
         }
         return "";
+    }
+
+    public List<MediaFile> getPictures() {
+        return claim.getPhotoFiles();
+    }
+
+    public void setPk(String pk) {
+        this.pk = pk;
     }
 }

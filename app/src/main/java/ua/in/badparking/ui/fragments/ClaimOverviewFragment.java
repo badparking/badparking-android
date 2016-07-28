@@ -26,13 +26,17 @@ import com.google.inject.Inject;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import ua.in.badparking.R;
 import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.ClaimPostedEvent;
+import ua.in.badparking.events.ImageUploadedEvent;
 import ua.in.badparking.model.Claim;
+import ua.in.badparking.model.MediaFile;
 import ua.in.badparking.model.User;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.services.UserState;
@@ -106,7 +110,7 @@ public class ClaimOverviewFragment extends BaseFragment {
 //            @Override
 //            public void onClick(View v) {
 //                //TODO: verify user with bank id
-                mSendButton.setEnabled(true);
+        mSendButton.setEnabled(true);
 
 
 ////        }
@@ -225,28 +229,45 @@ public class ClaimOverviewFragment extends BaseFragment {
         waitDialog = builder.create();
         waitDialog.show();
     }
+    @Subscribe
+    public void onImagePosted(final ImageUploadedEvent event) {
+        readyDialog.hide();
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("Заватнажено фото " + event.getImageCounter() + "/" + ClaimState.INST.getPictures().size());
+        if (ClaimState.INST.getPictures().size() == event.getImageCounter()) {
+            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    ((MainActivity) getActivity()).moveToFirst();
+                }
+            });
+        }
+        readyDialog = builder.create();
+        readyDialog.show();
+    }
 
     @Subscribe
-    public void onShowResult(final ClaimPostedEvent event) {
+    public void onClaimPosted(final ClaimPostedEvent event) {
+        ClaimState.INST.setPk(event.getPk());
         waitDialog.hide();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(event.getMessage());
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                if (event.getPosted()) {
-                    ((MainActivity)getActivity()).moveToFirst();
-                }
-            }
-        });
         readyDialog = builder.create();
         readyDialog.show();
+
+        if(event.getPosted()) {
+            List<MediaFile> files = ClaimState.INST.getPictures();
+            for (int i = 0; i < files.size() + 1; i++) {
+                MediaFile file = files.get(i);
+                mClaimService.postImage(event.getPk(), file, i + 1);
+            }
+        }
+
     }
 
 
     @Subscribe
     public void onAuthorizedWithFacebook(final AuthorizedWithFacebookEvent event) {
         User user = new User();
-        send();
     }
 
     @Override

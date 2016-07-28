@@ -97,7 +97,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
          */
         public void setViewData(final MediaFile mediaFile) {
 
-            setPic(_photoView, mediaFile.getFilePath());
+            setPic(_photoView, mediaFile.getPath());
             _deleteCross.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

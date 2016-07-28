@@ -5,6 +5,7 @@ import com.google.inject.Singleton;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Set;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import retrofit.mime.TypedFile;
 import retrofit.mime.TypedString;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.ClaimsApi;
@@ -22,9 +24,11 @@ import ua.in.badparking.events.ClaimCancelledEvent;
 import ua.in.badparking.events.ClaimPostedEvent;
 import ua.in.badparking.events.ClaimPutEvent;
 import ua.in.badparking.events.ClaimsLoadedEvent;
+import ua.in.badparking.events.ImageUploadedEvent;
 import ua.in.badparking.events.TypesLoadedEvent;
 import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.CrimeType;
+import ua.in.badparking.model.MediaFile;
 
 @Singleton
 public class ClaimsService extends ApiService {
@@ -42,16 +46,16 @@ public class ClaimsService extends ApiService {
     public void getClaims(String clientId, String clientSecret, String timestamp) {
         mClaimsApi.getClaims(new TypedString(clientId), new TypedString(clientSecret),
                 new TypedString(timestamp), new Callback<List<Claim>>() {
-            @Override
-            public void success(List<Claim> claims, Response response) {
-                EventBus.getDefault().post(new ClaimsLoadedEvent());
-            }
+                    @Override
+                    public void success(List<Claim> claims, Response response) {
+                        EventBus.getDefault().post(new ClaimsLoadedEvent());
+                    }
 
-            @Override
-            public void failure(RetrofitError error) {
+                    @Override
+                    public void failure(RetrofitError error) {
 
-            }
-        });
+                    }
+                });
     }
 
     public void getMyClaims() {
@@ -85,12 +89,12 @@ public class ClaimsService extends ApiService {
         mClaimsApi.postMyClaims(crimeMap, paramsMap, new Callback<Claim>() {
             @Override
             public void success(Claim claimsResponse, Response response) {
-                EventBus.getDefault().post(new ClaimPostedEvent("Відправлено", true));
+                EventBus.getDefault().post(new ClaimPostedEvent(claimsResponse.getPk(), "Скаргу відправлено", true));
             }
 
             @Override
             public void failure(RetrofitError error) {
-                EventBus.getDefault().post(new ClaimPostedEvent("Помилка. Спробуйте ще", false));
+                EventBus.getDefault().post(new ClaimPostedEvent(null, "Помилка. Спробуйте ще", false));
             }
         });
     }
@@ -141,6 +145,21 @@ public class ClaimsService extends ApiService {
             @Override
             public void success(BaseResponse baseResponse, Response response) {
                 EventBus.getDefault().post(new ClaimCancelledEvent());
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+    }
+
+    public void postImage(String pk, MediaFile image, final int imageCounter) {
+        TypedFile typedImage = new TypedFile("multipart/form-data", image);
+        mClaimsApi.postImage(pk, typedImage, new Callback<BaseResponse>() {
+            @Override
+            public void success(BaseResponse baseResponse, Response response) {
+                EventBus.getDefault().post(new ImageUploadedEvent(imageCounter));
             }
 
             @Override
