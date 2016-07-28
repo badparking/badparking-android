@@ -13,6 +13,7 @@ import retrofit.http.PUT;
 import retrofit.http.Part;
 import retrofit.http.PartMap;
 import retrofit.http.Path;
+import retrofit.mime.TypedFile;
 import retrofit.mime.TypedString;
 import ua.in.badparking.api.responses.BaseResponse;
 import ua.in.badparking.model.Claim;
@@ -64,5 +65,8 @@ public interface ClaimsApi {
     @POST("/claims/my/{pk}/cancel")
     void cancelClaim(@Path("pk") String pk, Callback<BaseResponse> responseCallback);
 
+    @Multipart
+    @POST("/claims/my/{pk}/media")
+    void postImage(@Path("pk") String pk, @Part("file") TypedFile file, Callback<BaseResponse> responseCallback);
 
 }

@@ -1,25 +1,18 @@
 package ua.in.badparking.model;
 
+import java.io.File;
+
 /**
  * Created by Dima Kovalenko on 7/9/16.
  */
-public class MediaFile {
+public class MediaFile extends File {
 
-    String filePath;
     long timestamp;
 
     public MediaFile(String filePath, long currentTimeMillis) {
+        super(filePath);
 
-        this.filePath = filePath;
         this.timestamp = currentTimeMillis;
-    }
-
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
     }
 
     public long getTimestamp() {
