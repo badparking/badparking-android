@@ -43,6 +43,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     @BindView(R.id.next_button)
     Button nextButton;
     private Unbinder unbinder;
+    private static View rootView;
 
     public static Fragment newInstance() {
         return new LocationFragment();
@@ -52,11 +53,10 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragment_location, container, false);
+        if (rootView == null) {
+            rootView = inflater.inflate(R.layout.fragment_location, container, false);
+        }
         unbinder = ButterKnife.bind(this, rootView);
-
-        SupportMapFragment fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        fragment.getMapAsync(this);
 
         return rootView;
     }
@@ -64,6 +64,9 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        SupportMapFragment fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        fragment.getMapAsync(this);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
