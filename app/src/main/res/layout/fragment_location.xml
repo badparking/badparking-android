@@ -1,6 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:dots="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mapLayout">
 
 
     <RelativeLayout
@@ -14,11 +16,26 @@
             android:id="@+id/positioning_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             android:text="@string/positioning_in_progress"
             android:textColor="@android:color/white"
-            android:textSize="17sp"/>
+            android:textSize="17sp"
+            android:layout_weight="1"
+            android:layout_centerHorizontal="true" />
+
+        <pl.tajchert.sample.DotsTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dots"
+            android:textSize="17sp"
+            android:textColor="@android:color/white"
+            dots:autoplay="true"
+            dots:period="1000"
+            android:layout_weight="1"
+            android:layout_toRightOf="@+id/positioning_text_view"
+            android:layout_alignEnd="@+id/next_button"
+            android:layout_alignBottom="@+id/positioning_text_view"
+            android:layout_marginLeft="2dp" />
 
         <Button
             android:id="@+id/next_button"
@@ -38,7 +55,7 @@
     </RelativeLayout>
 
     <fragment
-        android:id="@+id/map"
+        android:id="@+id/mapFragment"
         class="com.google.android.gms.maps.SupportMapFragment"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"

@@ -5,14 +5,17 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +28,7 @@ import java.text.DecimalFormat;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import pl.tajchert.sample.DotsTextView;
 import ua.in.badparking.R;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.services.GeolocationState;
@@ -38,11 +42,14 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     private static final String TAG = LocationFragment.class.getName();
 
     private GoogleMap mMap;
+    @BindView(R.id.dots)
+    DotsTextView dotsTextView;
     @BindView(R.id.positioning_text_view)
     TextView positioningText;
     @BindView(R.id.next_button)
     Button nextButton;
     private Unbinder unbinder;
+    private static boolean showHint = false;
     private static View rootView;
 
     public static Fragment newInstance() {
@@ -56,8 +63,8 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         if (rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_location, container, false);
         }
-        unbinder = ButterKnife.bind(this, rootView);
 
+        unbinder = ButterKnife.bind(this, rootView);
         return rootView;
     }
 
@@ -65,7 +72,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        SupportMapFragment fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapFragment);
         fragment.getMapAsync(this);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
@@ -102,8 +109,12 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                 if (address != null) {
                     ClaimState.INST.getClaim().setCity(address.getLocality());
                     ClaimState.INST.getClaim().setAddress(address.getAddressLine(0));
+
+                    dotsTextView.hideAndStop();
                     positioningText.setText(ClaimState.INST.getFullAddress());
                     nextButton.setVisibility(View.VISIBLE);
+                    mMap.getUiSettings().setMyLocationButtonEnabled(true);
+                    showTimePositioningHint();
                 }
 
                 DecimalFormat df = new DecimalFormat("#.######");
@@ -133,6 +144,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
             mMap.setOnMyLocationButtonClickListener(this);
             mMap.getUiSettings().setCompassEnabled(false);
+            mMap.getUiSettings().setMyLocationButtonEnabled(false);
         }
     }
 
@@ -141,10 +153,13 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         return false;
     }
 
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser && isResumed()){
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+    }
+
+    private void showTimePositioningHint(){
+        if(!showHint){
             Toast toast = Toast.makeText(getContext(), "Будь ласка, зачекайте для більш точного геопозиціювання", Toast.LENGTH_LONG);
             LinearLayout layout = (LinearLayout) toast.getView();
             if (layout.getChildCount() > 0) {
@@ -153,12 +168,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             }
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
+            showHint = true;
         }
     }
-
-    @Override public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
-    }
 }
-
