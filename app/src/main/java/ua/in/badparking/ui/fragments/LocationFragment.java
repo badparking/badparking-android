@@ -81,6 +81,10 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             }
         });
         nextButton.setVisibility(View.GONE);
+
+        if (GeolocationState.INST.isLocationActual()) {
+            onLocationChanged(GeolocationState.INST.getLastLocation());
+        }
     }
 
     @Subscribe

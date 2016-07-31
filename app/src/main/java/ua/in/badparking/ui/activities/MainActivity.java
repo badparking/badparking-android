@@ -157,6 +157,7 @@ public class MainActivity extends RoboActionBarActivity {
         @Override
         public void onLocationChanged(Location location) {
             if (location != null) {
+                GeolocationState.INST.setLocation(location);
                 EventBus.getDefault().post(new LocationEvent(location));
             }
         }

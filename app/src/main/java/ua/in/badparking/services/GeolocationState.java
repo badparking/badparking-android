@@ -19,7 +19,7 @@ import java.util.Locale;
 /**
  * Created by Volodymyr Dranyk on 7/25/2016.
  */
-public enum GeolocationState  {
+public enum GeolocationState {
     INST;
 
     private static final String TAG = "Geolocation";
@@ -30,10 +30,17 @@ public enum GeolocationState  {
     private Context context;
     private LocationManager locationManager;
     private Geocoder geocoder;
+    private Location mLocation;
+    private long lastUpdateTimestamp;
+
+    public void setLocation(Location location) {
+        mLocation = location;
+        lastUpdateTimestamp = System.currentTimeMillis();
+    }
 
     public void init(Context context) {
         this.context = context;
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
         geocoder = new Geocoder(context, Locale.getDefault());
     }
 
@@ -52,9 +59,9 @@ public enum GeolocationState  {
         return null;
     }
 
-    public void mapPositioning(GoogleMap mMap, double latitude, double longitude){
+    public void mapPositioning(GoogleMap mMap, double latitude, double longitude) {
         LatLng coordinates = new LatLng(latitude, longitude);
-        if(mMap!=null) {
+        if (mMap != null) {
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 13));
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(coordinates)
@@ -69,5 +76,13 @@ public enum GeolocationState  {
 
     public LocationManager getLocationManager() {
         return locationManager;
+    }
+
+    public boolean isLocationActual() {
+        return System.currentTimeMillis() - lastUpdateTimestamp < 1000 * 60 * 2;
+    }
+
+    public Location getLastLocation() {
+        return mLocation;
     }
 }
