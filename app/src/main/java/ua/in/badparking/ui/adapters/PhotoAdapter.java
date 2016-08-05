@@ -1,11 +1,8 @@
 package ua.in.badparking.ui.adapters;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,7 +60,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
     private List<MediaFile> getItems() {
         return ClaimState.INST.getClaim().getPhotoFiles();
     }
-
 
     public void setListener(PhotosUpdatedListener listener) {
         _listener = listener;
@@ -130,17 +126,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
 
             Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
             view.setImageBitmap(bitmap);
-        }
-
-        private String getPathFromUri(Uri uri) {
-            String selected;
-            String[] filePathColumn = {MediaStore.Images.Media.DATA};
-            Cursor cursor = _context.getContentResolver().query(uri, filePathColumn, null, null, null);
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            selected = cursor.getString(columnIndex);
-            cursor.close();
-            return selected;
         }
     }
 }
