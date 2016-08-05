@@ -7,8 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -33,8 +31,6 @@ import com.badoualy.stepperindicator.StepperIndicator;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -44,8 +40,6 @@ import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
-import ua.in.badparking.events.LocationEvent;
-import ua.in.badparking.services.GeolocationState;
 import ua.in.badparking.ui.dialogs.EnableGPSDialog;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
@@ -122,14 +116,7 @@ public class MainActivity extends RoboActionBarActivity {
         } catch (Exception ex) {
         }
 
-        if (gps_enabled) {
-            //TODO add permisson
-            GeolocationState.INST.getLocationManager().requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER,
-                    GeolocationState.WAITING_TIME_MILLIS,
-                    GeolocationState.ACCURANCY_IN_METERS,
-                    locationListener);
-        } else {
+        if (!gps_enabled) {
             // notify user
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
             dialog.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
@@ -146,34 +133,6 @@ public class MainActivity extends RoboActionBarActivity {
             dialog.show();
         }
     }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        GeolocationState.INST.getLocationManager().removeUpdates(locationListener);
-    }
-
-    private LocationListener locationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            if (location != null) {
-                GeolocationState.INST.setLocation(location);
-                EventBus.getDefault().post(new LocationEvent(location));
-            }
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-    };
 
     private void setupToolbar() {
         Toolbar toolbarTop = (Toolbar)findViewById(R.id.toolbar_top);
