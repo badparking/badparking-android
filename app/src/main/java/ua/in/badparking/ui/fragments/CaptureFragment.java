@@ -1,34 +1,33 @@
 package ua.in.badparking.ui.fragments;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
+import android.content.ContentValues;
+import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.hardware.Camera;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,34 +40,31 @@ import ua.in.badparking.ui.adapters.PhotoAdapter;
 /**
  * @author Dima Kovalenko
  * @author Vadik Kovalsky
+ * @author Volodymyr Dranyk
  */
-public class CaptureFragment extends BaseFragment implements View.OnClickListener, PhotoAdapter.PhotosUpdatedListener {
+@SuppressWarnings("deprecation")
+public class CaptureFragment extends BaseFragment implements View.OnClickListener,
+        SurfaceHolder.Callback, Camera.PictureCallback, PhotoAdapter.PhotosUpdatedListener {
 
     private static final String TAG = CaptureFragment.class.getName();
 
-    public static final int MEDIA_TYPE_IMAGE = 1;
-    public static final int MEDIA_TYPE_VIDEO = 2;
-    private static final int REQUEST_IMAGE_CAPTURE = 102;
-    private static final int REQUEST_CAMERA_RESULT = 103;
-
-
-    //    private CameraPreview mPreview;
-    private File tempImage;
-
-    @BindView(R.id.recyclerView)
-    protected RecyclerView recyclerView;
-
+    @BindView(R.id.surfaceView)
+    protected SurfaceView surfaceView;
     @BindView(R.id.message)
     protected TextView messageView;
-
-    //    private Camera mCamera;
     @BindView(R.id.snap)
     View snapButton;
-
     @BindView(R.id.next_button)
     View nextButton;
     private Unbinder unbinder;
 
+    final boolean FULL_SCREEN = true;
+    private static final int FOCUS_AREA_SIZE = 300;
+    SurfaceHolder surfaceHolder;
+    Camera camera;
+
+    @BindView(R.id.recyclerView)
+    protected RecyclerView recyclerView;
     private PhotoAdapter photoAdapter;
 
     public static CaptureFragment newInstance() {
@@ -85,13 +81,23 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Resources res = getResources();
-        String[] trespassTypes = res.getStringArray(R.array.report_types);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.listitem_report_type, Arrays.asList(trespassTypes));
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        surfaceHolder = surfaceView.getHolder();
+        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        surfaceHolder.addCallback(this);
 
         snapButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
+
+        surfaceView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    focusOnTouch(event);
+                }
+                return true;
+            }
+        });
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -102,187 +108,257 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         recyclerView.setAdapter(photoAdapter);
         recyclerView.setHasFixedSize(true);
         onPhotosUpdated();
-
-        // Create an instance of Camera
-//        mCamera = getCameraInstance();
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-//            mCamera.enableShutterSound(true);
-//        }
-//
-//        // Create our Preview view and set it as the content of our activity.
-//        mPreview = new CameraPreview(getContext(), mCamera);
-//        FrameLayout preview = (FrameLayout)view.findViewById(R.id.cameraPreview);
-//        preview.addView(mPreview);
     }
 
-    /**
-     * A safe way to get an instance of the Camera object.
-     */
-    public static Camera getCameraInstance() {
-        Camera c = null;
-        try {
-            c = Camera.open(); // attempt to get a Camera instance
-        } catch (Exception e) {
-            // Camera is not available (in use or does not exist)
+    private void focusOnTouch(MotionEvent event) {
+        if (camera != null) {
+
+            Camera.Parameters parameters = camera.getParameters();
+            if (parameters.getMaxNumMeteringAreas() > 0) {
+                Log.i(TAG, "fancy !");
+                Rect rect = calculateFocusArea(event.getX(), event.getY());
+
+                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                List<Camera.Area> meteringAreas = new ArrayList<>();
+                meteringAreas.add(new Camera.Area(rect, 800));
+                parameters.setFocusAreas(meteringAreas);
+
+                camera.setParameters(parameters);
+                camera.autoFocus(mAutoFocusTakePictureCallback);
+            } else {
+                camera.autoFocus(mAutoFocusTakePictureCallback);
+            }
         }
-        return c; // returns null if camera is unavailable
     }
+
+    private Rect calculateFocusArea(float x, float y) {
+        int left = clamp(Float.valueOf((x / surfaceView.getWidth()) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
+        int top = clamp(Float.valueOf((y / surfaceView.getHeight()) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
+
+        return new Rect(left, top, left + FOCUS_AREA_SIZE, top + FOCUS_AREA_SIZE);
+    }
+
+    private int clamp(int touchCoordinateInCameraReper, int focusAreaSize) {
+        int result;
+        if (Math.abs(touchCoordinateInCameraReper) + focusAreaSize / 2 > 1000) {
+            if (touchCoordinateInCameraReper > 0) {
+                result = 1000 - focusAreaSize / 2;
+            } else {
+                result = -1000 + focusAreaSize / 2;
+            }
+        } else {
+            result = touchCoordinateInCameraReper - focusAreaSize / 2;
+        }
+        return result;
+    }
+
+    private Camera.AutoFocusCallback mAutoFocusTakePictureCallback = new Camera.AutoFocusCallback() {
+        @Override
+        public void onAutoFocus(boolean success, Camera camera) {
+            if (success) {
+                Log.i("tap_to_focus", "success!");
+            } else {
+                Log.i("tap_to_focus", "fail!");
+            }
+        }
+    };
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        releaseCamera();              // release the camera immediately on pause event
         unbinder.unbind();
-    }
-
-    private void releaseCamera() {
-//        if (mCamera != null) {
-//            mCamera.release();        // release the camera for other applications
-//            mCamera = null;
-//        }
-    }
-
-    private Camera.PictureCallback pictureCallback = new Camera.PictureCallback() {
-
-        @Override
-        public void onPictureTaken(byte[] data, Camera camera) {
-
-            File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-            if (pictureFile == null) {
-                Log.d(TAG, "Error creating media file, check storage permissions: ");
-                return;
-            }
-
-            try {
-                FileOutputStream fos = new FileOutputStream(pictureFile);
-                fos.write(data);
-                fos.close();
-                onImageFileCreated(pictureFile);
-            } catch (FileNotFoundException e) {
-                Log.d(TAG, "File not found: " + e.getMessage());
-            } catch (IOException e) {
-                Log.d(TAG, "Error accessing file: " + e.getMessage());
-            }
-
-        }
-    };
-
-    private void onImageFileCreated(File file) {
-        ClaimState.INST.getClaim().addPhoto(file.getPath());
-        int numberOfPhotosTaken = ClaimState.INST.getClaim().getPhotoFiles().size();
-        snapButton.setVisibility(numberOfPhotosTaken > 2 ? View.GONE : View.VISIBLE);
-        photoAdapter.notifyDataSetChanged();
-        onPhotosUpdated();
-    }
-
-    /**
-     * Create a file Uri for saving an image or video
-     */
-    private static Uri getOutputMediaFileUri(int type) {
-        return Uri.fromFile(getOutputMediaFile(type));
-    }
-
-    /**
-     * Create a File for saving an image or video
-     */
-    private static File getOutputMediaFile(int type) {
-        // To be safe, you should check that the SDCard is mounted
-        // using Environment.getExternalStorageState() before doing this.
-
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "PatrolApp");
-        // This location works best if you want the created images to be shared
-        // between applications and persist after your app has been uninstalled.
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                Log.d("PatrolApp", "failed to create directory");
-                return null;
-            }
-        }
-
-        // Create a media file name
-        String timeStamp = new SimpleDateFormat("yyyy/MM/dd_HH:mm:ss").format(new Date());
-        File mediaFile;
-        if (type == MEDIA_TYPE_IMAGE) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                    "IMG_" + timeStamp + ".jpg");
-        } else if (type == MEDIA_TYPE_VIDEO) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                    "VID_" + timeStamp + ".mp4");
-        } else {
-            return null;
-        }
-
-        return mediaFile;
-    }
-
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-            String path = tempImage.getPath();
-            ClaimState.INST.getClaim().addPhoto(path);
-            photoAdapter.notifyDataSetChanged();
-            onPhotosUpdated();
-        }
-    }
-
-    private void openCamera() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            try {
-                File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                tempImage = File.createTempFile(String.valueOf(System.currentTimeMillis()), ".jpg", storageDir);
-
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempImage));
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            } catch (IOException ignored) {
-            }
-        }
-    }
-
-
-    private String getPathFromUri(Uri uri) {
-        String selected;
-        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getActivity().getContentResolver().query(uri, filePathColumn, null, null, null);
-        cursor.moveToFirst();
-        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-        selected = cursor.getString(columnIndex);
-        cursor.close();
-        return selected;
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.snap:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.CAMERA)
-                            == PackageManager.PERMISSION_GRANTED) {
-                        openCamera();
-                    } else {
-                        if (shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) {
-                            Toast.makeText(getActivity(), "No Permission to use the Camera services", Toast.LENGTH_SHORT).show();
-                        }
-                        requestPermissions(new String[] {android.Manifest.permission.CAMERA}, REQUEST_CAMERA_RESULT);
-                    }
-                } else {
-//                capture(); TODO uncomment
-                    openCamera();
-                }
+                camera.takePicture(null, null, CaptureFragment.this);
                 break;
             case R.id.next_button:
-                ((MainActivity)getActivity()).moveToNext();
+                ((MainActivity) getActivity()).moveToNext();
                 break;
         }
     }
 
-    private void capture() {
-        // get an image from the camera
-//        mCamera.takePicture(null, null, pictureCallback);
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        try {
+            releaseCameraAndPreview();
+            camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
+            setFlashMode(camera, true);
+        } catch (Exception e) {
+            Log.e(getString(R.string.app_name), "failed to open Camera");
+            e.printStackTrace();
+        }
+
+        try {
+            camera.setPreviewDisplay(holder);
+
+            Camera.Parameters parameters = camera.getParameters();
+            if (this.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
+                parameters.set("orientation", "portrait");
+                camera.setDisplayOrientation(90);
+            }
+            camera.setParameters(parameters);
+
+        } catch (IOException exception) {
+            camera.release();
+        }
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        setCameraDisplayOrientation(Camera.CameraInfo.CAMERA_FACING_BACK);
+        try {
+            camera.setPreviewDisplay(holder);
+            camera.startPreview();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        if (camera != null) {
+            camera.stopPreview();
+            camera.release();
+        }
+    }
+
+    @Override
+    public void onPictureTaken(byte[] data, Camera camera) {
+        Uri imageFileUri = getActivity().getContentResolver().insert(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new ContentValues());
+        try {
+            OutputStream imageFileOS = getActivity().getContentResolver().openOutputStream(
+                    imageFileUri);
+            imageFileOS.write(data);
+            imageFileOS.flush();
+            imageFileOS.close();
+            onImageFileCreated(getPathFromUri(imageFileUri));
+            Toast t = Toast.makeText(getContext(), imageFileUri.getPath(), Toast.LENGTH_SHORT);
+            t.show();
+        } catch (Exception e) {
+            Toast t = Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT);
+            t.show();
+        }
+        camera.startPreview();
+    }
+
+    private void onImageFileCreated(String photoPath) {
+        ClaimState.INST.getClaim().addPhoto(photoPath);
+        int numberOfPhotosTaken = ClaimState.INST.getClaim().getPhotoFiles().size();
+        snapButton.setVisibility(numberOfPhotosTaken > 2 ? View.GONE : View.VISIBLE);
+        photoAdapter.notifyDataSetChanged();
+        onPhotosUpdated();
+    }
+
+    void setPreviewSize(boolean fullScreen) {
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        boolean widthIsMax = display.getWidth() > display.getHeight();
+
+        Camera.Size size = camera.getParameters().getPreviewSize();
+
+        RectF rectDisplay = new RectF();
+        RectF rectPreview = new RectF();
+
+        rectDisplay.set(0, 0, display.getWidth(), display.getHeight());
+
+        if (widthIsMax) {
+            rectPreview.set(0, 0, size.width, size.height);
+        } else {
+            rectPreview.set(0, 0, size.height, size.width);
+        }
+
+        Matrix matrix = new Matrix();
+        if (!fullScreen) {
+            matrix.setRectToRect(rectPreview, rectDisplay,
+                    Matrix.ScaleToFit.START);
+        } else {
+            matrix.setRectToRect(rectDisplay, rectPreview,
+                    Matrix.ScaleToFit.START);
+            matrix.invert(matrix);
+        }
+        matrix.mapRect(rectPreview);
+
+        surfaceView.getLayoutParams().height = (int) (rectPreview.bottom);
+        surfaceView.getLayoutParams().width = (int) (rectPreview.right);
+    }
+
+    void setCameraDisplayOrientation(int cameraId) {
+        int rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
+        }
+
+        int result = 0;
+
+        // получаем инфо по камере cameraId
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        Camera.getCameraInfo(cameraId, info);
+
+        // задняя камера
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+            result = ((360 - degrees) + info.orientation);
+        } else
+            // передняя камера
+            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                result = ((360 - degrees) - info.orientation);
+                result += 360;
+            }
+        result = result % 360;
+        camera.setDisplayOrientation(result);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (camera == null) {
+            camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
+            setFlashMode(camera, true);
+        }
+        setPreviewSize(FULL_SCREEN);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (camera != null)
+            camera.release();
+        camera = null;
+    }
+
+    private void releaseCameraAndPreview() {
+        if (camera != null) {
+            camera.release();
+            camera = null;
+        }
+    }
+
+    private void setFlashMode(Camera camera, boolean enabled) {
+        List<String> mSupportedFlashModes = camera.getParameters().getSupportedFlashModes();
+        if (mSupportedFlashModes != null && mSupportedFlashModes.contains(Camera.Parameters.FLASH_MODE_AUTO)) {
+            Camera.Parameters parameters = camera.getParameters();
+            if (enabled) {
+                parameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+            } else {
+                parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+            }
+            camera.setParameters(parameters);
+        }
     }
 
     @Override
@@ -297,5 +373,17 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         } else {
             messageView.setText("");
         }
+    }
+
+    private String getPathFromUri(Uri uri) {
+        String selected;
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContext().getContentResolver().query(uri, filePathColumn, null, null, null);
+        assert cursor != null;
+        cursor.moveToFirst();
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        selected = cursor.getString(columnIndex);
+        cursor.close();
+        return selected;
     }
 }
