@@ -22,25 +22,17 @@ import java.util.Locale;
 public enum GeolocationState {
     INST;
 
-    private static final String TAG = "Geolocation";
-
+    private static final String TAG = GeolocationState.class.getName();
     public static final long WAITING_TIME_MILLIS = 3000L;
     public static final float ACCURANCY_IN_METERS = 3f;
 
     private Context context;
     private LocationManager locationManager;
     private Geocoder geocoder;
-    private Location mLocation;
-    private long lastUpdateTimestamp;
-
-    public void setLocation(Location location) {
-        mLocation = location;
-        lastUpdateTimestamp = System.currentTimeMillis();
-    }
 
     public void init(Context context) {
         this.context = context;
-        locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         geocoder = new Geocoder(context, Locale.getDefault());
     }
 
@@ -76,13 +68,5 @@ public enum GeolocationState {
 
     public LocationManager getLocationManager() {
         return locationManager;
-    }
-
-    public boolean isLocationActual() {
-        return System.currentTimeMillis() - lastUpdateTimestamp < 1000 * 60 * 2;
-    }
-
-    public Location getLastLocation() {
-        return mLocation;
     }
 }
