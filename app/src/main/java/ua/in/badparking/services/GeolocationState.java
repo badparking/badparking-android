@@ -19,11 +19,10 @@ import java.util.Locale;
 /**
  * Created by Volodymyr Dranyk on 7/25/2016.
  */
-public enum GeolocationState  {
+public enum GeolocationState {
     INST;
 
-    private static final String TAG = "Geolocation";
-
+    private static final String TAG = GeolocationState.class.getName();
     public static final long WAITING_TIME_MILLIS = 3000L;
     public static final float ACCURANCY_IN_METERS = 3f;
 
@@ -52,9 +51,9 @@ public enum GeolocationState  {
         return null;
     }
 
-    public void mapPositioning(GoogleMap mMap, double latitude, double longitude){
+    public void mapPositioning(GoogleMap mMap, double latitude, double longitude) {
         LatLng coordinates = new LatLng(latitude, longitude);
-        if(mMap!=null) {
+        if (mMap != null) {
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 13));
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(coordinates)
