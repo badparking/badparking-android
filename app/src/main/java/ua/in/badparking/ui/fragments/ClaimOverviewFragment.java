@@ -1,6 +1,7 @@
 package ua.in.badparking.ui.fragments;
 
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +14,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
@@ -36,6 +39,8 @@ import ua.in.badparking.R;
 import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.ClaimPostedEvent;
 import ua.in.badparking.events.ImageUploadedEvent;
+import ua.in.badparking.events.UserLoadedEvent;
+import ua.in.badparking.events.UserUpdatedEvent;
 import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.MediaFile;
 import ua.in.badparking.model.User;
@@ -73,7 +78,7 @@ public class ClaimOverviewFragment extends BaseFragment {
     private ClaimsService mClaimService;
 
     @Inject
-    private UserService userService;
+    private UserService mUserService;
 
     @Inject
     private TokenService mTokenService;
@@ -83,6 +88,9 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     private PhotoAdapter photoAdapter;
     private CallbackManager callbackManager;
+
+    private User user;
+    private Claim claim;
 
     public static Fragment newInstance() {
         return new ClaimOverviewFragment();
@@ -145,7 +153,7 @@ public class ClaimOverviewFragment extends BaseFragment {
                     public void onSuccess(LoginResult loginResult) {
                         loginButton.setVisibility(View.GONE);
                         mSendButton.setVisibility(View.VISIBLE);
-                        userService.authorizeWithFacebook(loginResult.getAccessToken().getToken());
+                        mTokenService.authorizeWithFacebook(loginResult.getAccessToken().getToken());
                     }
 
                     @Override
@@ -180,6 +188,7 @@ public class ClaimOverviewFragment extends BaseFragment {
     }
 
     private void send() {
+        mUserService.getUser();
         if (!ClaimState.INST.getClaim().isComplete()) {
             // TODO show "not complete" message
             return;
@@ -188,10 +197,42 @@ public class ClaimOverviewFragment extends BaseFragment {
             mSendButton.setVisibility(View.GONE);
             return;
         }
-        final Claim claim = ClaimState.INST.getClaim();
-        final User user = UserState.INST.getUser();
+        claim = ClaimState.INST.getClaim();
+        user = UserState.INST.getUser();
         showSendClaimDialog();
-        mClaimService.postMyClaims(claim);
+        if (user.isComplete().equals("false")) {
+            showCompleteUserDataDialog();
+            return;
+        } else {
+            mClaimService.postMyClaims(claim);
+        }
+    }
+
+    private void showCompleteUserDataDialog() {
+
+        LinearLayout layout = new LinearLayout(getActivity());
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        final EditText emailText = new EditText(getActivity());
+        emailText.setHint("Email");
+        emailText.setText(UserState.INST.getUser().getEmail());
+        layout.addView(emailText);
+
+        final EditText phoneText = new EditText(getActivity());
+        phoneText.setHint("Phone Number");
+        phoneText.setText(UserState.INST.getUser().getPhone());
+        layout.addView(phoneText);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("Необхідно заповнити дані користувача");
+        builder.setView(layout);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                String phone = String.valueOf(phoneText.getText());
+                String email = String.valueOf(emailText.getText());
+                mUserService.putUserComplete(email, phone);
+            }
+        });
     }
 
 
@@ -270,10 +311,21 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     }
 
+    @Subscribe
+    public void onUserInfoCompleted(final UserUpdatedEvent event) {
+        user = event.getUser();
+        UserState.INST.setUser(user);
+        mClaimService.postMyClaims(claim);
+    }
+
+    @Subscribe
+    public void onUserLoaded(final UserLoadedEvent event) {
+        user = event.getUser();
+        UserState.INST.setUser(user);
+    }
 
     @Subscribe
     public void onAuthorizedWithFacebook(final AuthorizedWithFacebookEvent event) {
-        User user = new User();
     }
 
     @Override
