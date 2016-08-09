@@ -24,7 +24,6 @@ import ua.in.badparking.events.TokenRefreshedEvent;
 import ua.in.badparking.events.TokenVerifiedEvent;
 import ua.in.badparking.model.User;
 import ua.in.badparking.services.ClaimState;
-import ua.in.badparking.services.UserState;
 
 public class TokenService extends ApiService {
 
@@ -93,9 +92,7 @@ public class TokenService extends ApiService {
             public void success(User user, Response response) {
                 //TODO get token from our API here, save it in SecurePrefs!!!
                 ClaimState.INST.setToken(user.getToken());
-
-                UserState.INST.setUser(user);
-                EventBus.getDefault().post(new AuthorizedWithFacebookEvent());
+                EventBus.getDefault().post(new AuthorizedWithFacebookEvent(user));
             }
 
             @Override

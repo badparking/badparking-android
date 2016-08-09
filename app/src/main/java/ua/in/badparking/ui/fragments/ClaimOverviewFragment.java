@@ -1,7 +1,6 @@
 package ua.in.badparking.ui.fragments;
 
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -199,11 +198,11 @@ public class ClaimOverviewFragment extends BaseFragment {
         }
         claim = ClaimState.INST.getClaim();
         user = UserState.INST.getUser();
-        showSendClaimDialog();
         if (user.isComplete().equals("false")) {
             showCompleteUserDataDialog();
             return;
         } else {
+            showSendClaimDialog();
             mClaimService.postMyClaims(claim);
         }
     }
@@ -224,7 +223,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         layout.addView(phoneText);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Необхідно заповнити дані користувача");
+        builder.setMessage(App.getAppContext().getString(R.string.claim_overview_complete_user_message));
         builder.setView(layout);
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
@@ -233,6 +232,7 @@ public class ClaimOverviewFragment extends BaseFragment {
                 mUserService.putUserComplete(email, phone);
             }
         });
+        builder.show();
     }
 
 
@@ -326,6 +326,8 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     @Subscribe
     public void onAuthorizedWithFacebook(final AuthorizedWithFacebookEvent event) {
+        user = event.getUser();
+        UserState.INST.setUser(user);
     }
 
     @Override

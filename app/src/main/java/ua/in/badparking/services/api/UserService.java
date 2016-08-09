@@ -1,9 +1,5 @@
 package ua.in.badparking.services.api;
 
-import android.content.Intent;
-import android.os.IBinder;
-import android.support.annotation.Nullable;
-
 import com.google.inject.Inject;
 
 import org.greenrobot.eventbus.EventBus;
@@ -13,17 +9,12 @@ import java.util.HashMap;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import ua.in.badparking.App;
-import ua.in.badparking.Utils;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.UserApi;
 import ua.in.badparking.api.requests.UserRequest;
-import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.UserLoadedEvent;
 import ua.in.badparking.events.UserUpdatedEvent;
 import ua.in.badparking.model.User;
-import ua.in.badparking.services.ClaimState;
-import ua.in.badparking.services.UserState;
 
 public class UserService extends ApiService {
 

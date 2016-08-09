@@ -84,7 +84,7 @@ public class ClaimsService extends ApiService {
         paramsMap.put("longitude", longitude);
         paramsMap.put("city", claim.getCity());
         paramsMap.put("address", claim.getAddress());
-        paramsMap.put("license_plates", "1");//claim.getLicensePlates());
+        paramsMap.put("license_plates", claim.getLicensePlates());
         for(Integer crimetype : crimetypes) {
             crimeMap.put("crimetypes", crimetype);
         }

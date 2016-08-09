@@ -48,6 +48,7 @@
     <string name="photo_uploaded">"Заватнажено фото "</string>
     <string name="claim_sending">Відправлення...</string>
     <string name="error_uploading_image">Помилка завантаження зображення</string>
+    <string name="claim_overview_complete_user_message">Необхідно заповнити дані користувача</string>
 
     <string-array name="report_types">
         <item>Стоянка на пішохідному переході</item>
