@@ -14,6 +14,7 @@ import butterknife.ButterKnife;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
 import ua.in.badparking.R;
+import ua.in.badparking.services.api.TokenService;
 import ua.in.badparking.services.api.UserService;
 
 @ContentView(R.layout.activity_settings)
@@ -24,7 +25,7 @@ public class SettingsActivity extends RoboActivity {
     @BindView(R.id.login_button)
     LoginButton loginButton;
     @Inject
-    private UserService userService;
+    private TokenService tokenService;
     private CallbackManager callbackManager;
 
     public static SettingsActivity newInstance() {
@@ -41,7 +42,7 @@ public class SettingsActivity extends RoboActivity {
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
-                        userService.authorizeWithFacebook(loginResult.getAccessToken().getToken());
+                        tokenService.authorizeWithFacebook(loginResult.getAccessToken().getToken());
                     }
 
                     @Override

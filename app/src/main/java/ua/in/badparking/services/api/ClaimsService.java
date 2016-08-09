@@ -88,6 +88,7 @@ public class ClaimsService extends ApiService {
         for(Integer crimetype : crimetypes) {
             crimeMap.put("crimetypes", crimetype);
         }
+
         mClaimsApi.postMyClaims(crimeMap, paramsMap, new Callback<Claim>() {
             @Override
             public void success(Claim claimsResponse, Response response) {
