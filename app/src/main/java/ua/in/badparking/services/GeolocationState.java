@@ -3,14 +3,16 @@ package ua.in.badparking.services;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
 import android.location.LocationManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,6 +31,7 @@ public enum GeolocationState {
     private Context context;
     private LocationManager locationManager;
     private Geocoder geocoder;
+    private Marker userMarker;
 
     public void init(Context context) {
         this.context = context;
@@ -36,33 +39,47 @@ public enum GeolocationState {
         geocoder = new Geocoder(context, Locale.getDefault());
     }
 
-    public Address getAddress(Location location) {
+    public Address getAddress(double latitude, double longitude) {
         try {
-            List<Address> addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            List<Address> addressList = geocoder.getFromLocation(latitude, longitude, 1);
 
             if (addressList != null && !addressList.isEmpty()) {
                 return addressList.get(0);
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.i(TAG, e.getMessage());
             Toast.makeText(context, "Помилка геопозиціонування", Toast.LENGTH_SHORT).show();
         }
         return null;
     }
 
+    public Marker getUserMarker() {
+        return userMarker;
+    }
+
+    public void setUserMarker(Marker userMarker) {
+        this.userMarker = userMarker;
+    }
+
     public void mapPositioning(GoogleMap mMap, double latitude, double longitude) {
+        if (userMarker != null) {
+            userMarker.remove();
+        }
+
         LatLng coordinates = new LatLng(latitude, longitude);
         if (mMap != null) {
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 13));
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(coordinates)
-                    .zoom(17)
-                    .bearing(90)
-                    .tilt(0)
-                    .build();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 17));
 
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(latitude, longitude))
+                    .zoom(17)
+                    .bearing(45)
+                     //.tilt(45)
+                    .build();
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            userMarker = mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(latitude, longitude)));
         }
     }
 
