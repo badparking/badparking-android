@@ -27,7 +27,6 @@ import java.text.DecimalFormat;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import pl.tajchert.sample.DotsTextView;
 import ua.in.badparking.R;
 import ua.in.badparking.services.ClaimState;
@@ -42,44 +41,45 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     private static final String TAG = LocationFragment.class.getName();
 
-    private GoogleMap mMap;
     @BindView(R.id.dots)
     DotsTextView dotsTextView;
+
     @BindView(R.id.positioning_text_view)
     TextView positioningText;
+
     @BindView(R.id.next_button)
     Button nextButton;
-    private Unbinder unbinder;
+
+    private GoogleMap mMap;
+
     private static boolean showHint = false;
-    private static View rootView;
 
     public static Fragment newInstance() {
         return new LocationFragment();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        if (rootView == null) {
-            rootView = inflater.inflate(R.layout.fragment_location, container, false);
-        }
-
-        unbinder = ButterKnife.bind(this, rootView);
-        return rootView;
+        return inflater.inflate(R.layout.fragment_location, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        SupportMapFragment fragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapFragment);
-        fragment.getMapAsync(this);
+        ButterKnife.bind(this, view);
+        view.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                SupportMapFragment fragment = (SupportMapFragment)getChildFragmentManager().findFragmentById(R.id.mapFragment);
+                fragment.getMapAsync(LocationFragment.this);
+            }
+        }, 30);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity) getActivity()).moveToNext();
+                ((MainActivity)getActivity()).moveToNext();
             }
         });
         nextButton.setVisibility(View.GONE);
@@ -94,7 +94,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                     GeolocationState.WAITING_TIME_MILLIS,
                     GeolocationState.ACCURANCY_IN_METERS,
                     locationListener);
-        } catch (SecurityException se){
+        } catch (SecurityException se) {
             Log.i(TAG, se.getMessage());
         }
     }
@@ -104,7 +104,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         super.onPause();
         try {
             GeolocationState.INST.getLocationManager().removeUpdates(locationListener);
-        } catch (SecurityException se){
+        } catch (SecurityException se) {
             Log.i(TAG, se.getMessage());
         }
     }
@@ -153,7 +153,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         if (mMap != null) {
             try {
                 mMap.setMyLocationEnabled(true);
-            } catch (SecurityException se){
+            } catch (SecurityException se) {
                 Log.i(TAG, se.getMessage());
             }
 
@@ -168,17 +168,12 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         return false;
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
-    }
-
-    private void showTimePositioningHint(){
-        if(!showHint){
+    private void showTimePositioningHint() {
+        if (!showHint) {
             Toast toast = Toast.makeText(getContext(), getResources().getText(R.string.please_wait_gps), Toast.LENGTH_LONG);
-            LinearLayout layout = (LinearLayout) toast.getView();
+            LinearLayout layout = (LinearLayout)toast.getView();
             if (layout.getChildCount() > 0) {
-                TextView tv = (TextView) layout.getChildAt(0);
+                TextView tv = (TextView)layout.getChildAt(0);
                 tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
             }
             toast.setGravity(Gravity.CENTER, 0, 0);
@@ -187,8 +182,8 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         }
     }
 
-    private void setAddress(Address address){
-        if(address == null){
+    private void setAddress(Address address) {
+        if (address == null) {
             ClaimState.INST.getClaim().setCity(null);
             ClaimState.INST.getClaim().setAddress(null);
 

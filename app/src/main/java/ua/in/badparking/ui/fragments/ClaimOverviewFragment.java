@@ -1,6 +1,7 @@
 package ua.in.badparking.ui.fragments;
 
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +10,8 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -168,7 +171,7 @@ public class ClaimOverviewFragment extends BaseFragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser && isResumed()){
+        if (isVisibleToUser && isResumed()) {
             crimeTypeTextView.setText(ClaimState.INST.getSelectedCrimeTypesNames());
             addressTextView.setText(ClaimState.INST.getFullAddress());
         }
@@ -219,7 +222,12 @@ public class ClaimOverviewFragment extends BaseFragment {
 
         final EditText phoneText = new EditText(getActivity());
         phoneText.setHint("Phone Number");
-        phoneText.setText(UserState.INST.getUser().getPhone());
+        String phone = UserState.INST.getUser().getPhone();
+        if (TextUtils.isEmpty(phone)) {
+            TelephonyManager tMgr = (TelephonyManager)getActivity().getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+            phone = tMgr.getLine1Number();
+        }
+        phoneText.setText(phone);
         layout.addView(phoneText);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -276,7 +284,7 @@ public class ClaimOverviewFragment extends BaseFragment {
     public void onImagePosted(final ImageUploadedEvent event) {
         readyDialog.hide();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if(event.getImageCounter() != -1) {
+        if (event.getImageCounter() != -1) {
             builder.setMessage(App.getAppContext().getString(R.string.photo_uploaded) + event.getImageCounter() + "/" + ClaimState.INST.getPictures().size());
         } else {
             builder.setMessage(App.getAppContext().getString(R.string.error_uploading_image));
@@ -284,7 +292,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         if (ClaimState.INST.getPictures().size() == event.getImageCounter()) {
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    ((MainActivity) getActivity()).moveToFirst();
+                    ((MainActivity)getActivity()).moveToFirst();
                 }
             });
         }
@@ -301,7 +309,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         readyDialog = builder.create();
         readyDialog.show();
 
-        if(event.getPosted()) {
+        if (event.getPosted()) {
             List<MediaFile> files = ClaimState.INST.getPictures();
             for (int i = 0; i < files.size() + 1; i++) {
                 MediaFile file = files.get(i);
