@@ -1,9 +1,5 @@
 package ua.in.badparking.services.api;
 
-import android.content.Intent;
-import android.os.IBinder;
-import android.support.annotation.Nullable;
-
 import com.google.inject.Inject;
 
 import org.greenrobot.eventbus.EventBus;
@@ -13,16 +9,12 @@ import java.util.HashMap;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import ua.in.badparking.App;
-import ua.in.badparking.Utils;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.UserApi;
 import ua.in.badparking.api.requests.UserRequest;
-import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.UserLoadedEvent;
 import ua.in.badparking.events.UserUpdatedEvent;
 import ua.in.badparking.model.User;
-import ua.in.badparking.services.UserState;
 
 public class UserService extends ApiService {
 
@@ -38,7 +30,8 @@ public class UserService extends ApiService {
         mUserApi.getUser(new Callback<User>() {
             @Override
             public void success(User user, Response response) {
-                EventBus.getDefault().post(new UserLoadedEvent());
+
+                EventBus.getDefault().post(new UserLoadedEvent(user));
             }
 
             @Override
@@ -48,11 +41,15 @@ public class UserService extends ApiService {
         });
     }
 
-    public void postUserComplete(UserRequest userRequest) {
-        mUserApi.postUserComplete(userRequest, new Callback<User>() {
+    public void putUserComplete(String email, String phone) {
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("email", email);
+        params.put("phone", phone);
+
+        mUserApi.putUserComplete(params, new Callback<User>() {
             @Override
             public void success(User user, Response response) {
-                EventBus.getDefault().post(new UserUpdatedEvent());
+                EventBus.getDefault().post(new UserUpdatedEvent(user));
             }
 
             @Override
@@ -66,7 +63,7 @@ public class UserService extends ApiService {
         mUserApi.patchUserComplete(userRequest, new Callback<User>() {
             @Override
             public void success(User user, Response response) {
-                EventBus.getDefault().post(new UserUpdatedEvent());
+                EventBus.getDefault().post(new UserUpdatedEvent(user));
             }
 
             @Override
@@ -75,27 +72,5 @@ public class UserService extends ApiService {
             }
         });
     }
-
-    public void authorizeWithFacebook(String fbToken) {
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put("access_token", fbToken);
-        params.put("client_id", Utils.getConfigValue(App.getAppContext(), "client_id"));// TODO: put this in config file, but don't add to git!!!!
-        params.put("client_secret", Utils.getConfigValue(App.getAppContext(), "client_secret"));
-        params.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000)); // in sec
-        mUserApi.authorizeWithFacebook(params, new Callback<User>() {
-            @Override
-            public void success(User user, Response response) {
-                //TODO get token from our API here, save it in SecurePrefs!!!
-                UserState.INST.setUser(user);
-                EventBus.getDefault().post(new AuthorizedWithFacebookEvent());
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                // TODO : show error dialog
-            }
-        });
-    }
-
 
 }

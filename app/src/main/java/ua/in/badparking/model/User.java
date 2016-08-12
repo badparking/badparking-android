@@ -51,11 +51,13 @@ public class User {
         return phone;
     }
 
-    public String getIsComplete() {
+    public String isComplete() {
         return isComplete;
     }
 
     public String getToken() {
         return token;
     }
+
+
 }

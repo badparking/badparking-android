@@ -55,12 +55,16 @@
     </RelativeLayout>
 
     <fragment
-        android:id="@+id/mapFragment"
-        class="com.google.android.gms.maps.SupportMapFragment"
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        class="com.google.android.gms.maps.SupportMapFragment"
+        android:id="@+id/mapFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/bottomPanel"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        map:cameraTargetLat="48.655036"
+        map:cameraTargetLng="30.9668446"
+        map:cameraZoom="6"/>
 
 </RelativeLayout>
