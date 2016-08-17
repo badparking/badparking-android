@@ -2,7 +2,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black">
+    android:background="@color/cardview_dark_background">
+
+    <FrameLayout
+        android:id="@+id/surface_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/snap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:src="@drawable/icon_camera"
+        app:backgroundTint="@color/secondaryColor"
+        app:borderWidth="0dp"
+        app:elevation="6dp"
+        app:fabSize="normal"
+        android:layout_above="@+id/bottomPanel"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp" />
 
     <RelativeLayout
         android:id="@+id/bottomPanel"
@@ -50,25 +71,4 @@
             android:scrollbars="none"/>
 
     </RelativeLayout>
-
-    <SurfaceView
-        android:id="@+id/surfaceView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/bottomPanel"
-        android:layout_gravity="center"/>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/snap"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/bottomPanel"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="16dp"
-        android:clickable="true"
-        android:src="@drawable/icon_camera"
-        app:backgroundTint="@color/secondaryColor"
-        app:borderWidth="0dp"
-        app:elevation="6dp"
-        app:fabSize="normal" />
 </RelativeLayout>

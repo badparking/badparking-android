@@ -5,7 +5,6 @@ import android.support.multidex.MultiDexApplication;
 
 import com.crashlytics.android.Crashlytics;
 
-import ua.in.badparking.services.CameraState;
 import ua.in.badparking.services.GeolocationState;
 import ua.in.badparking.services.UserState;
 
@@ -23,7 +22,6 @@ public class App extends MultiDexApplication {
         Crashlytics.start(this);
 //        }
         GeolocationState.INST.init(this);
-        CameraState.INST.init(this);
         UserState.INST.init(this);
         App.context = getApplicationContext();
     }
