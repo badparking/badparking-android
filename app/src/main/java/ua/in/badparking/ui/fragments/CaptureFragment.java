@@ -135,7 +135,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         super.onResume();
         if (surfaceView != null) {
             cameraWrapper = new CameraWrapper(getActivity());
-            if (cameraWrapper != null && cameraWrapper.getCamera() != null) {
+            if (cameraWrapper.getCamera() != null) {
 
                 SurfaceHolder surfaceHolder = surfaceView.getHolder();
                 surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);

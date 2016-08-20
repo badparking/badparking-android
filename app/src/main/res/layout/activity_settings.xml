@@ -1,17 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/avatar"
+        android:layout_width="@dimen/expert_avatar_circle_diameter"
+        android:layout_height="@dimen/expert_avatar_circle_diameter"
+        android:layout_margin="25dp"
+        tools:background="@color/white"/>
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@id/avatar"
+        android:layout_toRightOf="@id/avatar"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        tools:text="Name Surname"/>
 
     <com.facebook.login.widget.LoginButton
         android:id="@+id/login_button"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
-        android:layout_centerInParent="true"
-        android:layout_gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="30dp"
         android:paddingBottom="15dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:paddingTop="15dp"/>
 
-</LinearLayout>
+</RelativeLayout>

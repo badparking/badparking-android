@@ -8,4 +8,5 @@
     <dimen name="actionbar_icon_size">32dp</dimen>
     <dimen name="actionbar_margin">24dp</dimen>
     <dimen name="actionbar_text_size">16dp</dimen>
+    <dimen name="expert_avatar_circle_diameter">80dp</dimen>
 </resources>
