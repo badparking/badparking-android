@@ -74,7 +74,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                 SupportMapFragment fragment = (SupportMapFragment)getChildFragmentManager().findFragmentById(R.id.mapFragment);
                 fragment.getMapAsync(LocationFragment.this);
             }
-        }, 30);
+        }, 300);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
