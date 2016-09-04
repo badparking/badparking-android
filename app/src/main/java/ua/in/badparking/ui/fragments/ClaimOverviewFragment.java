@@ -62,16 +62,14 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     @BindView(R.id.recyclerView)
     protected RecyclerView recyclerView;
-
     @BindView(R.id.send_button)
-    Button mSendButton;
-
+    protected Button mSendButton;
+    @BindView(R.id.carPlateNumberTextView)
+    protected TextView carPlateNumberTextView;
     @BindView(R.id.crimeTypesTextView)
-    TextView crimeTypeTextView;
-
+    protected TextView crimeTypeTextView;
     @BindView(R.id.addressTextView)
-    TextView addressTextView;
-
+    protected TextView addressTextView;
     @BindView(R.id.login_button)
     LoginButton loginButton;
     private Unbinder unbinder;
@@ -172,6 +170,7 @@ public class ClaimOverviewFragment extends BaseFragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser && isResumed()) {
+            carPlateNumberTextView.setText(ClaimState.INST.getClaim().getLicense_plates());
             crimeTypeTextView.setText(ClaimState.INST.getSelectedCrimeTypesNames());
             addressTextView.setText(ClaimState.INST.getFullAddress());
         }

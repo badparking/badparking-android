@@ -58,7 +58,8 @@ public class ClaimTypeFragment extends BaseFragment {
         return new ClaimTypeFragment();
     }
 
-    @Override public void onDestroyView() {
+    @Override
+    public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
     }

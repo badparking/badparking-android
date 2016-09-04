@@ -31,6 +31,7 @@
     <string name="dialogGPSActivateQuestion">Щоб визначити мiсцезнаходження, треби увiмкнути GPS в налаштуваннях, зробити це?</string>
     <string name="capture_plates">Зробiть фото номерних знакiв </string>
     <string name="capture_claim">Зробiть фото правопорушення </string>
+    <string name="capture_claim_another_angle">Зробiть фото правопорушення (2)</string>
     <string name="consent_text">
         1. Увiмкнiть  GPS.\n2. Зробiть фото правопорушення та фото номерiв.\n
         Дякуэмо за спiвпрацю!\n\n
