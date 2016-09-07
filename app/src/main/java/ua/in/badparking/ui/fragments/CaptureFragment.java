@@ -2,6 +2,8 @@ package ua.in.badparking.ui.fragments;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -17,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.ExecutionException;
@@ -36,7 +39,7 @@ import ua.in.badparking.ui.adapters.PhotoAdapter;
  * @author Volodymyr Dranyk
  */
 @SuppressWarnings("deprecation")
-public class CaptureFragment extends BaseFragment implements View.OnClickListener, PhotoAdapter.PhotosUpdatedListener{
+public class CaptureFragment extends BaseFragment implements View.OnClickListener, PhotoAdapter.PhotosUpdatedListener {
 
     private static final String TAG = CaptureFragment.class.getName();
 
@@ -143,7 +146,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                 Camera.Size containerSize = cameraWrapper.getCameraContainerSize();
                 surfaceContainer.addView(surfaceView,
                         new ViewGroup.LayoutParams(new ViewGroup.LayoutParams(
-                                containerSize.height,containerSize.width)));
+                                containerSize.height, containerSize.width)));
             }
         }
     }
@@ -155,7 +158,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                 cameraWrapper.getCamera().takePicture(null, null, jpegCallback);
                 break;
             case R.id.next_button:
-                ((MainActivity)getActivity()).moveToNext();
+                ((MainActivity) getActivity()).moveToNext();
                 break;
         }
     }
@@ -183,6 +186,8 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     private class SaveImageTask extends AsyncTask<byte[], Void, String> {
 
+        private final int QUALITY_PHOTO = 40;
+
         @Override
         protected String doInBackground(byte[]... data) {
             Uri imageFileUri = getActivity().getContentResolver().insert(
@@ -194,15 +199,60 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                             imageFileUri);
                 }
 
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                Bitmap photoBm = BitmapFactory.decodeByteArray(data[0], 0, data[0].length, options);
+                int bmOriginalWidth = photoBm.getWidth();
+                int bmOriginalHeight = photoBm.getHeight();
+                double originalWidthToHeightRatio = 1.0 * bmOriginalWidth / bmOriginalHeight;
+                double originalHeightToWidthRatio = 1.0 * bmOriginalHeight / bmOriginalWidth;
+
+                //photo does not resize when its parameters will be less
+                int nonResizebleMaxHeight = 1024;
+                int nonResizableMaxWidth = 1024;
+
+                photoBm = getScaledBitmap(photoBm, bmOriginalWidth, bmOriginalHeight,
+                        originalWidthToHeightRatio, originalHeightToWidthRatio,
+                        nonResizebleMaxHeight, nonResizableMaxWidth);
+
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                photoBm.compress(Bitmap.CompressFormat.JPEG, QUALITY_PHOTO, bytes);
+
                 if (imageFileOS != null) {
-                    imageFileOS.write(data[0]);
+                    imageFileOS.write(bytes.toByteArray());
                     imageFileOS.flush();
                     imageFileOS.close();
                 }
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             return getPathFromUri(imageFileUri);
+        }
+
+        private Bitmap getScaledBitmap(Bitmap bm, int bmOriginalWidth, int bmOriginalHeight, double originalWidthToHeightRatio, double originalHeightToWidthRatio, int maxHeight, int maxWidth) {
+            if (bmOriginalWidth > maxWidth || bmOriginalHeight > maxHeight) {
+
+                if (bmOriginalWidth > bmOriginalHeight) {
+                    bm = scaleDeminsFromWidth(bm, maxWidth, bmOriginalHeight, originalHeightToWidthRatio);
+                } else if (bmOriginalHeight > bmOriginalWidth) {
+                    bm = scaleDeminsFromHeight(bm, maxHeight, bmOriginalHeight, originalWidthToHeightRatio);
+                }
+
+            }
+            return bm;
+        }
+
+        private Bitmap scaleDeminsFromHeight(Bitmap bm, int maxHeight, int bmOriginalHeight, double originalWidthToHeightRatio) {
+            int newHeight = (int) Math.max(maxHeight, bmOriginalHeight * .55);
+            int newWidth = (int) (newHeight * originalWidthToHeightRatio);
+            bm = Bitmap.createScaledBitmap(bm, newWidth, newHeight, true);
+            return bm;
+        }
+
+        private Bitmap scaleDeminsFromWidth(Bitmap bm, int maxWidth, int bmOriginalWidth, double originalHeightToWidthRatio) {
+            int newWidth = (int) Math.max(maxWidth, bmOriginalWidth * .75);
+            int newHeight = (int) (newWidth * originalHeightToWidthRatio);
+            bm = Bitmap.createScaledBitmap(bm, newWidth, newHeight, true);
+            return bm;
         }
     }
 
