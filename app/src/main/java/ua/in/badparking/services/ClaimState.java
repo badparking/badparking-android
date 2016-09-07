@@ -14,6 +14,7 @@ import ua.in.badparking.model.MediaFile;
 public enum ClaimState {
     INST;
 
+    private String license_plates;
     private Claim claim = new Claim();
     private List<CrimeType> crimeTypes = new ArrayList<>();
     private String token;

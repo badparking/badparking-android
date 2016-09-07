@@ -86,7 +86,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         recyclerView.setAdapter(photoAdapter);
         recyclerView.setHasFixedSize(true);
         onPhotosUpdated();
-
     }
 
     @Override
@@ -103,7 +102,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         if (photosTaken == 0) {
             messageView.setText(R.string.capture_claim);
         } else if (photosTaken == 1) {
-            messageView.setText(R.string.capture_plates);
+            messageView.setText(R.string.capture_claim_another_angle);
         } else {
             messageView.setText("");
         }
