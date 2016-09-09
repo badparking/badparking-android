@@ -46,7 +46,7 @@ import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
 import ua.in.badparking.ui.fragments.ClaimTypeFragment;
 import ua.in.badparking.ui.fragments.LocationFragment;
-import ua.in.badparking.ui.fragments.PlaneFragment;
+import ua.in.badparking.ui.fragments.PlateFragment;
 
 
 @ContentView(R.layout.activity_main)
@@ -261,7 +261,7 @@ public class MainActivity extends RoboActionBarActivity {
             if (position == 0) {
                 return CaptureFragment.newInstance();
             } else if (position == 1) {
-                return PlaneFragment.newInstance();
+                return PlateFragment.newInstance();
             } else if (position == 2) {
                 return ClaimTypeFragment.newInstance();
             } else if (position == 3) {
