@@ -16,7 +16,7 @@ import ua.in.badparking.R;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.ui.activities.MainActivity;
 
-public class PlaneFragment extends BaseFragment implements View.OnClickListener{
+public class PlateFragment extends BaseFragment implements View.OnClickListener{
 
     @BindView(R.id.plateEditText)
     protected EditText plateEditText;
@@ -24,8 +24,8 @@ public class PlaneFragment extends BaseFragment implements View.OnClickListener{
     protected Button nextButton;
     private Unbinder unbinder;
 
-    public static PlaneFragment newInstance() {
-        return new PlaneFragment();
+    public static PlateFragment newInstance() {
+        return new PlateFragment();
     }
 
     @Override
@@ -68,7 +68,7 @@ public class PlaneFragment extends BaseFragment implements View.OnClickListener{
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.next_button:
-                ClaimState.INST.getClaim().setLicense_plates(plateEditText.getText().toString());
+                ClaimState.INST.getClaim().setLicensePlates(plateEditText.getText().toString());
                 ((MainActivity)getActivity()).moveToNext();
                 break;
         }

@@ -12,8 +12,6 @@ public class Claim implements Serializable {
 
     @SerializedName("pk")
     private String pk;
-    @SerializedName("license_plates")
-    private String license_plates;
     @SerializedName("latitude")
     private String latitude;
     @SerializedName("longitude")
@@ -117,19 +115,11 @@ public class Claim implements Serializable {
         this.user = user;
     }
 
-    public String getLicense_plates() {
-        return license_plates;
-    }
-
-    public void setLicense_plates(String license_plates) {
-        this.license_plates = license_plates;
-    }
-
     @Override
     public String toString() {
         return "Claim{" +
                 "pk='" + pk + '\'' +
-                ", license_plates='" + license_plates + '\'' +
+                ", license_plates='" + licensePlates + '\'' +
                 ", latitude='" + latitude + '\'' +
                 ", longitude='" + longitude + '\'' +
                 ", crimetypes=" + crimetypes +

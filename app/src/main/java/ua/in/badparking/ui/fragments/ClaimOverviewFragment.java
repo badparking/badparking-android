@@ -115,16 +115,7 @@ public class ClaimOverviewFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        mVerificationButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //TODO: verify user with bank id
         mSendButton.setEnabled(true);
-
-
-////        }
-//            }
-//        });
 
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -170,7 +161,7 @@ public class ClaimOverviewFragment extends BaseFragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser && isResumed()) {
-            carPlateNumberTextView.setText(ClaimState.INST.getClaim().getLicense_plates());
+            carPlateNumberTextView.setText(ClaimState.INST.getClaim().getLicensePlates());
             crimeTypeTextView.setText(ClaimState.INST.getSelectedCrimeTypesNames());
             addressTextView.setText(ClaimState.INST.getFullAddress());
         }
@@ -248,33 +239,15 @@ public class ClaimOverviewFragment extends BaseFragment {
         return accessToken != null;
     }
 
-//TODO: Verify token
-//    @Subscribe
-//    public void onTokenVerified(TokenVerifiedEvent event) {
-////        if(event.getVerificationResult().equals(false)) {
-//            String url = Constants.BASE_URL + "/profiles/login/dummy";
-//            get(url, new Callback() {
-//                @Override
-//                public void onFailure(Request request, IOException e) {
-////                    EventBus.getDefault().post(new ClaimPostedEvent(e.getMessage()));
-//                }
-//
-//                @Override
-//                public void onResponse(Response response) throws IOException {
-//                    ClaimState.INST.setToken(response.headers().get("X-JWT"));
-//                }
-//            });
-////        }
-//        final Claim claim = ClaimState.INST.getClaim();
-//        final User user = UserState.INST.getUser();
-//        //TODO: 1. Add user data to request. 2. TBD - upload image
-//        showSendClaimDialog();
-//        mClaimService.postMyClaims(claim);
-//    }
-
     private void showSendClaimDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(App.getAppContext().getString(R.string.claim_sending));
+        builder.setNegativeButton(App.getAppContext().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
         waitDialog = builder.create();
         waitDialog.show();
     }
@@ -288,10 +261,18 @@ public class ClaimOverviewFragment extends BaseFragment {
         } else {
             builder.setMessage(App.getAppContext().getString(R.string.error_uploading_image));
         }
+
         if (ClaimState.INST.getPictures().size() == event.getImageCounter()) {
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     ((MainActivity)getActivity()).moveToFirst();
+                }
+            });
+        } else {
+            builder.setNegativeButton(App.getAppContext().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
                 }
             });
         }
@@ -310,7 +291,7 @@ public class ClaimOverviewFragment extends BaseFragment {
 
         if (event.getPosted()) {
             List<MediaFile> files = ClaimState.INST.getPictures();
-            for (int i = 0; i < files.size() + 1; i++) {
+            for (int i = 0; i < files.size(); i++) {
                 MediaFile file = files.get(i);
                 mClaimService.postImage(event.getPk(), file, i + 1);
             }
