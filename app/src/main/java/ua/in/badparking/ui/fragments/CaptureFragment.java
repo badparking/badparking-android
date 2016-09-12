@@ -206,13 +206,9 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                 double originalWidthToHeightRatio = 1.0 * bmOriginalWidth / bmOriginalHeight;
                 double originalHeightToWidthRatio = 1.0 * bmOriginalHeight / bmOriginalWidth;
 
-                //photo does not resize when its parameters will be less
-                int nonResizebleMaxHeight = 1024;
-                int nonResizableMaxWidth = 1024;
-
                 photoBm = getScaledBitmap(photoBm, bmOriginalWidth, bmOriginalHeight,
                         originalWidthToHeightRatio, originalHeightToWidthRatio,
-                        nonResizebleMaxHeight, nonResizableMaxWidth);
+                        CameraWrapper.PHOTO_MAX_HEIGHT, CameraWrapper.PHOTO_MAX_WIDTH);
 
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                 photoBm.compress(Bitmap.CompressFormat.JPEG, QUALITY_PHOTO, bytes);
