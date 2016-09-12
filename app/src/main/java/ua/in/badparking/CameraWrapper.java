@@ -14,6 +14,9 @@ import java.util.List;
 public class CameraWrapper {
 
     private static final String TAG = CameraWrapper.class.getSimpleName();
+    public static final int PHOTO_MAX_WIDTH = 1024;
+    public static final int PHOTO_MAX_HEIGHT = 1024;
+
     private Activity activity;
     private Camera camera;
     private SurfaceCamCallback surfaceCamCallback;
@@ -62,6 +65,13 @@ public class CameraWrapper {
                 camera.setParameters(parameters);
             }
         }
+    }
+
+    private void setPictureSizeParameters(Camera camera){
+        Camera.Parameters param = camera.getParameters();
+        Camera.Size pictureSize = getBestCameraPictureSize();
+        param.setPictureSize(pictureSize.width, pictureSize.height);
+        camera.setParameters(param);
     }
 
     private void setPreviewParameters(Camera camera, int width, int height) {
@@ -142,6 +152,18 @@ public class CameraWrapper {
         return getOptimalPreviewSize(sizes, display.getWidth(), display.getHeight());
     }
 
+    private Camera.Size getBestCameraPictureSize(){
+        Camera.Size bestSize = null;
+        List<Camera.Size> sizeList = camera.getParameters().getSupportedPreviewSizes();
+        bestSize = sizeList.get(0);
+        for(int i = 1; i < sizeList.size(); i++){
+            if((sizeList.get(i).width * sizeList.get(i).height) > (bestSize.width * bestSize.height)){
+                bestSize = sizeList.get(i);
+            }
+        }
+        return bestSize;
+    }
+
     public Camera getCamera() {
         return camera;
     }
@@ -185,8 +207,9 @@ public class CameraWrapper {
                 return;
             }
 
-            setCameraOrientation(camera, CameraWrapper.CameraOrientation.PORTRAIT);
+            setCameraOrientation(camera, CameraOrientation.PORTRAIT);
             setPreviewParameters(camera, width, height);
+            setPictureSizeParameters(camera);
             setFocusMode(camera, true);
             setFlashMode(camera, true);
         }
