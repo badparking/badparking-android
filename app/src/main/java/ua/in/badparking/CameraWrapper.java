@@ -56,7 +56,7 @@ public class CameraWrapper {
         if (activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_AUTOFOCUS)) {
             Camera.Parameters parameters = camera.getParameters();
             List<String> mSupportedFocusModes = parameters.getSupportedFocusModes();
-            if (mSupportedFocusModes != null) {
+            if (mSupportedFocusModes != null && enabled) {
                 if (mSupportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
                     parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
                 } else if (parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
@@ -67,7 +67,7 @@ public class CameraWrapper {
         }
     }
 
-    private void setPictureSizeParameters(Camera camera){
+    private void setPictureSizeParameters(Camera camera) {
         Camera.Parameters param = camera.getParameters();
         Camera.Size pictureSize = getBestCameraPictureSize();
         param.setPictureSize(pictureSize.width, pictureSize.height);
@@ -152,12 +152,12 @@ public class CameraWrapper {
         return getOptimalPreviewSize(sizes, display.getWidth(), display.getHeight());
     }
 
-    private Camera.Size getBestCameraPictureSize(){
-        Camera.Size bestSize = null;
+    private Camera.Size getBestCameraPictureSize() {
+        Camera.Size bestSize;
         List<Camera.Size> sizeList = camera.getParameters().getSupportedPreviewSizes();
         bestSize = sizeList.get(0);
-        for(int i = 1; i < sizeList.size(); i++){
-            if((sizeList.get(i).width * sizeList.get(i).height) > (bestSize.width * bestSize.height)){
+        for (int i = 1; i < sizeList.size(); i++) {
+            if ((sizeList.get(i).width * sizeList.get(i).height) > (bestSize.width * bestSize.height)) {
                 bestSize = sizeList.get(i);
             }
         }

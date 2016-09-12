@@ -1,10 +1,16 @@
 package ua.in.badparking.ui.fragments;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,6 +18,7 @@ import android.provider.MediaStore;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -39,7 +46,7 @@ import ua.in.badparking.ui.adapters.PhotoAdapter;
  * @author Volodymyr Dranyk
  */
 @SuppressWarnings("deprecation")
-public class CaptureFragment extends BaseFragment implements View.OnClickListener, PhotoAdapter.PhotosUpdatedListener {
+public class CaptureFragment extends BaseFragment implements View.OnClickListener, PhotoAdapter.PhotosUpdatedListener, SensorEventListener {
 
     private static final String TAG = CaptureFragment.class.getName();
 
@@ -57,6 +64,9 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     protected View nextButton;
     private Unbinder unbinder;
     private CameraWrapper cameraWrapper;
+    private SensorManager sensorManager;
+    private Sensor mySensor;
+    private int m_nOrientation = 0;
 
     public static CaptureFragment newInstance() {
         return new CaptureFragment();
@@ -67,13 +77,14 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         View rootView = inflater.inflate(R.layout.fragment_capture, container, false);
         unbinder = ButterKnife.bind(this, rootView);
         surfaceView = new SurfaceView(inflater.getContext());
+        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        mySensor = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
         return rootView;
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         snapButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
 
@@ -112,6 +123,10 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     public void onPause() {
         super.onPause();
 
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(this);
+        }
+
         if (surfaceView != null) {
             surfaceView.getHolder().removeCallback(cameraWrapper.getSurfaceCamCallback());
             cameraWrapper.setSurfaceCamCallback(null);
@@ -135,6 +150,10 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void onResume() {
         super.onResume();
+        if (sensorManager != null) {
+            sensorManager.registerListener(this, mySensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
+
         if (surfaceView != null) {
             cameraWrapper = new CameraWrapper(getActivity());
             if (cameraWrapper.getCamera() != null) {
@@ -184,6 +203,46 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         }
     };
 
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+            //The coordinate-system is defined relative to the screen of the phone in its default orientation
+            int orientation = 0;
+            float roll = 0;
+            float pitch = 0;
+            switch (getActivity().getWindowManager().getDefaultDisplay().getRotation()) {
+                case Surface.ROTATION_0:
+                    roll = event.values[2];
+                    pitch = event.values[1];
+                    break;
+                case Surface.ROTATION_90:
+                    roll = event.values[1];
+                    pitch = -event.values[2];
+                    break;
+                case Surface.ROTATION_180:
+                    roll = -event.values[2];
+                    pitch = -event.values[1];
+                    break;
+                case Surface.ROTATION_270:
+                    roll = -event.values[1];
+                    pitch = event.values[2];
+                    break;
+            }
+            if (pitch >= -45 && pitch < 45 && roll >= 45) orientation = 0;
+            else if (pitch < -45 && roll >= -45 && roll < 45) orientation = 90;
+            else if (pitch >= -45 && pitch < 45 && roll < -45) orientation = 180;
+            else if (pitch >= 45 && roll >= -45 && roll < 45) orientation = 270;
+
+            if (m_nOrientation != orientation) {
+                m_nOrientation = orientation;
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
     private class SaveImageTask extends AsyncTask<byte[], Void, String> {
 
         private final int QUALITY_PHOTO = 40;
@@ -201,6 +260,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 Bitmap photoBm = BitmapFactory.decodeByteArray(data[0], 0, data[0].length, options);
+
                 int bmOriginalWidth = photoBm.getWidth();
                 int bmOriginalHeight = photoBm.getHeight();
                 double originalWidthToHeightRatio = 1.0 * bmOriginalWidth / bmOriginalHeight;
@@ -210,8 +270,12 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                         originalWidthToHeightRatio, originalHeightToWidthRatio,
                         CameraWrapper.PHOTO_MAX_HEIGHT, CameraWrapper.PHOTO_MAX_WIDTH);
 
+                Matrix matrix = new Matrix();
+                matrix.postRotate(m_nOrientation);
+                Bitmap rotatedBitmap = Bitmap.createBitmap(photoBm, 0, 0, photoBm.getWidth(), photoBm.getHeight(), matrix, true);
+
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                photoBm.compress(Bitmap.CompressFormat.JPEG, QUALITY_PHOTO, bytes);
+                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY_PHOTO, bytes);
 
                 if (imageFileOS != null) {
                     imageFileOS.write(bytes.toByteArray());
@@ -264,4 +328,5 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         }
         return selected;
     }
+
 }
