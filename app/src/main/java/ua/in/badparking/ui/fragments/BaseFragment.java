@@ -3,7 +3,6 @@ package ua.in.badparking.ui.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.Fragment;
 import android.view.inputmethod.InputMethodManager;
 
 import roboguice.fragment.RoboFragment;
