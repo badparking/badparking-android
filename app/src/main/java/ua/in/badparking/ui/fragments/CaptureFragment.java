@@ -138,6 +138,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         }
 
         releaseCamera();
+        removePhoneKeypad();
     }
 
     private void releaseCamera() {
@@ -328,5 +329,4 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         }
         return selected;
     }
-
 }
