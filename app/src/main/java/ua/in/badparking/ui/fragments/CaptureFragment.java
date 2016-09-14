@@ -14,6 +14,7 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +24,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -138,6 +140,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         }
 
         releaseCamera();
+        removePhoneKeypad();
     }
 
     private void releaseCamera() {
@@ -329,4 +332,12 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         return selected;
     }
 
+//    public void removePhoneKeypad() {
+//        InputMethodManager inputManager = (InputMethodManager) getView().getContext()
+//                .getSystemService(Context.INPUT_METHOD_SERVICE);
+//
+//        IBinder binder = getView().getWindowToken();
+//        inputManager.hideSoftInputFromWindow(binder,
+//                InputMethodManager.HIDE_NOT_ALWAYS);
+//    }
 }
