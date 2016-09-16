@@ -53,9 +53,8 @@ import ua.in.badparking.ui.fragments.PlateFragment;
 public class MainActivity extends RoboActionBarActivity {
 
     private static final boolean DEBUG = BuildConfig.DEBUG;
-    private SectionsPagerAdapter pagerAdapter;
     @BindView(R.id.pager)
-    ViewPager viewPager;
+    protected ViewPager viewPager;
     private Dialog senderProgressDialog;
 
     @Override
@@ -68,11 +67,11 @@ public class MainActivity extends RoboActionBarActivity {
         setupToolbar();
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        pagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
+        SectionsPagerAdapter pagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         // Set up the ViewPager with the sections adapter.
         viewPager.setAdapter(pagerAdapter);
-        StepperIndicator indicator = (StepperIndicator)findViewById(R.id.stepper_indicator);
+
+        StepperIndicator indicator = (StepperIndicator) findViewById(R.id.stepper_indicator);
         assert indicator != null;
         indicator.setViewPager(viewPager, true);
         if (DEBUG) {
@@ -100,44 +99,16 @@ public class MainActivity extends RoboActionBarActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        checkLocationServices();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        checkLocationServices();
-    }
-
-    private void checkLocationServices() {
-        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        boolean gps_enabled = false;
-
-        try {
-            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch (Exception ex) {
-        }
-
-        if (!gps_enabled) {
-            // notify user
-            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-            dialog.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
-            dialog.setPositiveButton(getResources().getString(R.string.open_location_settings),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                            Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivity(myIntent);
-                            paramDialogInterface.dismiss();
-                        }
-                    });
-            dialog.setCancelable(false);
-            dialog.show();
-        }
+        if (!isLocationEnabled()) buildDialog(this).show();
     }
 
     private void setupToolbar() {
-        Toolbar toolbarTop = (Toolbar)findViewById(R.id.toolbar_top);
+        Toolbar toolbarTop = (Toolbar) findViewById(R.id.toolbar_top);
         setSupportActionBar(toolbarTop);
         getSupportActionBar().setTitle("");
     }
@@ -181,7 +152,7 @@ public class MainActivity extends RoboActionBarActivity {
 
     public boolean isOnline() {
         try {
-            ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             return cm.getActiveNetworkInfo().isConnectedOrConnecting();
         } catch (Exception e) {
             return false;
@@ -192,8 +163,8 @@ public class MainActivity extends RoboActionBarActivity {
         if (senderProgressDialog == null || !senderProgressDialog.isShowing()) {
             showSenderDialogWithMessage();
         }
-        final TextView sendingMessageView = (TextView)senderProgressDialog.findViewById(R.id.sendingMessage);
-        final Button sendingMessageButton = (Button)senderProgressDialog.findViewById(R.id.sendingButton);
+        final TextView sendingMessageView = (TextView) senderProgressDialog.findViewById(R.id.sendingMessage);
+        final Button sendingMessageButton = (Button) senderProgressDialog.findViewById(R.id.sendingButton);
         final View progressBar = senderProgressDialog.findViewById(R.id.progressBar);
         switch (code) {
             case 200: // OK
@@ -284,5 +255,26 @@ public class MainActivity extends RoboActionBarActivity {
         } else {
             return super.onKeyDown(keyCode, event);
         }
+    }
+
+    public AlertDialog.Builder buildDialog(Context context) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+        dialog.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
+        dialog.setPositiveButton(getResources().getString(R.string.open_location_settings),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                        Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivity(myIntent);
+                        paramDialogInterface.dismiss();
+                    }
+                });
+        dialog.setCancelable(false);
+        return dialog;
+    }
+
+    public boolean isLocationEnabled() {
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 }
