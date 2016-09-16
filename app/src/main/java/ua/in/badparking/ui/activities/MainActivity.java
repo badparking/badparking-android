@@ -15,7 +15,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
@@ -40,6 +39,7 @@ import butterknife.ButterKnife;
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
+import ua.in.badparking.CustomViewPager;
 import ua.in.badparking.R;
 import ua.in.badparking.ui.dialogs.EnableGPSDialog;
 import ua.in.badparking.ui.fragments.CaptureFragment;
@@ -54,7 +54,7 @@ public class MainActivity extends RoboActionBarActivity {
 
     private static final boolean DEBUG = BuildConfig.DEBUG;
     @BindView(R.id.pager)
-    protected ViewPager viewPager;
+    protected CustomViewPager viewPager;
     private Dialog senderProgressDialog;
 
     @Override
@@ -70,6 +70,8 @@ public class MainActivity extends RoboActionBarActivity {
         SectionsPagerAdapter pagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         // Set up the ViewPager with the sections adapter.
         viewPager.setAdapter(pagerAdapter);
+        //block swipe
+        viewPager.setPagingEnabled(false);
 
         StepperIndicator indicator = (StepperIndicator) findViewById(R.id.stepper_indicator);
         assert indicator != null;
