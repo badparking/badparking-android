@@ -1,9 +1,12 @@
 package ua.in.badparking;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
+import android.media.AudioManager;
+import android.media.MediaActionSound;
 import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceHolder;
@@ -233,5 +236,19 @@ public class CameraWrapper {
 
     public void setSurfaceCamCallback(SurfaceCamCallback surfaceCamCallback) {
         this.surfaceCamCallback = surfaceCamCallback;
+    }
+
+    public void shootSound(){
+        AudioManager audio = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
+        switch( audio.getRingerMode() ){
+            case AudioManager.RINGER_MODE_NORMAL:
+                MediaActionSound sound = new MediaActionSound();
+                sound.play(MediaActionSound.SHUTTER_CLICK);
+                break;
+            case AudioManager.RINGER_MODE_SILENT:
+                break;
+            case AudioManager.RINGER_MODE_VIBRATE:
+                break;
+        }
     }
 }
