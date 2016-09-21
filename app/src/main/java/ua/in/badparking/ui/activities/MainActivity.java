@@ -58,14 +58,9 @@ import ua.in.badparking.ui.fragments.LocationFragment;
 public class MainActivity extends RoboActionBarActivity {
 
     private static final boolean DEBUG = BuildConfig.DEBUG;
-    private SectionsPagerAdapter pagerAdapter;
-
     @BindView(R.id.pager)
     protected CustomViewPager viewPager;
-
-    @BindView(R.id.toolbar_top)
-    Toolbar toolbarTop;
-
+    private SectionsPagerAdapter pagerAdapter;
     private Dialog senderProgressDialog;
 
     @Override
@@ -79,7 +74,6 @@ public class MainActivity extends RoboActionBarActivity {
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         pagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
         // Set up the ViewPager with the sections adapter.
         viewPager.setAdapter(pagerAdapter);
         //block swipe
@@ -261,6 +255,9 @@ public class MainActivity extends RoboActionBarActivity {
 
     public void moveToNext() {
         viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+        if(viewPager.getCurrentItem() == pagerAdapter.getCount() - 1){
+            viewPager.setPagingEnabled(true);
+        }
     }
 
     public void moveToFirst() {
