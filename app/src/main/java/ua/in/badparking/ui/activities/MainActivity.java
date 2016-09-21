@@ -55,6 +55,7 @@ public class MainActivity extends RoboActionBarActivity {
     private static final boolean DEBUG = BuildConfig.DEBUG;
     @BindView(R.id.pager)
     protected CustomViewPager viewPager;
+    private SectionsPagerAdapter pagerAdapter;
     private Dialog senderProgressDialog;
 
     @Override
@@ -67,7 +68,7 @@ public class MainActivity extends RoboActionBarActivity {
         setupToolbar();
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        SectionsPagerAdapter pagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        pagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         // Set up the ViewPager with the sections adapter.
         viewPager.setAdapter(pagerAdapter);
         //block swipe
@@ -213,6 +214,9 @@ public class MainActivity extends RoboActionBarActivity {
 
     public void moveToNext() {
         viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+        if(viewPager.getCurrentItem() == pagerAdapter.getCount() - 1){
+            viewPager.setPagingEnabled(true);
+        }
     }
 
     public void moveToFirst() {
