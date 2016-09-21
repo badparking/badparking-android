@@ -215,6 +215,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         switch (view.getId()) {
             case R.id.snap:
                 cameraWrapper.getCamera().takePicture(null, null, jpegCallback);
+                cameraWrapper.shootSound();
                 break;
             case R.id.next_button:
                 InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
