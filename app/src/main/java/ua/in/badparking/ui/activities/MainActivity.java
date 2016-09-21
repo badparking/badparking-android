@@ -32,6 +32,9 @@ import com.badoualy.stepperindicator.StepperIndicator;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -41,12 +44,12 @@ import roboguice.activity.RoboActionBarActivity;
 import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
+import ua.in.badparking.events.ShowHeaderEvent;
 import ua.in.badparking.ui.dialogs.EnableGPSDialog;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
 import ua.in.badparking.ui.fragments.ClaimTypeFragment;
 import ua.in.badparking.ui.fragments.LocationFragment;
-import ua.in.badparking.ui.fragments.PlateFragment;
 
 
 @ContentView(R.layout.activity_main)
@@ -54,8 +57,13 @@ public class MainActivity extends RoboActionBarActivity {
 
     private static final boolean DEBUG = BuildConfig.DEBUG;
     private SectionsPagerAdapter pagerAdapter;
+
     @BindView(R.id.pager)
     ViewPager viewPager;
+
+    @BindView(R.id.toolbar_top)
+    Toolbar toolbarTop;
+
     private Dialog senderProgressDialog;
 
     @Override
@@ -107,6 +115,13 @@ public class MainActivity extends RoboActionBarActivity {
     protected void onResume() {
         super.onResume();
         checkLocationServices();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        EventBus.getDefault().unregister(this);
     }
 
     private void checkLocationServices() {
@@ -137,7 +152,7 @@ public class MainActivity extends RoboActionBarActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbarTop = (Toolbar)findViewById(R.id.toolbar_top);
+
         setSupportActionBar(toolbarTop);
         getSupportActionBar().setTitle("");
     }
@@ -238,6 +253,13 @@ public class MainActivity extends RoboActionBarActivity {
         senderProgressDialog.show();
     }
 
+    @Subscribe
+    public void onShowHeaderEvent(final ShowHeaderEvent event) {
+//        toolbarTop.animate().yBy(-150).setDuration(600).start();
+//        viewPager.animate().yBy(-150).setDuration(600).start();
+        toolbarTop.setVisibility(event.isShow() ? View.VISIBLE : View.GONE);
+    }
+
     public void moveToNext() {
         viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
     }
@@ -261,17 +283,15 @@ public class MainActivity extends RoboActionBarActivity {
             if (position == 0) {
                 return CaptureFragment.newInstance();
             } else if (position == 1) {
-                return PlateFragment.newInstance();
-            } else if (position == 2) {
                 return ClaimTypeFragment.newInstance();
-            } else if (position == 3) {
+            } else if (position == 2) {
                 return LocationFragment.newInstance();
             } else return ClaimOverviewFragment.newInstance();
         }
 
         @Override
         public int getCount() {
-            return 5;
+            return 4;
         }
     }
 
