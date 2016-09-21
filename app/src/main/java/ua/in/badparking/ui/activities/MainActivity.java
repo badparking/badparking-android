@@ -59,12 +59,9 @@ public class MainActivity extends RoboActionBarActivity {
 
     @BindView(R.id.pager)
     protected CustomViewPager viewPager;
-
     @BindView(R.id.toolbar_top)
     protected Toolbar toolbarTop;
-
     private SectionsPagerAdapter pagerAdapter;
-
     private Dialog senderProgressDialog;
 
     @Override
@@ -111,7 +108,6 @@ public class MainActivity extends RoboActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!isLocationEnabled()) buildDialog(this).show();
         EventBus.getDefault().register(this);
     }
 
@@ -149,7 +145,6 @@ public class MainActivity extends RoboActionBarActivity {
     }
 
     private void setupToolbar() {
-
         setSupportActionBar(toolbarTop);
         getSupportActionBar().setTitle("");
     }
@@ -304,26 +299,5 @@ public class MainActivity extends RoboActionBarActivity {
         } else {
             return super.onKeyDown(keyCode, event);
         }
-    }
-
-    public AlertDialog.Builder buildDialog(Context context) {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-        dialog.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
-        dialog.setPositiveButton(getResources().getString(R.string.open_location_settings),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                        Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        startActivity(myIntent);
-                        paramDialogInterface.dismiss();
-                    }
-                });
-        dialog.setCancelable(false);
-        return dialog;
-    }
-
-    public boolean isLocationEnabled() {
-        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 }

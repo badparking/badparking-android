@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -47,7 +48,7 @@ public class LaunchActivity extends RoboActivity {
         connectionReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (isConnected(context)) {
+                if (isConnected(context) & isLocationEnabled()) {
                     init();
                 }
             }
@@ -87,7 +88,7 @@ public class LaunchActivity extends RoboActivity {
             return false;
     }
 
-    public AlertDialog.Builder buildDialog(Context context) {
+    public AlertDialog.Builder buildConnectionDialog(Context context) {
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
         dialog.setMessage(getResources().getString(R.string.network_not_enabled));
@@ -109,7 +110,8 @@ public class LaunchActivity extends RoboActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!isConnected(this)) buildDialog(this).show();
+        if (!isConnected(this)) buildConnectionDialog(this).show();
+        if (!isLocationEnabled()) buildLocationDialog(this).show();
     }
 
     private void init() {
@@ -132,5 +134,26 @@ public class LaunchActivity extends RoboActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(connectionReceiver);
+    }
+
+    public AlertDialog.Builder buildLocationDialog(Context context) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+        dialog.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
+        dialog.setPositiveButton(getResources().getString(R.string.open_location_settings),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                        Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivity(myIntent);
+                        paramDialogInterface.dismiss();
+                    }
+                });
+        dialog.setCancelable(false);
+        return dialog;
+    }
+
+    public boolean isLocationEnabled() {
+        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 }
