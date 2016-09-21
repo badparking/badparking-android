@@ -34,8 +34,6 @@ import com.facebook.appevents.AppEventsLogger;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -58,9 +56,15 @@ import ua.in.badparking.ui.fragments.LocationFragment;
 public class MainActivity extends RoboActionBarActivity {
 
     private static final boolean DEBUG = BuildConfig.DEBUG;
+
     @BindView(R.id.pager)
     protected CustomViewPager viewPager;
+
+    @BindView(R.id.toolbar_top)
+    protected Toolbar toolbarTop;
+
     private SectionsPagerAdapter pagerAdapter;
+
     private Dialog senderProgressDialog;
 
     @Override
@@ -79,7 +83,7 @@ public class MainActivity extends RoboActionBarActivity {
         //block swipe
         viewPager.setPagingEnabled(false);
 
-        StepperIndicator indicator = (StepperIndicator) findViewById(R.id.stepper_indicator);
+        StepperIndicator indicator = (StepperIndicator)findViewById(R.id.stepper_indicator);
         assert indicator != null;
         indicator.setViewPager(viewPager, true);
         if (DEBUG) {
@@ -189,7 +193,7 @@ public class MainActivity extends RoboActionBarActivity {
 
     public boolean isOnline() {
         try {
-            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
             return cm.getActiveNetworkInfo().isConnectedOrConnecting();
         } catch (Exception e) {
             return false;
@@ -200,8 +204,8 @@ public class MainActivity extends RoboActionBarActivity {
         if (senderProgressDialog == null || !senderProgressDialog.isShowing()) {
             showSenderDialogWithMessage();
         }
-        final TextView sendingMessageView = (TextView) senderProgressDialog.findViewById(R.id.sendingMessage);
-        final Button sendingMessageButton = (Button) senderProgressDialog.findViewById(R.id.sendingButton);
+        final TextView sendingMessageView = (TextView)senderProgressDialog.findViewById(R.id.sendingMessage);
+        final Button sendingMessageButton = (Button)senderProgressDialog.findViewById(R.id.sendingButton);
         final View progressBar = senderProgressDialog.findViewById(R.id.progressBar);
         switch (code) {
             case 200: // OK
@@ -255,7 +259,7 @@ public class MainActivity extends RoboActionBarActivity {
 
     public void moveToNext() {
         viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
-        if(viewPager.getCurrentItem() == pagerAdapter.getCount() - 1){
+        if (viewPager.getCurrentItem() == pagerAdapter.getCount() - 1) {
             viewPager.setPagingEnabled(true);
         }
     }
@@ -319,7 +323,7 @@ public class MainActivity extends RoboActionBarActivity {
     }
 
     public boolean isLocationEnabled() {
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 }
