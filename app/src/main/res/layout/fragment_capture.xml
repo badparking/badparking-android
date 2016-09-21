@@ -1,29 +1,37 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/cardview_dark_background">
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/cardview_dark_background">
 
     <FrameLayout
         android:id="@+id/surface_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"/>
+
+    <ImageView
+        android:id="@+id/platesPreviewImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottomPanel"
+        android:visibility="gone"
+        />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/snap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/bottomPanel"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
         android:clickable="true"
         android:src="@drawable/icon_camera"
         app:backgroundTint="@color/secondaryColor"
         app:borderWidth="0dp"
         app:elevation="6dp"
-        app:fabSize="normal"
-        android:layout_above="@+id/bottomPanel"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp" />
+        app:fabSize="normal"/>
 
     <RelativeLayout
         android:id="@+id/bottomPanel"
@@ -58,6 +66,21 @@
             android:text="@string/capture_claim"
             android:textColor="@android:color/white"
             android:textSize="17sp"/>
+
+        <EditText
+            android:id="@+id/platesEditText"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_toLeftOf="@id/next_button"
+            android:background="@android:color/white"
+            android:gravity="center"
+            android:hint="Номери авто"
+            android:inputType="textCapCharacters"
+            android:visibility="gone"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"

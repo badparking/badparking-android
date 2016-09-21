@@ -31,6 +31,9 @@ import com.badoualy.stepperindicator.StepperIndicator;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -41,21 +44,27 @@ import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.CustomViewPager;
 import ua.in.badparking.R;
+import ua.in.badparking.events.ShowHeaderEvent;
 import ua.in.badparking.ui.dialogs.EnableGPSDialog;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
 import ua.in.badparking.ui.fragments.ClaimTypeFragment;
 import ua.in.badparking.ui.fragments.LocationFragment;
-import ua.in.badparking.ui.fragments.PlateFragment;
 
 
 @ContentView(R.layout.activity_main)
 public class MainActivity extends RoboActionBarActivity {
 
     private static final boolean DEBUG = BuildConfig.DEBUG;
+
     @BindView(R.id.pager)
     protected CustomViewPager viewPager;
+
+    @BindView(R.id.toolbar_top)
+    protected Toolbar toolbarTop;
+
     private SectionsPagerAdapter pagerAdapter;
+
     private Dialog senderProgressDialog;
 
     @Override
@@ -74,7 +83,7 @@ public class MainActivity extends RoboActionBarActivity {
         //block swipe
         viewPager.setPagingEnabled(false);
 
-        StepperIndicator indicator = (StepperIndicator) findViewById(R.id.stepper_indicator);
+        StepperIndicator indicator = (StepperIndicator)findViewById(R.id.stepper_indicator);
         assert indicator != null;
         indicator.setViewPager(viewPager, true);
         if (DEBUG) {
@@ -100,18 +109,47 @@ public class MainActivity extends RoboActionBarActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         if (!isLocationEnabled()) buildDialog(this).show();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        EventBus.getDefault().unregister(this);
+    }
+
+    private void checkLocationServices() {
+        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception ex) {
+        }
+
+        if (!gps_enabled) {
+            // notify user
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
+            dialog.setPositiveButton(getResources().getString(R.string.open_location_settings),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                            Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            startActivity(myIntent);
+                            paramDialogInterface.dismiss();
+                        }
+                    });
+            dialog.setCancelable(false);
+            dialog.show();
+        }
     }
 
     private void setupToolbar() {
-        Toolbar toolbarTop = (Toolbar) findViewById(R.id.toolbar_top);
+
         setSupportActionBar(toolbarTop);
         getSupportActionBar().setTitle("");
     }
@@ -155,7 +193,7 @@ public class MainActivity extends RoboActionBarActivity {
 
     public boolean isOnline() {
         try {
-            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
             return cm.getActiveNetworkInfo().isConnectedOrConnecting();
         } catch (Exception e) {
             return false;
@@ -166,8 +204,8 @@ public class MainActivity extends RoboActionBarActivity {
         if (senderProgressDialog == null || !senderProgressDialog.isShowing()) {
             showSenderDialogWithMessage();
         }
-        final TextView sendingMessageView = (TextView) senderProgressDialog.findViewById(R.id.sendingMessage);
-        final Button sendingMessageButton = (Button) senderProgressDialog.findViewById(R.id.sendingButton);
+        final TextView sendingMessageView = (TextView)senderProgressDialog.findViewById(R.id.sendingMessage);
+        final Button sendingMessageButton = (Button)senderProgressDialog.findViewById(R.id.sendingButton);
         final View progressBar = senderProgressDialog.findViewById(R.id.progressBar);
         switch (code) {
             case 200: // OK
@@ -212,9 +250,16 @@ public class MainActivity extends RoboActionBarActivity {
         senderProgressDialog.show();
     }
 
+    @Subscribe
+    public void onShowHeaderEvent(final ShowHeaderEvent event) {
+//        toolbarTop.animate().yBy(-150).setDuration(600).start();
+//        viewPager.animate().yBy(-150).setDuration(600).start();
+        toolbarTop.setVisibility(event.isShow() ? View.VISIBLE : View.GONE);
+    }
+
     public void moveToNext() {
         viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
-        if(viewPager.getCurrentItem() == pagerAdapter.getCount() - 1){
+        if (viewPager.getCurrentItem() == pagerAdapter.getCount() - 1) {
             viewPager.setPagingEnabled(true);
         }
     }
@@ -238,17 +283,15 @@ public class MainActivity extends RoboActionBarActivity {
             if (position == 0) {
                 return CaptureFragment.newInstance();
             } else if (position == 1) {
-                return PlateFragment.newInstance();
-            } else if (position == 2) {
                 return ClaimTypeFragment.newInstance();
-            } else if (position == 3) {
+            } else if (position == 2) {
                 return LocationFragment.newInstance();
             } else return ClaimOverviewFragment.newInstance();
         }
 
         @Override
         public int getCount() {
-            return 5;
+            return 4;
         }
     }
 
@@ -280,7 +323,7 @@ public class MainActivity extends RoboActionBarActivity {
     }
 
     public boolean isLocationEnabled() {
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 }

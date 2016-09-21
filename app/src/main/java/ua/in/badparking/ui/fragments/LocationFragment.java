@@ -70,7 +70,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         ButterKnife.bind(this, view);
         view.postDelayed(new Runnable() {
             @Override
-            public void run() {
+            public void run() { // TODO:
                 SupportMapFragment fragment = (SupportMapFragment)getChildFragmentManager().findFragmentById(R.id.mapFragment);
                 fragment.getMapAsync(LocationFragment.this);
             }

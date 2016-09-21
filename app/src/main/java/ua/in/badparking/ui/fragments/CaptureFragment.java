@@ -14,6 +14,7 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,8 +24,13 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,6 +42,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import ua.in.badparking.CameraWrapper;
 import ua.in.badparking.R;
+import ua.in.badparking.events.ShowHeaderEvent;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.PhotoAdapter;
@@ -53,13 +60,24 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     @BindView(R.id.surface_container)
     protected FrameLayout surfaceContainer;
     private SurfaceView surfaceView;
+
     @BindView(R.id.recyclerView)
     protected RecyclerView recyclerView;
+
     private PhotoAdapter photoAdapter;
+
     @BindView(R.id.message)
     protected TextView messageView;
+
+    @BindView(R.id.platesPreviewImage)
+    protected ImageView platesPreviewImage;
+
+    @BindView(R.id.platesEditText)
+    protected EditText platesEditText;
+
     @BindView(R.id.snap)
     protected View snapButton;
+
     @BindView(R.id.next_button)
     protected View nextButton;
     private Unbinder unbinder;
@@ -77,7 +95,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         View rootView = inflater.inflate(R.layout.fragment_capture, container, false);
         unbinder = ButterKnife.bind(this, rootView);
         surfaceView = new SurfaceView(inflater.getContext());
-        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        sensorManager = (SensorManager)getActivity().getSystemService(Context.SENSOR_SERVICE);
         mySensor = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
         return rootView;
     }
@@ -113,10 +131,31 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         if (photosTaken == 0) {
             messageView.setText(R.string.capture_claim);
         } else if (photosTaken == 1) {
-            messageView.setText(R.string.capture_claim_another_angle);
+            messageView.setText(R.string.capture_plates);
+            messageView.setVisibility(View.VISIBLE);
+            platesEditText.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
         } else {
-            messageView.setText("");
+            EventBus.getDefault().post(new ShowHeaderEvent(false));
+            messageView.setVisibility(View.GONE);
+            platesEditText.setVisibility(View.VISIBLE);
+            platesPreviewImage.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+//            surfaceView.setVisibility(View.GONE);
+            setPic(platesPreviewImage, ClaimState.INST.getClaim().getPhotoFiles().get(1).getPath());
+            InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
         }
+    }
+
+    // TODO use Glide here
+    private void setPic(ImageView view, String currentPhotoPath) {
+        view.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+
+        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
+        view.setImageBitmap(bitmap);
     }
 
     @Override
@@ -179,7 +218,17 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                 cameraWrapper.shootSound();
                 break;
             case R.id.next_button:
-                ((MainActivity) getActivity()).moveToNext();
+                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                ClaimState.INST.getClaim().setLicensePlates(platesEditText.getText().toString());
+                EventBus.getDefault().post(new ShowHeaderEvent(true));
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((MainActivity)getActivity()).moveToNext();
+                    }
+                }, 300);
+
                 break;
         }
     }
@@ -194,7 +243,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     public Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
-            SaveImageTask saveImageTask = (SaveImageTask) new SaveImageTask().execute(data);
+            SaveImageTask saveImageTask = (SaveImageTask)new SaveImageTask().execute(data);
 
             try {
                 onImageFileCreated(saveImageTask.get());
@@ -304,15 +353,15 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         }
 
         private Bitmap scaleDeminsFromHeight(Bitmap bm, int maxHeight, int bmOriginalHeight, double originalWidthToHeightRatio) {
-            int newHeight = (int) Math.max(maxHeight, bmOriginalHeight * .55);
-            int newWidth = (int) (newHeight * originalWidthToHeightRatio);
+            int newHeight = (int)Math.max(maxHeight, bmOriginalHeight * .55);
+            int newWidth = (int)(newHeight * originalWidthToHeightRatio);
             bm = Bitmap.createScaledBitmap(bm, newWidth, newHeight, true);
             return bm;
         }
 
         private Bitmap scaleDeminsFromWidth(Bitmap bm, int maxWidth, int bmOriginalWidth, double originalHeightToWidthRatio) {
-            int newWidth = (int) Math.max(maxWidth, bmOriginalWidth * .75);
-            int newHeight = (int) (newWidth * originalHeightToWidthRatio);
+            int newWidth = (int)Math.max(maxWidth, bmOriginalWidth * .75);
+            int newHeight = (int)(newWidth * originalHeightToWidthRatio);
             bm = Bitmap.createScaledBitmap(bm, newWidth, newHeight, true);
             return bm;
         }
