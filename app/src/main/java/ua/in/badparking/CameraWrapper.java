@@ -23,6 +23,7 @@ public class CameraWrapper {
     private Activity activity;
     private Camera camera;
     private SurfaceCamCallback surfaceCamCallback;
+    public boolean safeToTakePicture = false;
 
     public CameraWrapper(Activity activity) {
         this.activity = activity;
@@ -199,6 +200,7 @@ public class CameraWrapper {
                     camera.setPreviewDisplay(holder);
                     camera.setPreviewCallback(this);
                     camera.startPreview();
+                    safeToTakePicture = true;
                 } catch (Exception e) {
                     Log.e(TAG, "Exception raised configuring camera: " + e.getMessage());
                 }
@@ -250,5 +252,13 @@ public class CameraWrapper {
             case AudioManager.RINGER_MODE_VIBRATE:
                 break;
         }
+    }
+
+    public boolean isSafeToTakePicture() {
+        return safeToTakePicture;
+    }
+
+    public void setSafeToTakePicture(boolean safeToTakePicture) {
+        this.safeToTakePicture = safeToTakePicture;
     }
 }
