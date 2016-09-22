@@ -43,16 +43,13 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     @BindView(R.id.dots)
     DotsTextView dotsTextView;
-
     @BindView(R.id.positioning_text_view)
     TextView positioningText;
-
     @BindView(R.id.next_button)
     Button nextButton;
-
     private GoogleMap mMap;
-
     private static boolean showHint = false;
+
 
     public static Fragment newInstance() {
         return new LocationFragment();
@@ -94,6 +91,10 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                     GeolocationState.WAITING_TIME_MILLIS,
                     GeolocationState.ACCURANCY_IN_METERS,
                     locationListener);
+
+            if (GeolocationState.INST.getLocation() != null) {
+                locationListener.onLocationChanged(GeolocationState.INST.getLocation());
+            }
         } catch (SecurityException se) {
             Log.i(TAG, se.getMessage());
         }
