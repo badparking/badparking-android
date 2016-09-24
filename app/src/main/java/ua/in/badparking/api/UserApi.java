@@ -19,9 +19,6 @@ import ua.in.badparking.model.User;
 
 public interface UserApi {
 
-    @POST("/profiles/login/dummy")
-    void getDummyProfile(Callback<TokenResponse> responseCallback);
-
     @POST("/token/refresh")
     void refreshToken(@Body TypedString tokenRequest, Callback<TokenResponse> responseCallback);
 

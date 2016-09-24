@@ -171,7 +171,7 @@ public class ClaimsService {
         });
     }
 
-    public void getTypes() {
+    public void fetchTypes() {
         mClaimsApi.getTypes(new Callback<List<CrimeType>>() {
             @Override
             public void success(List<CrimeType> crimeTypes, Response response) {

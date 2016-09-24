@@ -112,6 +112,7 @@ public class MainActivity extends RoboActionBarActivity {
     protected void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
+        checkLocationServices();
     }
 
     @Override

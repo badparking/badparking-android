@@ -111,14 +111,14 @@ public class LaunchActivity extends RoboActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!isConnected(this))
+        if (!isConnected(this)) {
             buildConnectionDialog(this).show();
-        if (!isLocationEnabled())
-            buildLocationDialog(this).show();
+        }
+        init();
     }
 
     private void init() {
-        mClaimsService.getTypes();
+        mClaimsService.fetchTypes();
         String url = Constants.BASE_URL + "/profiles/login/dummy";
         get(url, new Callback() {
             @Override
@@ -137,22 +137,6 @@ public class LaunchActivity extends RoboActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(connectionReceiver);
-    }
-
-    public AlertDialog.Builder buildLocationDialog(Context context) {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-        dialog.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
-        dialog.setPositiveButton(getResources().getString(R.string.open_location_settings),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                        Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        startActivity(myIntent);
-                        paramDialogInterface.dismiss();
-                    }
-                });
-        dialog.setCancelable(false);
-        return dialog;
     }
 
     public boolean isLocationEnabled() {
