@@ -5,8 +5,10 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -18,9 +20,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+
+import ua.in.badparking.events.LocationEvent;
+import ua.in.badparking.events.ShowHeaderEvent;
 
 public enum GeolocationState {
     INST;
@@ -34,16 +41,30 @@ public enum GeolocationState {
     private Location location;
     private Geocoder geocoder;
     private Marker userMarker;
+    private LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            EventBus.getDefault().post(new LocationEvent(location));
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+    };
+
 
     public void init(Context context) {
         this.context = context;
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-
-        if ( Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission( context, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED) {
-            return  ;
-        }
-
-        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        locationUpdatesSubscription();
         geocoder = new Geocoder(context, Locale.getDefault());
     }
 
@@ -97,5 +118,27 @@ public enum GeolocationState {
 
     public Location getLocation() {
         return location;
+    }
+
+    public LocationListener getLocationListener() {
+        return locationListener;
+    }
+
+    public void locationUpdatesSubscription(){
+        if ( Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(context,
+                android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED) {
+            return  ;
+        }
+
+        locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                GeolocationState.WAITING_TIME_MILLIS,
+                GeolocationState.ACCURANCY_IN_METERS,
+                locationListener);
+
+        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (location != null) {
+            locationListener.onLocationChanged(location);
+        }
     }
 }
