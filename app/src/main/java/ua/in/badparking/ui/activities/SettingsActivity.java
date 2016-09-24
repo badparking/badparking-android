@@ -2,7 +2,6 @@ package ua.in.badparking.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -23,7 +22,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
 import ua.in.badparking.R;
-import ua.in.badparking.services.api.TokenService;
 
 @ContentView(R.layout.activity_settings)
 public class SettingsActivity extends RoboActivity {

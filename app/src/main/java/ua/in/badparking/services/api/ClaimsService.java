@@ -1,11 +1,12 @@
 package ua.in.badparking.services.api;
 
+import android.content.Context;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,11 +17,9 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.mime.TypedFile;
 import retrofit.mime.TypedString;
-import ua.in.badparking.App;
 import ua.in.badparking.R;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.ClaimsApi;
-import ua.in.badparking.api.TypesApi;
 import ua.in.badparking.api.responses.BaseResponse;
 import ua.in.badparking.events.ClaimCancelledEvent;
 import ua.in.badparking.events.ClaimPostedEvent;
@@ -33,16 +32,15 @@ import ua.in.badparking.model.CrimeType;
 import ua.in.badparking.model.MediaFile;
 
 @Singleton
-public class ClaimsService extends ApiService {
+public class ClaimsService {
 
-    private final TypesApi mTypesApi;
     private final ClaimsApi mClaimsApi;
+
+    private Context context;
 
     @Inject
     protected ClaimsService(ApiGenerator apiGenerator) {
-        super(apiGenerator);
         mClaimsApi = apiGenerator.createApi(ClaimsApi.class, true);
-        mTypesApi = apiGenerator.createApi(TypesApi.class, false);
     }
 
     public void getClaims(String clientId, String clientSecret, String timestamp) {
@@ -78,26 +76,26 @@ public class ClaimsService extends ApiService {
         String latitude = claim.getLatitude();
         String longitude = claim.getLongitude();
         Set<Integer> crimetypes = claim.getCrimetypes();
-        LinkedHashMap<String, Integer> crimeMap= new LinkedHashMap<>();
-        LinkedHashMap<String, String> paramsMap= new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> crimeMap = new LinkedHashMap<>();
+        LinkedHashMap<String, String> paramsMap = new LinkedHashMap<>();
         paramsMap.put("latitude", latitude);
         paramsMap.put("longitude", longitude);
         paramsMap.put("city", claim.getCity());
         paramsMap.put("address", claim.getAddress());
         paramsMap.put("license_plates", claim.getLicensePlates());
-        for(Integer crimetype : crimetypes) {
+        for (Integer crimetype : crimetypes) {
             crimeMap.put("crimetypes", crimetype);
         }
 
         mClaimsApi.postMyClaims(crimeMap, paramsMap, new Callback<Claim>() {
             @Override
             public void success(Claim claimsResponse, Response response) {
-                EventBus.getDefault().post(new ClaimPostedEvent(claimsResponse.getPk(), App.getAppContext().getString(R.string.claim_sent), true));
+                EventBus.getDefault().post(new ClaimPostedEvent(claimsResponse.getPk(), context.getString(R.string.claim_sent), true));
             }
 
             @Override
             public void failure(RetrofitError error) {
-                EventBus.getDefault().post(new ClaimPostedEvent(null, App.getAppContext().getString(R.string.error_claim_sent), false));
+                EventBus.getDefault().post(new ClaimPostedEvent(null, context.getString(R.string.error_claim_sent), false));
             }
         });
     }
@@ -143,6 +141,7 @@ public class ClaimsService extends ApiService {
             }
         });
     }
+
     public void cancelClaim(String pk) {
         mClaimsApi.cancelClaim(pk, new Callback<BaseResponse>() {
             @Override
@@ -173,7 +172,7 @@ public class ClaimsService extends ApiService {
     }
 
     public void getTypes() {
-        mTypesApi.getTypes(new Callback<List<CrimeType>>() {
+        mClaimsApi.getTypes(new Callback<List<CrimeType>>() {
             @Override
             public void success(List<CrimeType> crimeTypes, Response response) {
                 EventBus.getDefault().post(new TypesLoadedEvent(crimeTypes));
@@ -187,7 +186,7 @@ public class ClaimsService extends ApiService {
     }
 
     public void getType(String pk) {
-        mTypesApi.getType(pk, new Callback<CrimeType>() {
+        mClaimsApi.getType(pk, new Callback<CrimeType>() {
             @Override
             public void success(CrimeType crimeType, Response response) {
                 List types = new ArrayList();

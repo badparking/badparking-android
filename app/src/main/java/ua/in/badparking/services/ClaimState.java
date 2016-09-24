@@ -67,8 +67,8 @@ public enum ClaimState {
         return sb.toString();
     }
 
-    public String getFullAddress(){
-        if(claim.getCity()!= null && claim.getAddress()!= null) {
+    public String getFullAddress() {
+        if (claim.getCity() != null && claim.getAddress() != null) {
             return getClaim().getCity() + ", " + getClaim().getAddress();
         }
         return "";

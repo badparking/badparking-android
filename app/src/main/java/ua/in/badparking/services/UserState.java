@@ -16,43 +16,4 @@ import ua.in.badparking.model.User;
 public enum UserState {
     INST;
 
-    private static final String USER_DATA_PREFS = "userDataPrefs";
-    private static final String USER_TOKEN_KEY = "userTokenKey";
-    private static final String USER_KEY = "userKey";
-
-    private SharedPreferences userDataPrefs;
-    Gson gson = new Gson();
-
-    private User user = null;
-
-    public void init(Context appContext) {
-        userDataPrefs = appContext.getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE);
-    }
-
-    public String getUserToken() {
-        return userDataPrefs.getString(USER_TOKEN_KEY, null);
-    }
-
-    @SuppressWarnings("All")
-    public void setUserToken(String token) {
-        userDataPrefs.edit().putString(USER_TOKEN_KEY, token).commit();
-    }
-
-    public User getUser() {
-        String userJson = userDataPrefs.getString(USER_KEY, null);
-        if (userJson != null) {
-            Type fooType = new TypeToken<User>() {
-            }.getType();
-
-            user = gson.fromJson(userJson, fooType);
-        }
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-
-        String userJson = gson.toJson(user);
-        userDataPrefs.edit().putString(USER_KEY, userJson).commit();
-    }
 }

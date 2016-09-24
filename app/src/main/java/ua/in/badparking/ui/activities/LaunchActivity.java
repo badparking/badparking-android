@@ -37,6 +37,7 @@ public class LaunchActivity extends RoboActivity {
 
     @Inject
     private ClaimsService mClaimsService;
+
     private BroadcastReceiver connectionReceiver;
     private final OkHttpClient client = new OkHttpClient();
 
@@ -76,7 +77,7 @@ public class LaunchActivity extends RoboActivity {
     }
 
     public boolean isConnected(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netinfo = cm.getActiveNetworkInfo();
 
         if (netinfo != null && netinfo.isConnectedOrConnecting()) {
@@ -110,8 +111,10 @@ public class LaunchActivity extends RoboActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!isConnected(this)) buildConnectionDialog(this).show();
-        if (!isLocationEnabled()) buildLocationDialog(this).show();
+        if (!isConnected(this))
+            buildConnectionDialog(this).show();
+        if (!isLocationEnabled())
+            buildLocationDialog(this).show();
     }
 
     private void init() {

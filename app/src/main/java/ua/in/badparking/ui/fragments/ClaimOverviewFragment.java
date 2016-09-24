@@ -49,7 +49,6 @@ import ua.in.badparking.model.User;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.services.UserState;
 import ua.in.badparking.services.api.ClaimsService;
-import ua.in.badparking.services.api.TokenService;
 import ua.in.badparking.services.api.UserService;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.PhotoAdapter;

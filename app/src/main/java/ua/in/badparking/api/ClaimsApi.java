@@ -17,8 +17,16 @@ import retrofit.mime.TypedFile;
 import retrofit.mime.TypedString;
 import ua.in.badparking.api.responses.BaseResponse;
 import ua.in.badparking.model.Claim;
+import ua.in.badparking.model.CrimeType;
 
 public interface ClaimsApi {
+
+    @GET("/types")
+    void getTypes(Callback<List<CrimeType>> responseCallback);
+
+    @GET("/types/{pk}")
+    void getType(@Path("pk") String pk, Callback<CrimeType> responseCallback);
+
     @Multipart
     @GET("/claims")
     void getClaims(@Part("client_id") TypedString clientId,

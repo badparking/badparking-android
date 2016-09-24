@@ -30,7 +30,6 @@ import android.widget.TextView;
 import com.badoualy.stepperindicator.StepperIndicator;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
-import com.google.inject.Inject;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -45,9 +44,7 @@ import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.CustomViewPager;
 import ua.in.badparking.R;
-import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.ShowHeaderEvent;
-import ua.in.badparking.services.api.UserService;
 import ua.in.badparking.ui.dialogs.EnableGPSDialog;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
@@ -65,9 +62,6 @@ public class MainActivity extends RoboActionBarActivity {
 
     @BindView(R.id.toolbar_top)
     protected Toolbar toolbarTop;
-
-    @Inject
-    private UserService mUserService;
 
     private SectionsPagerAdapter pagerAdapter;
 
@@ -259,11 +253,6 @@ public class MainActivity extends RoboActionBarActivity {
 //        toolbarTop.animate().yBy(-150).setDuration(600).start();
 //        viewPager.animate().yBy(-150).setDuration(600).start();
         toolbarTop.setVisibility(event.isShow() ? View.VISIBLE : View.GONE);
-    }
-
-    @Subscribe
-    public void onAuthorizedWithFacebookEvent(final AuthorizedWithFacebookEvent event) {
-        mUserService.getUser();
     }
 
     public void moveToNext() {
