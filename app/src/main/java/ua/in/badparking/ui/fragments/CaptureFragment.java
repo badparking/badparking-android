@@ -61,24 +61,17 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     @BindView(R.id.surface_container)
     protected FrameLayout surfaceContainer;
     private SurfaceView surfaceView;
-
     @BindView(R.id.recyclerView)
     protected RecyclerView recyclerView;
-
     private PhotoAdapter photoAdapter;
-
     @BindView(R.id.message)
     protected TextView messageView;
-
     @BindView(R.id.platesPreviewImage)
     protected ImageView platesPreviewImage;
-
     @BindView(R.id.platesEditText)
     protected EditText platesEditText;
-
     @BindView(R.id.snap)
     protected View snapButton;
-
     @BindView(R.id.next_button)
     protected View nextButton;
     private Unbinder unbinder;
@@ -222,8 +215,12 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.snap:
-                cameraWrapper.getCamera().takePicture(null, null, jpegCallback);
-                cameraWrapper.shootSound();
+                if (cameraWrapper.isSafeToTakePicture()) {
+                    cameraWrapper.getCamera().takePicture(null, null, jpegCallback);
+                    cameraWrapper.shootSound();
+                    cameraWrapper.setSafeToTakePicture(false);
+                }
+
                 break;
             case R.id.next_button:
                 InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -253,6 +250,11 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     public Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
+
+            if (data == null) {
+                cameraWrapper.setSafeToTakePicture(true);
+                return;
+            }
             SaveImageTask saveImageTask = (SaveImageTask)new SaveImageTask().execute(data);
 
             try {
@@ -261,6 +263,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                 e.printStackTrace();
             }
             camera.startPreview();
+            cameraWrapper.setSafeToTakePicture(true);
         }
     };
 
