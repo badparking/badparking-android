@@ -27,6 +27,7 @@ public enum ClaimState {
     public void setToken(String token) {
         this.token = token;
     }
+
     public Claim getClaim() {
         return claim;
     }

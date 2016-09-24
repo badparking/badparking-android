@@ -50,7 +50,7 @@ public class TokenService extends ApiService {
     }
 
     public void verifyToken(String tokenRequest) {
-        if(tokenRequest == null) {
+        if (tokenRequest == null) {
             tokenRequest = "";
         }
         mTokenApi.verifyToken(new TypedString(tokenRequest), new Callback<TokenResponse>() {
@@ -90,7 +90,7 @@ public class TokenService extends ApiService {
         mTokenApi.authorizeWithFacebook(params, clientId, String.format("%064x", new BigInteger(1, secretHash)), String.valueOf(timestamp), new Callback<User>() {
             @Override
             public void success(User user, Response response) {
-                //TODO get token from our API here, save it in SecurePrefs!!!
+
                 ClaimState.INST.setToken(user.getToken());
                 EventBus.getDefault().post(new AuthorizedWithFacebookEvent(user));
             }
@@ -101,7 +101,6 @@ public class TokenService extends ApiService {
             }
         });
     }
-
 
 
 }

@@ -55,23 +55,28 @@ import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.PhotoAdapter;
 
 /**
- * Design https://www.dropbox.com/sh/vbffs09uqzaj2mt/AAABkTvQbP7q10o5YP83Mzdia?dl=0
  * Created by Dima Kovalenko on 7/3/16.
  */
 public class ClaimOverviewFragment extends BaseFragment {
 
     @BindView(R.id.recyclerView)
     protected RecyclerView recyclerView;
+
     @BindView(R.id.send_button)
     protected Button mSendButton;
+
     @BindView(R.id.carPlateNumberTextView)
     protected TextView carPlateNumberTextView;
+
     @BindView(R.id.crimeTypesTextView)
     protected TextView crimeTypeTextView;
+
     @BindView(R.id.addressTextView)
     protected TextView addressTextView;
+
     @BindView(R.id.login_button)
     LoginButton loginButton;
+
     private Unbinder unbinder;
 
     @Inject
@@ -180,7 +185,6 @@ public class ClaimOverviewFragment extends BaseFragment {
     }
 
     private void send() {
-        mUserService.getUser();
         if (!ClaimState.INST.getClaim().isComplete()) {
             // TODO show "not complete" message
             return;
@@ -193,7 +197,6 @@ public class ClaimOverviewFragment extends BaseFragment {
         user = UserState.INST.getUser();
         if (user.isComplete().equals("false")) {
             showCompleteUserDataDialog();
-            return;
         } else {
             showSendClaimDialog();
             mClaimService.postMyClaims(claim);

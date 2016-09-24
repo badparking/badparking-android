@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -143,8 +144,15 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             recyclerView.setVisibility(View.GONE);
 //            surfaceView.setVisibility(View.GONE);
             setPic(platesPreviewImage, ClaimState.INST.getClaim().getPhotoFiles().get(1).getPath());
-            InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            if (TextUtils.isEmpty(ClaimState.INST.getClaim().getLicensePlates())) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                    }
+                }, 300);
+            }
         }
     }
 
@@ -222,6 +230,8 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 ClaimState.INST.getClaim().setLicensePlates(platesEditText.getText().toString());
                 EventBus.getDefault().post(new ShowHeaderEvent(true));
+                platesEditText.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
