@@ -50,7 +50,7 @@ public class LaunchActivity extends RoboActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (isConnected(context) & isLocationEnabled()) {
-                    init();
+                    start();
                 }
             }
         };
@@ -114,11 +114,13 @@ public class LaunchActivity extends RoboActivity {
         if (!isConnected(this)) {
             buildConnectionDialog(this).show();
         }
-        init();
+        start();
     }
 
-    private void init() {
-        mClaimsService.fetchTypes();
+    private void start() {
+        if (mClaimsService.getTypes() == null) {
+            mClaimsService.updateTypes();
+        }
         String url = Constants.BASE_URL + "/profiles/login/dummy";
         get(url, new Callback() {
             @Override

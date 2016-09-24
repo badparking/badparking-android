@@ -7,7 +7,6 @@ import com.google.inject.Singleton;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +36,8 @@ public class ClaimsService {
     private final ClaimsApi mClaimsApi;
 
     private Context context;
+
+    private List<CrimeType> _crimeTypes;
 
     @Inject
     protected ClaimsService(ApiGenerator apiGenerator) {
@@ -171,10 +172,13 @@ public class ClaimsService {
         });
     }
 
-    public void fetchTypes() {
+    public void updateTypes() {
         mClaimsApi.getTypes(new Callback<List<CrimeType>>() {
+
             @Override
             public void success(List<CrimeType> crimeTypes, Response response) {
+                _crimeTypes = crimeTypes;
+                // TODO save to prefs
                 EventBus.getDefault().post(new TypesLoadedEvent(crimeTypes));
             }
 
@@ -185,21 +189,7 @@ public class ClaimsService {
         });
     }
 
-    public void getType(String pk) {
-        mClaimsApi.getType(pk, new Callback<CrimeType>() {
-            @Override
-            public void success(CrimeType crimeType, Response response) {
-                List types = new ArrayList();
-                types.add(crimeType);
-                EventBus.getDefault().post(new TypesLoadedEvent(types));
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-
-            }
-        });
+    public List<CrimeType> getCrimeTypes() {
+        return _crimeTypes;
     }
-
-
 }
