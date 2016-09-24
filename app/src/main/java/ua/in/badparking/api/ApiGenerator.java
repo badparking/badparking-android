@@ -1,7 +1,5 @@
 package ua.in.badparking.api;
 
-import android.content.Context;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
@@ -18,11 +16,8 @@ import retrofit.converter.GsonConverter;
 @Singleton
 public class ApiGenerator {
 
-    private Context _context;
-
     @Inject
-    public ApiGenerator(Context context) {
-        _context = context;
+    public ApiGenerator() {
     }
 
     private <S> S buildApi(Class<S> apiClass, RestAdapter.Builder builder) {

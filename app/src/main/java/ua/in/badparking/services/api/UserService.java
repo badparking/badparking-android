@@ -20,6 +20,7 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.mime.TypedString;
+import ua.in.badparking.Constants;
 import ua.in.badparking.Utils;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.UserApi;
@@ -44,15 +45,13 @@ public class UserService {
 
     private User mUser = null;
 
-    private final UserApi mUserApi;
+    private UserApi mUserApi;
     private Context context;
+    private ApiGenerator mApiGenerator;
 
     @Inject
-    protected UserService(ApiGenerator apiGenerator) {
-        mUserApi = apiGenerator.createApi(UserApi.class, true);
-    }
-
-    public void init(Context appContext) {
+    protected UserService(Context appContext, ApiGenerator apiGenerator) {
+        mApiGenerator = apiGenerator;
         context = appContext;
         userDataPrefs = appContext.getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE);
     }
@@ -196,4 +195,7 @@ public class UserService {
         userDataPrefs.edit().putString(USER_TOKEN_KEY, token).commit();
     }
 
+    public void onSessionTokenFetched(String tokenHeader) {
+        mUserApi = mApiGenerator.createApi(UserApi.class, Constants.API_BASE_URL, tokenHeader);
+    }
 }

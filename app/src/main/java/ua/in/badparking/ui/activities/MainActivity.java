@@ -1,14 +1,17 @@
 package ua.in.badparking.ui.activities;
 
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
@@ -30,6 +33,8 @@ import android.widget.TextView;
 import com.badoualy.stepperindicator.StepperIndicator;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
+import com.google.inject.Inject;
+import com.squareup.okhttp.OkHttpClient;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -45,6 +50,7 @@ import ua.in.badparking.BuildConfig;
 import ua.in.badparking.CustomViewPager;
 import ua.in.badparking.R;
 import ua.in.badparking.events.ShowHeaderEvent;
+import ua.in.badparking.services.api.ClaimsService;
 import ua.in.badparking.ui.dialogs.EnableGPSDialog;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
@@ -89,6 +95,88 @@ public class MainActivity extends RoboActionBarActivity {
         if (DEBUG) {
             printDevHashKey();
         }
+    }
+
+    @Inject
+    private ClaimsService mClaimsService;
+
+    private BroadcastReceiver connectionReceiver;
+
+    private final OkHttpClient client = new OkHttpClient();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        EventBus.getDefault().register(this);
+        connectionReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (isConnected(context) & isLocationEnabled()) {
+                    start();
+                }
+            }
+        };
+
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(connectionReceiver, intentFilter);
+    }
+
+    public boolean isConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netinfo = cm.getActiveNetworkInfo();
+
+        if (netinfo != null && netinfo.isConnectedOrConnecting()) {
+            NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+            return (mobile != null && mobile.isConnectedOrConnecting()) || (wifi != null && wifi.isConnectedOrConnecting());
+        } else
+            return false;
+    }
+
+    public AlertDialog.Builder buildConnectionDialog(Context context) {
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+        dialog.setMessage(getResources().getString(R.string.network_not_enabled));
+
+        dialog.setPositiveButton(getResources().getString(R.string.open_location_settings),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                        Intent myIntent = new Intent(Settings.ACTION_SETTINGS);
+                        startActivity(myIntent);
+                        paramDialogInterface.dismiss();
+                    }
+                });
+        dialog.setCancelable(false);
+        return dialog;
+    }
+
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(connectionReceiver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isConnected(this)) {
+            buildConnectionDialog(this).show();
+        }
+        start();
+    }
+
+    private void start() {
+        mClaimsService.updateTypes();
+    }
+
+    public boolean isLocationEnabled() {
+        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     private void printDevHashKey() {

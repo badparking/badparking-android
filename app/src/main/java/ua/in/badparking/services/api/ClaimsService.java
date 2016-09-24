@@ -16,9 +16,11 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.mime.TypedFile;
 import retrofit.mime.TypedString;
+import ua.in.badparking.Constants;
 import ua.in.badparking.R;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.ClaimsApi;
+import ua.in.badparking.api.TypesApi;
 import ua.in.badparking.api.responses.BaseResponse;
 import ua.in.badparking.events.ClaimCancelledEvent;
 import ua.in.badparking.events.ClaimPostedEvent;
@@ -33,16 +35,43 @@ import ua.in.badparking.model.MediaFile;
 @Singleton
 public class ClaimsService {
 
-    private final ClaimsApi mClaimsApi;
+    private ApiGenerator mApiGenerator;
+    private ClaimsApi mClaimsApi;
+    private TypesApi mTypesApi;
 
     private Context context;
-
     private List<CrimeType> _crimeTypes;
 
     @Inject
     protected ClaimsService(ApiGenerator apiGenerator) {
-        mClaimsApi = apiGenerator.createApi(ClaimsApi.class, true);
+        mApiGenerator = apiGenerator;
+        mTypesApi = apiGenerator.createApi(TypesApi.class, Constants.API_BASE_URL, null);
     }
+
+//     TYPES
+
+    public void updateTypes() {
+        mClaimsApi.getTypes(new Callback<List<CrimeType>>() {
+
+            @Override
+            public void success(List<CrimeType> crimeTypes, Response response) {
+                _crimeTypes = crimeTypes;
+                // TODO save to prefs
+                EventBus.getDefault().post(new TypesLoadedEvent(crimeTypes));
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+    }
+
+    public List<CrimeType> getCrimeTypes() {
+        return _crimeTypes;
+    }
+
+//     CLAIMS
 
     public void getClaims(String clientId, String clientSecret, String timestamp) {
         mClaimsApi.getClaims(new TypedString(clientId), new TypedString(clientSecret),
@@ -172,24 +201,7 @@ public class ClaimsService {
         });
     }
 
-    public void updateTypes() {
-        mClaimsApi.getTypes(new Callback<List<CrimeType>>() {
-
-            @Override
-            public void success(List<CrimeType> crimeTypes, Response response) {
-                _crimeTypes = crimeTypes;
-                // TODO save to prefs
-                EventBus.getDefault().post(new TypesLoadedEvent(crimeTypes));
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-
-            }
-        });
-    }
-
-    public List<CrimeType> getCrimeTypes() {
-        return _crimeTypes;
+    public void onSessionTokenFetched(String tokenHeader) {
+        mClaimsApi = mApiGenerator.createApi(ClaimsApi.class, Constants.API_BASE_URL, tokenHeader);
     }
 }
