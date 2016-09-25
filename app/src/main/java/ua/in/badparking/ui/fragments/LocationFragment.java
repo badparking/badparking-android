@@ -23,12 +23,16 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.text.DecimalFormat;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.tajchert.sample.DotsTextView;
 import ua.in.badparking.R;
+import ua.in.badparking.events.LocationEvent;
 import ua.in.badparking.services.ClaimState;
 import ua.in.badparking.services.GeolocationState;
 import ua.in.badparking.ui.activities.MainActivity;
@@ -57,7 +61,6 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         return inflater.inflate(R.layout.fragment_location, container, false);
     }
 
@@ -82,56 +85,37 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         nextButton.setVisibility(View.GONE);
     }
 
+    @Subscribe
+    public void onEvent(LocationEvent locationEvent){
+        Location location = locationEvent.getLocation();
+
+        if (GeolocationState.INST.getUserMarker() == null && location != null && mMap != null) {
+            Address address = GeolocationState.INST.getAddress(location.getLatitude(), location.getLongitude());
+            setAddress(address);
+            GeolocationState.INST.getUserMarker().remove();
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        try {
-            GeolocationState.INST.getLocationManager().requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER,
-                    GeolocationState.WAITING_TIME_MILLIS,
-                    GeolocationState.ACCURANCY_IN_METERS,
-                    locationListener);
-
-            if (GeolocationState.INST.getLocation() != null) {
-                locationListener.onLocationChanged(GeolocationState.INST.getLocation());
-            }
-        } catch (SecurityException se) {
-            Log.i(TAG, se.getMessage());
+        EventBus.getDefault().register(this);
+        if(!GeolocationState.INST.getLocationManager().isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            GeolocationState.INST.locationUpdatesSubscription();
         }
     }
 
     @Override
     public void onPause() {
+        EventBus.getDefault().unregister(this);
         super.onPause();
         try {
-            GeolocationState.INST.getLocationManager().removeUpdates(locationListener);
+            GeolocationState.INST.getLocationManager().removeUpdates(GeolocationState.INST.getLocationListener());
         } catch (SecurityException se) {
             Log.i(TAG, se.getMessage());
         }
     }
-
-    private LocationListener locationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            if (GeolocationState.INST.getUserMarker() == null && location != null && mMap != null) {
-                Address address = GeolocationState.INST.getAddress(location.getLatitude(), location.getLongitude());
-                setAddress(address);
-                mMap.getUiSettings().setMyLocationButtonEnabled(true);
-            }
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-    };
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
