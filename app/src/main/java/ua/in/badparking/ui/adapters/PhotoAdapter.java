@@ -9,13 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.google.inject.Inject;
+
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ua.in.badparking.R;
 import ua.in.badparking.model.MediaFile;
-import ua.in.badparking.services.ClaimState;
+import ua.in.badparking.services.ClaimsService;
 
 /**
  * @author Dima Kovalenko
@@ -27,10 +29,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
     }
 
     private static final String TAG = PhotoAdapter.class.getName();
-    private final LayoutInflater _layoutInflater;
-    private Context _context;
+    private final LayoutInflater mLayoutInflater;
+    private Context mContext;
 
-    private PhotosUpdatedListener _listener;
+    @Inject
+    private ClaimsService mClaimService;
+
+    private PhotosUpdatedListener mListener;
 
     /**
      * Constructor
@@ -38,13 +43,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
      * @param context {@link Context}
      */
     public PhotoAdapter(Context context) {
-        _context = context;
-        _layoutInflater = LayoutInflater.from(context);
+        mContext = context;
+        mLayoutInflater = LayoutInflater.from(context);
     }
 
     @Override
     public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new MovieViewHolder(_layoutInflater.inflate(R.layout.photo_item, parent, false));
+        return new MovieViewHolder(mLayoutInflater.inflate(R.layout.photo_item, parent, false));
     }
 
     @Override
@@ -58,11 +63,11 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
     }
 
     private List<MediaFile> getItems() {
-        return ClaimState.INST.getClaim().getPhotoFiles();
+        return mClaimService.getClaim().getPhotoFiles();
     }
 
     public void setListener(PhotosUpdatedListener listener) {
-        _listener = listener;
+        mListener = listener;
     }
 
     /**
@@ -97,10 +102,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
             _deleteCross.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ClaimState.INST.getClaim().removePhoto(mediaFile);
+                    mClaimService.getClaim().removePhoto(mediaFile);
                     notifyDataSetChanged();
-                    if (_listener != null) {
-                        _listener.onPhotosUpdated();
+                    if (mListener != null) {
+                        mListener.onPhotosUpdated();
                     }
                 }
             });
@@ -108,8 +113,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
 
         // TODO use Glide here
         private void setPic(ImageView view, String currentPhotoPath) {
-            int targetW = _context.getResources().getDimensionPixelSize(R.dimen.photo_side);
-            int targetH = _context.getResources().getDimensionPixelSize(R.dimen.photo_side);
+            int targetW = mContext.getResources().getDimensionPixelSize(R.dimen.photo_side);
+            int targetH = mContext.getResources().getDimensionPixelSize(R.dimen.photo_side);
 
             BitmapFactory.Options bmOptions = new BitmapFactory.Options();
             bmOptions.inJustDecodeBounds = true;

@@ -22,6 +22,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
 import ua.in.badparking.R;
+import ua.in.badparking.services.UserService;
 
 @ContentView(R.layout.activity_settings)
 public class SettingsActivity extends RoboActivity {
@@ -38,7 +39,8 @@ public class SettingsActivity extends RoboActivity {
     TextView name;
 
     @Inject
-    private TokenService tokenService;
+    private UserService userService;
+
     private CallbackManager callbackManager;
     private ProfileTracker mProfileTracker;
 
@@ -56,7 +58,7 @@ public class SettingsActivity extends RoboActivity {
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
-                        tokenService.authorizeWithFacebook(loginResult.getAccessToken().getToken());
+                        userService.authorizeWithFacebook(loginResult.getAccessToken().getToken());
                     }
 
                     @Override

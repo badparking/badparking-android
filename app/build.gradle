@@ -82,4 +82,5 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.2.1'
     apt 'com.jakewharton:butterknife-compiler:8.2.1'
     compile 'pl.tajchert:waitingdots:0.2.0'
+    compile 'io.jsonwebtoken:jjwt:0.7.0'
 }

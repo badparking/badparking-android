@@ -31,6 +31,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.inject.Inject;
+
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.ByteArrayOutputStream;
@@ -44,7 +46,7 @@ import butterknife.Unbinder;
 import ua.in.badparking.CameraWrapper;
 import ua.in.badparking.R;
 import ua.in.badparking.events.ShowHeaderEvent;
-import ua.in.badparking.services.ClaimState;
+import ua.in.badparking.services.ClaimsService;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.PhotoAdapter;
 
@@ -60,21 +62,33 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     @BindView(R.id.surface_container)
     protected FrameLayout surfaceContainer;
-    private SurfaceView surfaceView;
+
     @BindView(R.id.recyclerView)
     protected RecyclerView recyclerView;
-    private PhotoAdapter photoAdapter;
+
     @BindView(R.id.message)
     protected TextView messageView;
+
     @BindView(R.id.platesPreviewImage)
     protected ImageView platesPreviewImage;
+
     @BindView(R.id.platesEditText)
     protected EditText platesEditText;
+
     @BindView(R.id.snap)
     protected View snapButton;
+
     @BindView(R.id.next_button)
     protected View nextButton;
+
+    @Inject
+    private ClaimsService mClaimService;
+
     private Unbinder unbinder;
+
+    private SurfaceView surfaceView;
+
+    private PhotoAdapter photoAdapter;
     private CameraWrapper cameraWrapper;
     private SensorManager sensorManager;
     private Sensor mySensor;
@@ -119,7 +133,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void onPhotosUpdated() {
-        int photosTaken = ClaimState.INST.getClaim().getPhotoFiles().size();
+        int photosTaken = mClaimService.getClaim().getPhotoFiles().size();
         nextButton.setVisibility(photosTaken > 1 ? View.VISIBLE : View.GONE);
         snapButton.setVisibility(photosTaken > 1 ? View.GONE : View.VISIBLE);
         if (photosTaken == 0) {
@@ -136,8 +150,8 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             platesPreviewImage.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
 //            surfaceView.setVisibility(View.GONE);
-            setPic(platesPreviewImage, ClaimState.INST.getClaim().getPhotoFiles().get(1).getPath());
-            if (TextUtils.isEmpty(ClaimState.INST.getClaim().getLicensePlates())) {
+            setPic(platesPreviewImage, mClaimService.getClaim().getPhotoFiles().get(1).getPath());
+            if (TextUtils.isEmpty(mClaimService.getClaim().getLicensePlates())) {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -225,7 +239,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             case R.id.next_button:
                 InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                ClaimState.INST.getClaim().setLicensePlates(platesEditText.getText().toString());
+                mClaimService.getClaim().setLicensePlates(platesEditText.getText().toString());
                 EventBus.getDefault().post(new ShowHeaderEvent(true));
                 platesEditText.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
@@ -241,8 +255,8 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onImageFileCreated(String photoPath) {
-        ClaimState.INST.getClaim().addPhoto(photoPath);
-        int numberOfPhotosTaken = ClaimState.INST.getClaim().getPhotoFiles().size();
+        mClaimService.getClaim().addPhoto(photoPath);
+        int numberOfPhotosTaken = mClaimService.getClaim().getPhotoFiles().size();
         snapButton.setVisibility(numberOfPhotosTaken > 2 ? View.GONE : View.VISIBLE);
         photoAdapter.notifyDataSetChanged();
         onPhotosUpdated();

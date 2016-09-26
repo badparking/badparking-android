@@ -1,4 +1,4 @@
-package ua.in.badparking.services.api;
+package ua.in.badparking.services;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -24,15 +24,12 @@ import ua.in.badparking.Constants;
 import ua.in.badparking.Utils;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.UserApi;
-import ua.in.badparking.api.requests.UserRequest;
 import ua.in.badparking.api.responses.TokenResponse;
 import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.TokenRefreshedEvent;
-import ua.in.badparking.events.TokenVerifiedEvent;
 import ua.in.badparking.events.UserLoadedEvent;
 import ua.in.badparking.events.UserUpdatedEvent;
 import ua.in.badparking.model.User;
-import ua.in.badparking.services.ClaimState;
 
 public class UserService {
 
@@ -47,12 +44,14 @@ public class UserService {
 
     private UserApi mUserApi;
     private Context context;
+    private ClaimsService mClaimsService;
     private ApiGenerator mApiGenerator;
 
     @Inject
-    protected UserService(Context appContext, ApiGenerator apiGenerator) {
+    protected UserService(Context appContext, ApiGenerator apiGenerator, ClaimsService claimsService) {
         mApiGenerator = apiGenerator;
         context = appContext;
+        mClaimsService = claimsService;
         userDataPrefs = appContext.getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE);
     }
 
@@ -105,21 +104,6 @@ public class UserService {
         });
     }
 
-    public void patchUserComplete(UserRequest userRequest) {
-        mUserApi.patchUserComplete(userRequest, new Callback<User>() {
-            @Override
-            public void success(User user, Response response) {
-                EventBus.getDefault().post(new UserUpdatedEvent(user));
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-
-            }
-        });
-    }
-
-
     public void refreshToken(String tokenRequest) {
         mUserApi.refreshToken(new TypedString(tokenRequest), new Callback<TokenResponse>() {
             @Override
@@ -130,23 +114,6 @@ public class UserService {
             @Override
             public void failure(RetrofitError error) {
 
-            }
-        });
-    }
-
-    public void verifyToken(String tokenRequest) {
-        if (tokenRequest == null) {
-            tokenRequest = "";
-        }
-        mUserApi.verifyToken(new TypedString(tokenRequest), new Callback<TokenResponse>() {
-            @Override
-            public void success(TokenResponse tokenResponse, Response response) {
-                EventBus.getDefault().post(new TokenVerifiedEvent(true));
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                EventBus.getDefault().post(new TokenVerifiedEvent(false));
             }
         });
     }
@@ -166,9 +133,7 @@ public class UserService {
         try {
             sha256 = MessageDigest.getInstance("SHA-256");
             secretHash = sha256.digest(secretMessage.getBytes("UTF-8"));
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
 
@@ -176,7 +141,7 @@ public class UserService {
             @Override
             public void success(User user, Response response) {
 
-                ClaimState.INST.setToken(user.getToken());
+                mClaimsService.setToken(user.getToken());
                 EventBus.getDefault().post(new AuthorizedWithFacebookEvent(user));
             }
 
@@ -197,5 +162,7 @@ public class UserService {
 
     public void onSessionTokenFetched(String tokenHeader) {
         mUserApi = mApiGenerator.createApi(UserApi.class, Constants.API_BASE_URL, tokenHeader);
+
+//        Jwts.parser().setSigningKey(key).parseClaimsJws(jwtString).getBody().getExpiration();
     }
 }

@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -34,7 +33,6 @@ import com.badoualy.stepperindicator.StepperIndicator;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.google.inject.Inject;
-import com.squareup.okhttp.OkHttpClient;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -50,8 +48,7 @@ import ua.in.badparking.BuildConfig;
 import ua.in.badparking.CustomViewPager;
 import ua.in.badparking.R;
 import ua.in.badparking.events.ShowHeaderEvent;
-import ua.in.badparking.services.api.ClaimsService;
-import ua.in.badparking.ui.dialogs.EnableGPSDialog;
+import ua.in.badparking.services.ClaimsService;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
 import ua.in.badparking.ui.fragments.ClaimTypeFragment;
@@ -69,9 +66,15 @@ public class MainActivity extends RoboActionBarActivity {
     @BindView(R.id.toolbar_top)
     protected Toolbar toolbarTop;
 
+    @Inject
+    private ClaimsService mClaimsService;
+
     private SectionsPagerAdapter pagerAdapter;
 
     private Dialog senderProgressDialog;
+
+
+    private BroadcastReceiver connectionReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,31 +98,18 @@ public class MainActivity extends RoboActionBarActivity {
         if (DEBUG) {
             printDevHashKey();
         }
-    }
 
-    @Inject
-    private ClaimsService mClaimsService;
-
-    private BroadcastReceiver connectionReceiver;
-
-    private final OkHttpClient client = new OkHttpClient();
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        EventBus.getDefault().register(this);
-        connectionReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (isConnected(context) & isLocationEnabled()) {
-                    start();
-                }
-            }
-        };
-
-        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(connectionReceiver, intentFilter);
+//        connectionReceiver = new BroadcastReceiver() { TODO uncomment
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                if (isConnected(context) & isLocationEnabled()) {
+//                    start();
+//                }
+//            }
+//        };
+//
+//        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+//        registerReceiver(connectionReceiver, intentFilter);
     }
 
     public boolean isConnected(Context context) {
@@ -154,7 +144,6 @@ public class MainActivity extends RoboActionBarActivity {
     }
 
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -164,19 +153,17 @@ public class MainActivity extends RoboActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        EventBus.getDefault().register(this);
+        // checking internet connection
         if (!isConnected(this)) {
             buildConnectionDialog(this).show();
+            return;
+        } else {
+            mClaimsService.updateTypes();
         }
-        start();
-    }
 
-    private void start() {
-        mClaimsService.updateTypes();
-    }
+        checkLocationServices();
 
-    public boolean isLocationEnabled() {
-        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     private void printDevHashKey() {
@@ -194,13 +181,6 @@ public class MainActivity extends RoboActionBarActivity {
         } catch (NoSuchAlgorithmException e) {
 
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        EventBus.getDefault().register(this);
-        checkLocationServices();
     }
 
     @Override
@@ -241,17 +221,6 @@ public class MainActivity extends RoboActionBarActivity {
         getSupportActionBar().setTitle("");
     }
 
-    private void showEnableGpsDialogIfNeeded() {
-        EnableGPSDialog introDialog = new EnableGPSDialog(this, android.R.style.Theme_Black_NoTitleBar,
-                new EnableGPSDialog.ActionListener() {
-                    @Override
-                    public void onAction() {
-
-                    }
-                });
-        introDialog.show();
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -268,23 +237,12 @@ public class MainActivity extends RoboActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_your_data) {
-//            Dialog senderInfoDialog = new SenderInfoDialog(this);
-//            senderInfoDialog.show();
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public boolean isOnline() {
-        try {
-            ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-            return cm.getActiveNetworkInfo().isConnectedOrConnecting();
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     public void handleResult(int code, String message) {

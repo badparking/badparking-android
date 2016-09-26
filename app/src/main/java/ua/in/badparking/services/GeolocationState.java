@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 
 import ua.in.badparking.events.LocationEvent;
-import ua.in.badparking.events.ShowHeaderEvent;
 
 public enum GeolocationState {
     INST;
@@ -63,7 +62,7 @@ public enum GeolocationState {
 
     public void init(Context context) {
         this.context = context;
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
         locationUpdatesSubscription();
         geocoder = new Geocoder(context, Locale.getDefault());
     }
@@ -104,7 +103,7 @@ public enum GeolocationState {
                     .target(new LatLng(latitude, longitude))
                     .zoom(17)
                     .bearing(45)
-                     //.tilt(45)
+                    //.tilt(45)
                     .build();
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             userMarker = mMap.addMarker(new MarkerOptions()
@@ -124,10 +123,10 @@ public enum GeolocationState {
         return locationListener;
     }
 
-    public void locationUpdatesSubscription(){
-        if ( Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(context,
-                android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED) {
-            return  ;
+    public void locationUpdatesSubscription() {
+        if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(context,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
         }
 
         locationManager.requestLocationUpdates(

@@ -9,11 +9,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.google.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import ua.in.badparking.R;
-import ua.in.badparking.services.ClaimState;
+import ua.in.badparking.services.ClaimsService;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
 
@@ -25,8 +27,13 @@ public class ClaimTypeFragment extends BaseFragment {
 
     @BindView(R.id.reportTypeList)
     ListView listView;
+
     @BindView(R.id.next_button)
     Button nextButton;
+
+    @Inject
+    private ClaimsService mClaimService;
+
     private Unbinder unbinder;
 
     @Override
@@ -42,7 +49,7 @@ public class ClaimTypeFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        CrimeTypeAdapter crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), ClaimState.INST.getCrimeTypes(), nextButton);
+        CrimeTypeAdapter crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), mClaimService.getCrimeTypes(), nextButton);
         listView.setAdapter(crimeTypeAdapter);
 
         nextButton.setOnClickListener(new View.OnClickListener() {

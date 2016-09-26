@@ -2,7 +2,6 @@ package ua.in.badparking.ui.fragments;
 
 import android.location.Address;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -22,6 +21,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.inject.Inject;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -33,7 +33,7 @@ import butterknife.ButterKnife;
 import pl.tajchert.sample.DotsTextView;
 import ua.in.badparking.R;
 import ua.in.badparking.events.LocationEvent;
-import ua.in.badparking.services.ClaimState;
+import ua.in.badparking.services.ClaimsService;
 import ua.in.badparking.services.GeolocationState;
 import ua.in.badparking.ui.activities.MainActivity;
 
@@ -47,13 +47,19 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     @BindView(R.id.dots)
     DotsTextView dotsTextView;
+
     @BindView(R.id.positioning_text_view)
     TextView positioningText;
+
     @BindView(R.id.next_button)
     Button nextButton;
+
     private GoogleMap mMap;
+
     private static boolean showHint = false;
 
+    @Inject
+    private ClaimsService mClaimService;
 
     public static Fragment newInstance() {
         return new LocationFragment();
@@ -86,7 +92,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     }
 
     @Subscribe
-    public void onEvent(LocationEvent locationEvent){
+    public void onEvent(LocationEvent locationEvent) {
         Location location = locationEvent.getLocation();
 
         if (GeolocationState.INST.getUserMarker() == null && location != null && mMap != null) {
@@ -101,7 +107,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     public void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
-        if(!GeolocationState.INST.getLocationManager().isProviderEnabled(LocationManager.GPS_PROVIDER)){
+        if (!GeolocationState.INST.getLocationManager().isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             GeolocationState.INST.locationUpdatesSubscription();
         }
     }
@@ -168,24 +174,24 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     private void setAddress(Address address) {
         if (address == null) {
-            ClaimState.INST.getClaim().setCity(null);
-            ClaimState.INST.getClaim().setAddress(null);
+            mClaimService.getClaim().setCity(null);
+            mClaimService.getClaim().setAddress(null);
 
             dotsTextView.showAndPlay();
             positioningText.setText(getResources().getText(R.string.positioning_in_progress));
             nextButton.setVisibility(View.GONE);
 
         } else {
-            ClaimState.INST.getClaim().setCity(address.getLocality());
-            ClaimState.INST.getClaim().setAddress(address.getAddressLine(0));
+            mClaimService.getClaim().setCity(address.getLocality());
+            mClaimService.getClaim().setAddress(address.getAddressLine(0));
 
             dotsTextView.hideAndStop();
-            positioningText.setText(ClaimState.INST.getFullAddress());
+            positioningText.setText(mClaimService.getFullAddress());
             nextButton.setVisibility(View.VISIBLE);
 
             DecimalFormat df = new DecimalFormat("#.######");
-            ClaimState.INST.getClaim().setLatitude(df.format(address.getLatitude()).replace(",", "."));
-            ClaimState.INST.getClaim().setLongitude(df.format(address.getLongitude()).replace(",", "."));
+            mClaimService.getClaim().setLatitude(df.format(address.getLatitude()).replace(",", "."));
+            mClaimService.getClaim().setLongitude(df.format(address.getLongitude()).replace(",", "."));
             GeolocationState.INST.mapPositioning(mMap, address.getLatitude(), address.getLongitude());
         }
     }

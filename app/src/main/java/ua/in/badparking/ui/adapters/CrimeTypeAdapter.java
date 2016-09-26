@@ -11,13 +11,11 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.List;
-import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ua.in.badparking.R;
 import ua.in.badparking.model.CrimeType;
-import ua.in.badparking.services.ClaimState;
 
 /**
  * Created by Volodymyr Dranyk on 7/6/2016.
@@ -27,7 +25,6 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
 
     public CrimeTypeAdapter(Context context, List<CrimeType> objects, Button nextButton) {
         super(context, R.layout.listitem_report_type, objects);
-        ClaimState.INST.setCrimeTypes(objects);
         this.nextButton = nextButton;
     }
 
@@ -46,18 +43,18 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
 
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    int getPosition = (Integer)buttonView.getTag();
-                    ClaimState.INST.getCrimeTypes().get(getPosition).setSelected(buttonView.isChecked());
-
-                    Integer id = ClaimState.INST.getCrimeTypes().get(getPosition).getId();
-                    Set<Integer> crimeTypeIds = ClaimState.INST.getClaim().getCrimetypes();
-                    if (buttonView.isChecked()) {
-                        crimeTypeIds.add(id);
-                    } else crimeTypeIds.remove(id);
-
-                    if(crimeTypeIds.isEmpty()){
-                        nextButton.setVisibility(View.GONE);
-                    } else nextButton.setVisibility(View.VISIBLE);
+//                    int getPosition = (Integer)buttonView.getTag();
+//                    mClaimService.getCrimeTypes().get(getPosition).setSelected(buttonView.isChecked());
+//
+//                    Integer id = mClaimService.getCrimeTypes().get(getPosition).getId();
+//                    Set<Integer> crimeTypeIds = mClaimService.getClaim().getCrimetypes();
+//                    if (buttonView.isChecked()) {
+//                        crimeTypeIds.add(id);
+//                    } else crimeTypeIds.remove(id);
+//
+//                    if (crimeTypeIds.isEmpty()) {
+//                        nextButton.setVisibility(View.GONE);
+//                    } else nextButton.setVisibility(View.VISIBLE);
                 }
             });
 
@@ -68,16 +65,20 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
             viewHolder = (ViewHolder)convertView.getTag();
         }
 
-        viewHolder.checkBox.setTag(position);
-        viewHolder.todoName.setText(ClaimState.INST.getCrimeTypes().get(position).getName());
-        viewHolder.checkBox.setChecked(ClaimState.INST.getCrimeTypes().get(position).isSelected());
+//        viewHolder.checkBox.setTag(position);
+//        viewHolder.todoName.setText(mClaimService.getCrimeTypes().get(position).getName());
+//        viewHolder.checkBox.setChecked(mClaimService.getCrimeTypes().get(position).isSelected());
 
         return convertView;
     }
 
     static class ViewHolder {
-        @BindView(R.id.list_item) TextView todoName;
-        @BindView(R.id.checkBox) CheckBox checkBox;
+
+        @BindView(R.id.list_item)
+        TextView todoName;
+
+        @BindView(R.id.checkBox)
+        CheckBox checkBox;
 
         public ViewHolder(View view) {
             ButterKnife.bind(this, view);

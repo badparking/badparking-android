@@ -22,9 +22,9 @@ public interface UserApi {
     @POST("/token/refresh")
     void refreshToken(@Body TypedString tokenRequest, Callback<TokenResponse> responseCallback);
 
-    @Multipart
-    @POST("/token/verify")
-    void verifyToken(@Part("token") TypedString token, Callback<TokenResponse> responseCallback);
+//    @Multipart
+//    @POST("/token/verify")
+//    void verifyToken(@Part("token") TypedString token, Callback<TokenResponse> responseCallback);
 
     @Multipart
     @POST("/user/auth/facebook")
