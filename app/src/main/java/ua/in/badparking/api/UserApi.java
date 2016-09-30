@@ -41,8 +41,8 @@ public interface UserApi {
     @PUT("/user/me/complete")
     void putUserComplete(@PartMap() Map userData, Callback<User> responseCallback);
 
-    @PATCH("/user/me/complete")
-    void patchUserComplete(@Body UserRequest userRequest, Callback<User> responseCallback);
+//    @PATCH("/user/me/complete")
+//    void patchUserComplete(@Body UserRequest userRequest, Callback<User> responseCallback);
 
 
 }

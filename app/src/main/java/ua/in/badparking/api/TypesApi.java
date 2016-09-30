@@ -12,7 +12,7 @@ public interface TypesApi {
     @GET("/types")
     void getTypes(Callback<List<CrimeType>> responseCallback);
 
-    @GET("/types/{pk}")
-    void getType(@Path("pk") String pk, Callback<CrimeType> responseCallback);
+//    @GET("/types/{pk}")
+//    void getType(@Path("pk") String pk, Callback<CrimeType> responseCallback);
 
 }

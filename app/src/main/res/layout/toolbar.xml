@@ -18,7 +18,7 @@
         app:stpi_indicatorColor="@color/secondaryColor"
         app:stpi_lineColor="#D8D8D8"
         app:stpi_lineDoneColor="@color/secondaryColor"
-        app:stpi_stepCount="4"/>
+        app:stpi_stepCount="3"/>
 
 
 </android.support.v7.widget.Toolbar>

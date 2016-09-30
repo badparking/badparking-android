@@ -1,5 +1,6 @@
 package ua.in.badparking.ui.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -14,18 +15,14 @@ import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.google.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
-import roboguice.activity.RoboActivity;
-import roboguice.inject.ContentView;
 import ua.in.badparking.R;
 import ua.in.badparking.services.UserService;
 
-@ContentView(R.layout.activity_settings)
-public class SettingsActivity extends RoboActivity {
+public class SettingsActivity extends Activity {
 
     private static final String TAG = SettingsActivity.class.getName();
 
@@ -38,19 +35,13 @@ public class SettingsActivity extends RoboActivity {
     @BindView(R.id.name)
     TextView name;
 
-    @Inject
-    private UserService userService;
-
     private CallbackManager callbackManager;
     private ProfileTracker mProfileTracker;
-
-    public static SettingsActivity newInstance() {
-        return new SettingsActivity();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_settings);
         ButterKnife.bind(this);
         callbackManager = CallbackManager.Factory.create();
         loginButton.setReadPermissions("email, public_profile");
@@ -58,7 +49,7 @@ public class SettingsActivity extends RoboActivity {
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
-                        userService.authorizeWithFacebook(loginResult.getAccessToken().getToken());
+                        UserService.INST.authorizeWithFacebook(loginResult.getAccessToken().getToken());
                     }
 
                     @Override

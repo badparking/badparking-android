@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,7 +25,6 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.google.inject.Inject;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -42,7 +40,7 @@ import ua.in.badparking.events.ImageUploadedEvent;
 import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.MediaFile;
 import ua.in.badparking.model.User;
-import ua.in.badparking.services.ClaimsService;
+import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.services.UserService;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.PhotoAdapter;
@@ -72,12 +70,6 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     private Unbinder unbinder;
 
-    @Inject
-    private ClaimsService mClaimService;
-
-    @Inject
-    private UserService mUserService;
-
     private AlertDialog waitDialog;
     private AlertDialog readyDialog;
 
@@ -86,7 +78,7 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     private Claim claim;
 
-    public static Fragment newInstance() {
+    public static BaseFragment newInstance() {
         return new ClaimOverviewFragment();
     }
 
@@ -138,7 +130,7 @@ public class ClaimOverviewFragment extends BaseFragment {
                     public void onSuccess(LoginResult loginResult) {
                         loginButton.setVisibility(View.GONE);
                         mSendButton.setVisibility(View.VISIBLE);
-                        mUserService.authorizeWithFacebook(loginResult.getAccessToken().getToken());
+                        UserService.INST.authorizeWithFacebook(loginResult.getAccessToken().getToken());
                     }
 
                     @Override
@@ -155,9 +147,9 @@ public class ClaimOverviewFragment extends BaseFragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser && isResumed()) {
-            carPlateNumberTextView.setText(mClaimService.getClaim().getLicensePlates());
-            crimeTypeTextView.setText(mClaimService.getSelectedCrimeTypesNames());
-            addressTextView.setText(mClaimService.getFullAddress());
+            carPlateNumberTextView.setText(ClaimService.INST.getClaim().getLicensePlates());
+            crimeTypeTextView.setText(ClaimService.INST.getSelectedCrimeTypesNames());
+            addressTextView.setText(ClaimService.INST.getFullAddress());
         }
     }
 
@@ -174,21 +166,21 @@ public class ClaimOverviewFragment extends BaseFragment {
     }
 
     private void send() {
-        if (!mClaimService.getClaim().isComplete()) {
+        if (!ClaimService.INST.getClaim().isComplete()) {
             // TODO show "not complete" message
             return;
-        } else if (mUserService.getUser() == null) {
+        } else if (UserService.INST.getUser() == null) {
             loginButton.setVisibility(View.VISIBLE);
             mSendButton.setVisibility(View.GONE);
             return;
         }
-        claim = mClaimService.getClaim();
-        User user = mUserService.getUser();
+        claim = ClaimService.INST.getClaim();
+        User user = UserService.INST.getUser();
         if (user.isComplete().equals("false")) {
             showCompleteUserDataDialog();
         } else {
             showSendClaimDialog();
-            mClaimService.postMyClaims(claim);
+            ClaimService.INST.postMyClaims(claim);
         }
     }
 
@@ -199,12 +191,12 @@ public class ClaimOverviewFragment extends BaseFragment {
 
         final EditText emailText = new EditText(getActivity());
         emailText.setHint("Email");
-        emailText.setText(mUserService.getUser().getEmail());
+        emailText.setText(UserService.INST.getUser().getEmail());
         layout.addView(emailText);
 
         final EditText phoneText = new EditText(getActivity());
         phoneText.setHint("Phone Number");
-        String phone = mUserService.getUser().getPhone();
+        String phone = UserService.INST.getUser().getPhone();
         if (TextUtils.isEmpty(phone)) {
             TelephonyManager tMgr = (TelephonyManager)getActivity().getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
             phone = tMgr.getLine1Number();
@@ -219,12 +211,11 @@ public class ClaimOverviewFragment extends BaseFragment {
             public void onClick(DialogInterface dialog, int id) {
                 String phone = String.valueOf(phoneText.getText());
                 String email = String.valueOf(emailText.getText());
-                mUserService.putUserComplete(email, phone);
+                UserService.INST.putUserComplete(email, phone);
             }
         });
         builder.show();
     }
-
 
     public boolean isLoggedIn() {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
@@ -249,15 +240,15 @@ public class ClaimOverviewFragment extends BaseFragment {
         readyDialog.hide();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if (event.getImageCounter() != -1) {
-            builder.setMessage(getActivity().getString(R.string.photo_uploaded) + event.getImageCounter() + "/" + mClaimService.getPictures().size());
+            builder.setMessage(getActivity().getString(R.string.photo_uploaded) + event.getImageCounter() + "/" + ClaimService.INST.getPictures().size());
         } else {
             builder.setMessage(getActivity().getString(R.string.error_uploading_image));
         }
 
-        if (mClaimService.getPictures().size() == event.getImageCounter()) {
+        if (ClaimService.INST.getPictures().size() == event.getImageCounter()) {
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    ((MainActivity)getActivity()).moveToFirst();
+                    ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CAPTURE);
                 }
             });
         } else {
@@ -274,7 +265,7 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     @Subscribe
     public void onClaimPosted(final ClaimPostedEvent event) {
-        mClaimService.setPk(event.getPk());
+        ClaimService.INST.setPk(event.getPk());
         waitDialog.hide();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(event.getMessage());
@@ -282,10 +273,10 @@ public class ClaimOverviewFragment extends BaseFragment {
         readyDialog.show();
 
         if (event.getPosted()) {
-            List<MediaFile> files = mClaimService.getPictures();
+            List<MediaFile> files = ClaimService.INST.getPictures();
             for (int i = 0; i < files.size(); i++) {
                 MediaFile file = files.get(i);
-                mClaimService.postImage(event.getPk(), file, i + 1);
+                ClaimService.INST.postImage(event.getPk(), file, i + 1);
             }
         }
 

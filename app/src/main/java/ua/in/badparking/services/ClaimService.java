@@ -2,9 +2,6 @@ package ua.in.badparking.services;
 
 import android.content.Context;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
@@ -30,8 +27,8 @@ import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.CrimeType;
 import ua.in.badparking.model.MediaFile;
 
-@Singleton
-public class ClaimsService {
+public enum ClaimService {
+    INST;
 
     private ApiGenerator mApiGenerator;
     private ClaimsApi mClaimsApi;
@@ -40,17 +37,14 @@ public class ClaimsService {
     private Context context;
     private List<CrimeType> _crimeTypes;
 
-    private String license_plates;
+    private String mLicensePlates;
     private Claim claim = new Claim();
-    private List<CrimeType> crimeTypes = new ArrayList<>();
-    private String token;
     private String pk;
 
-    @Inject
-    protected ClaimsService(ApiGenerator apiGenerator, Context context) {
-        mApiGenerator = apiGenerator;
+
+    public void init(Context context) {
         this.context = context;
-        mTypesApi = apiGenerator.createApi(TypesApi.class, Constants.API_BASE_URL, null);
+        mTypesApi = ApiGenerator.INST.createApi(TypesApi.class, Constants.API_BASE_URL, null);
     }
 
 //     TYPES
@@ -77,35 +71,6 @@ public class ClaimsService {
     }
 
 //     CLAIMS
-
-//    public void getClaims(String clientId, String clientSecret, String timestamp) {
-//        mClaimsApi.getClaims(new TypedString(clientId), new TypedString(clientSecret),
-//                new TypedString(timestamp), new Callback<List<Claim>>() {
-//                    @Override
-//                    public void success(List<Claim> claims, Response response) {
-//                        EventBus.getDefault().post(new ClaimsLoadedEvent());
-//                    }
-//
-//                    @Override
-//                    public void failure(RetrofitError error) {
-//
-//                    }
-//                });
-//    }
-//
-//    public void getMyClaims() {
-//        mClaimsApi.getMyClaims(new Callback<List<Claim>>() {
-//            @Override
-//            public void success(List<Claim> claims, Response response) {
-//                EventBus.getDefault().post(new ClaimsLoadedEvent());
-//            }
-//
-//            @Override
-//            public void failure(RetrofitError error) {
-//
-//            }
-//        });
-//    }
 
     public void postMyClaims(Claim claim) {
         String latitude = claim.getLatitude();
@@ -210,14 +175,6 @@ public class ClaimsService {
         mClaimsApi = mApiGenerator.createApi(ClaimsApi.class, Constants.API_BASE_URL, tokenHeader);
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public Claim getClaim() {
         return claim;
     }
@@ -225,11 +182,11 @@ public class ClaimsService {
     public List<CrimeType> getSelectedCrimeTypes() {
         List<CrimeType> selectedCrimeTypeList = new ArrayList<>();
 
-        for (CrimeType ct : crimeTypes) {
-            if (ct.isSelected()) {
-                selectedCrimeTypeList.add(ct);
-            }
-        }
+//        for (CrimeType ct : crimeTypes) {
+//            if (ct.isSelected()) {
+//                selectedCrimeTypeList.add(ct);
+//            }
+//        }
 
         return selectedCrimeTypeList;
     }
@@ -263,4 +220,35 @@ public class ClaimsService {
     public void setPk(String pk) {
         this.pk = pk;
     }
+
+
+//    public void getClaims(String clientId, String clientSecret, String timestamp) {
+//        mClaimsApi.getClaims(new TypedString(clientId), new TypedString(clientSecret),
+//                new TypedString(timestamp), new Callback<List<Claim>>() {
+//                    @Override
+//                    public void success(List<Claim> claims, Response response) {
+//                        EventBus.getDefault().post(new ClaimsLoadedEvent());
+//                    }
+//
+//                    @Override
+//                    public void failure(RetrofitError error) {
+//
+//                    }
+//                });
+//    }
+//
+//    public void getMyClaims() {
+//        mClaimsApi.getMyClaims(new Callback<List<Claim>>() {
+//            @Override
+//            public void success(List<Claim> claims, Response response) {
+//                EventBus.getDefault().post(new ClaimsLoadedEvent());
+//            }
+//
+//            @Override
+//            public void failure(RetrofitError error) {
+//
+//            }
+//        });
+//    }
+
 }

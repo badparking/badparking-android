@@ -6,8 +6,8 @@
     <include
         layout="@layout/toolbar"/>
 
-    <ua.in.badparking.CustomViewPager
-        android:id="@+id/pager"
+    <FrameLayout
+        android:id="@+id/contentView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

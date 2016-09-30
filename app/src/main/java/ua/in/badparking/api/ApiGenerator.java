@@ -2,8 +2,8 @@ package ua.in.badparking.api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+
+
 import com.squareup.okhttp.OkHttpClient;
 
 import java.util.concurrent.TimeUnit;
@@ -13,12 +13,9 @@ import retrofit.RestAdapter;
 import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
 
-@Singleton
-public class ApiGenerator {
 
-    @Inject
-    public ApiGenerator() {
-    }
+public enum ApiGenerator {
+    INST;
 
     private <S> S buildApi(Class<S> apiClass, RestAdapter.Builder builder) {
         RestAdapter adapter = builder.build();

@@ -9,15 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.google.inject.Inject;
-
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ua.in.badparking.R;
 import ua.in.badparking.model.MediaFile;
-import ua.in.badparking.services.ClaimsService;
+import ua.in.badparking.services.ClaimService;
 
 /**
  * @author Dima Kovalenko
@@ -31,9 +29,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
     private static final String TAG = PhotoAdapter.class.getName();
     private final LayoutInflater mLayoutInflater;
     private Context mContext;
-
-    @Inject
-    private ClaimsService mClaimService;
 
     private PhotosUpdatedListener mListener;
 
@@ -63,7 +58,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
     }
 
     private List<MediaFile> getItems() {
-        return mClaimService.getClaim().getPhotoFiles();
+        return ClaimService.INST.getClaim().getPhotoFiles();
     }
 
     public void setListener(PhotosUpdatedListener listener) {
@@ -102,7 +97,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
             _deleteCross.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mClaimService.getClaim().removePhoto(mediaFile);
+                    ClaimService.INST.getClaim().removePhoto(mediaFile);
                     notifyDataSetChanged();
                     if (mListener != null) {
                         mListener.onPhotosUpdated();

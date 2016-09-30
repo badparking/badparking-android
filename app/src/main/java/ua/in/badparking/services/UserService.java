@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.google.inject.Inject;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -31,7 +30,8 @@ import ua.in.badparking.events.UserLoadedEvent;
 import ua.in.badparking.events.UserUpdatedEvent;
 import ua.in.badparking.model.User;
 
-public class UserService {
+public enum UserService {
+    INST;
 
     private static final String USER_DATA_PREFS = "userDataPrefs";
     private static final String USER_TOKEN_KEY = "userTokenKey";
@@ -44,15 +44,11 @@ public class UserService {
 
     private UserApi mUserApi;
     private Context context;
-    private ClaimsService mClaimsService;
-    private ApiGenerator mApiGenerator;
 
-    @Inject
-    protected UserService(Context appContext, ApiGenerator apiGenerator, ClaimsService claimsService) {
-        mApiGenerator = apiGenerator;
+    public void init(Context appContext) {
         context = appContext;
-        mClaimsService = claimsService;
         userDataPrefs = appContext.getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE);
+        mUserApi = ApiGenerator.INST.createApi(UserApi.class, Constants.API_BASE_URL, null);
     }
 
     public void fetchUser() {
@@ -140,8 +136,8 @@ public class UserService {
         mUserApi.authorizeWithFacebook(params, clientId, String.format("%064x", new BigInteger(1, secretHash)), String.valueOf(timestamp), new Callback<User>() {
             @Override
             public void success(User user, Response response) {
-
-                mClaimsService.setToken(user.getToken());
+                ClaimService.INST.recreateClaimsApi(user.getToken());
+                saveUserToken(user.getToken());
                 EventBus.getDefault().post(new AuthorizedWithFacebookEvent(user));
             }
 
@@ -156,12 +152,11 @@ public class UserService {
         return userDataPrefs.getString(USER_TOKEN_KEY, null);
     }
 
-    public void setUserToken(String token) {
+    public void saveUserToken(String token) {
         userDataPrefs.edit().putString(USER_TOKEN_KEY, token).commit();
     }
 
-    public void onSessionTokenFetched(String tokenHeader) {
-        mUserApi = mApiGenerator.createApi(UserApi.class, Constants.API_BASE_URL, tokenHeader);
+    public void onGwtTokenFetched(String tokenHeader) {
 
 //        Jwts.parser().setSigningKey(key).parseClaimsJws(jwtString).getBody().getExpiration();
     }

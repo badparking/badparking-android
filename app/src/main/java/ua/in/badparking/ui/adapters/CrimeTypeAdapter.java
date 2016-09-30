@@ -44,10 +44,10 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 //                    int getPosition = (Integer)buttonView.getTag();
-//                    mClaimService.getCrimeTypes().get(getPosition).setSelected(buttonView.isChecked());
+//                    ClaimService.INST.getCrimeTypes().get(getPosition).setSelected(buttonView.isChecked());
 //
-//                    Integer id = mClaimService.getCrimeTypes().get(getPosition).getId();
-//                    Set<Integer> crimeTypeIds = mClaimService.getClaim().getCrimetypes();
+//                    Integer id = ClaimService.INST.getCrimeTypes().get(getPosition).getId();
+//                    Set<Integer> crimeTypeIds = ClaimService.INST.getClaim().getCrimetypes();
 //                    if (buttonView.isChecked()) {
 //                        crimeTypeIds.add(id);
 //                    } else crimeTypeIds.remove(id);
@@ -66,8 +66,8 @@ public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
         }
 
 //        viewHolder.checkBox.setTag(position);
-//        viewHolder.todoName.setText(mClaimService.getCrimeTypes().get(position).getName());
-//        viewHolder.checkBox.setChecked(mClaimService.getCrimeTypes().get(position).isSelected());
+//        viewHolder.todoName.setText(ClaimService.INST.getCrimeTypes().get(position).getName());
+//        viewHolder.checkBox.setChecked(ClaimService.INST.getCrimeTypes().get(position).isSelected());
 
         return convertView;
     }
