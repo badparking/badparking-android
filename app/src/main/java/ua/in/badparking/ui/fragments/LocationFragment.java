@@ -92,7 +92,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         if (GeolocationState.INST.getUserMarker() == null && location != null && mMap != null) {
             Address address = GeolocationState.INST.getAddress(location.getLatitude(), location.getLongitude());
             setAddress(address);
-//            GeolocationState.INST.getUserMarker().remove();
+//            GeolocationState.INST.getUserMarker().remove(); TODO vdranik can you take a look, looks like there is NP here <---
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
         }
     }
