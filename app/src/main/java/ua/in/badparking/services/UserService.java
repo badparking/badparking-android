@@ -158,6 +158,6 @@ public enum UserService {
 
     public void onGwtTokenFetched(String tokenHeader) {
 
-//        Jwts.parser().setSigningKey(key).parseClaimsJws(jwtString).getBody().getExpiration();
+//        Jwts.parser().setSigningKey(key).parseClaimsJws(jwtString).getBody().getExpiration(); // isaturina
     }
 }
