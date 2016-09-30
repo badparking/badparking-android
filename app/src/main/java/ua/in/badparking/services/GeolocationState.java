@@ -1,5 +1,6 @@
 package ua.in.badparking.services;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -9,6 +10,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -27,7 +29,6 @@ import java.util.List;
 import java.util.Locale;
 
 import ua.in.badparking.events.LocationEvent;
-import ua.in.badparking.events.ShowHeaderEvent;
 
 public enum GeolocationState {
     INST;
@@ -38,12 +39,14 @@ public enum GeolocationState {
 
     private Context context;
     private LocationManager locationManager;
-    private Location location;
+    private Location mLocation;
     private Geocoder geocoder;
     private Marker userMarker;
+
     private LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
+            mLocation = location;
             EventBus.getDefault().post(new LocationEvent(location));
         }
 
@@ -60,12 +63,15 @@ public enum GeolocationState {
         }
     };
 
-
-    public void init(Context context) {
+    public void start(Context context) {
         this.context = context;
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        locationUpdatesSubscription();
+        locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+        subscribeToLocationUpdates();
         geocoder = new Geocoder(context, Locale.getDefault());
+    }
+
+    public void stop() {
+        unsubscribeFromLocationUpdates();
     }
 
     public Address getAddress(double latitude, double longitude) {
@@ -104,7 +110,7 @@ public enum GeolocationState {
                     .target(new LatLng(latitude, longitude))
                     .zoom(17)
                     .bearing(45)
-                     //.tilt(45)
+                    //.tilt(45)
                     .build();
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             userMarker = mMap.addMarker(new MarkerOptions()
@@ -112,22 +118,22 @@ public enum GeolocationState {
         }
     }
 
-    public LocationManager getLocationManager() {
-        return locationManager;
-    }
-
     public Location getLocation() {
-        return location;
+        return mLocation;
     }
 
-    public LocationListener getLocationListener() {
-        return locationListener;
+    public void unsubscribeFromLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        locationManager.removeUpdates(locationListener);
     }
 
-    public void locationUpdatesSubscription(){
-        if ( Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(context,
-                android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED) {
-            return  ;
+    public void subscribeToLocationUpdates() {
+        if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(context,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
         }
 
         locationManager.requestLocationUpdates(
@@ -136,9 +142,9 @@ public enum GeolocationState {
                 GeolocationState.ACCURANCY_IN_METERS,
                 locationListener);
 
-        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (location != null) {
-            locationListener.onLocationChanged(location);
+        mLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (mLocation != null) {
+            locationListener.onLocationChanged(mLocation);
         }
     }
 }

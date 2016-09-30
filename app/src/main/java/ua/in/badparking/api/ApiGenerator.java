@@ -1,11 +1,9 @@
 package ua.in.badparking.api;
 
-import android.content.Context;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+
+
 import com.squareup.okhttp.OkHttpClient;
 
 import java.util.concurrent.TimeUnit;
@@ -14,17 +12,19 @@ import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
-import ua.in.badparking.Constants;
-import ua.in.badparking.services.ClaimState;
 
-@Singleton
-public class ApiGenerator {
 
-    private final RestAdapter.Builder mBuilder;
-    private final RestAdapter.Builder mBuilderwithInterceptor;
+public enum ApiGenerator {
+    INST;
 
-    @Inject
-    public ApiGenerator(Context context) {
+    private <S> S buildApi(Class<S> apiClass, RestAdapter.Builder builder) {
+        RestAdapter adapter = builder.build();
+        adapter.setLogLevel(RestAdapter.LogLevel.FULL);
+        return adapter.create(apiClass);
+    }
+
+    public <S> S createApi(Class<S> apiClass, String baseUrl, final String token) {
+        RestAdapter.Builder builder;
         OkHttpClient client = new OkHttpClient();
 
         client.setConnectTimeout(30, TimeUnit.SECONDS);
@@ -33,37 +33,21 @@ public class ApiGenerator {
         RequestInterceptor requestInterceptor = new RequestInterceptor() {
             @Override
             public void intercept(RequestFacade request) {
-                request.addHeader("Authorization", "JWT " + ClaimState.INST.getToken());
+                request.addHeader("Authorization", "JWT " + token);
             }
         };
-
 
         GsonBuilder gsonBuilder = new GsonBuilder();
         Gson gson = gsonBuilder.create();
 
-        mBuilder = new RestAdapter.Builder()
+        builder = new RestAdapter.Builder()
                 .setConverter(new GsonConverter(gson))
-                .setEndpoint(Constants.API_BASE_URL)
+                .setEndpoint(baseUrl)
                 .setClient(new OkClient(client));
-
-        mBuilderwithInterceptor = new RestAdapter.Builder()
-                .setConverter(new GsonConverter(gson))
-                .setEndpoint(Constants.API_BASE_URL)
-                .setClient(new OkClient(client))
-                .setRequestInterceptor(requestInterceptor);
-    }
-
-    private <S> S buildApi(Class<S> apiClass, RestAdapter.Builder builder) {
-        RestAdapter adapter = builder.build();
-        adapter.setLogLevel(RestAdapter.LogLevel.FULL);
-        return adapter.create(apiClass);
-    }
-
-    public <S> S createApi(Class<S> apiClass, boolean requiresAuth) {
-        RestAdapter.Builder builder = mBuilder;
-        if (requiresAuth) {
-            builder = mBuilderwithInterceptor;
+        if (token != null) {
+            builder.setRequestInterceptor(requestInterceptor);
         }
+
         return buildApi(apiClass, builder);
     }
 

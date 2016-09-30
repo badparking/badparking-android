@@ -1,32 +1,30 @@
 package ua.in.badparking;
 
-import android.content.Context;
 import android.support.multidex.MultiDexApplication;
 
 import com.crashlytics.android.Crashlytics;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 
-import ua.in.badparking.services.GeolocationState;
-import ua.in.badparking.services.UserState;
+import ua.in.badparking.services.ClaimService;
+import ua.in.badparking.services.UserService;
 
 /**
  * Created by Dima Kovalenko on 5/5/16.
  */
 public class App extends MultiDexApplication {
 
-    private static Context context;
-
     @Override
     public void onCreate() {
         super.onCreate();
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this);
 //        if (!BuildConfig.DEBUG) {
         Crashlytics.start(this);
 //        }
-        GeolocationState.INST.init(this);
-        UserState.INST.init(this);
-        App.context = getApplicationContext();
+        UserService.INST.init(this);
+        ClaimService.INST.init(this);
+
     }
 
-    public static Context getAppContext() {
-        return App.context;
-    }
 }

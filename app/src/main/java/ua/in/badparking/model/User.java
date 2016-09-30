@@ -3,19 +3,25 @@ package ua.in.badparking.model;
 import com.google.gson.annotations.SerializedName;
 
 public class User {
+
     @SerializedName("first_name")
     private String firstName;
+
     @SerializedName("middle_name")
     private String middleName;
+
     @SerializedName("last_name")
     private String lastName;
+
     @SerializedName("full_name")
     private String fullName;
+
     private String email;
     private String dob;
     private String inn;
     private String phone;
     private String token;
+
     @SerializedName("is_complete")
     private String isComplete;
 

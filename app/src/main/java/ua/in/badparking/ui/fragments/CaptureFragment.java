@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -43,7 +44,7 @@ import butterknife.Unbinder;
 import ua.in.badparking.CameraWrapper;
 import ua.in.badparking.R;
 import ua.in.badparking.events.ShowHeaderEvent;
-import ua.in.badparking.services.ClaimState;
+import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.PhotoAdapter;
 
@@ -59,21 +60,30 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     @BindView(R.id.surface_container)
     protected FrameLayout surfaceContainer;
-    private SurfaceView surfaceView;
+
     @BindView(R.id.recyclerView)
     protected RecyclerView recyclerView;
-    private PhotoAdapter photoAdapter;
+
     @BindView(R.id.message)
     protected TextView messageView;
+
     @BindView(R.id.platesPreviewImage)
     protected ImageView platesPreviewImage;
+
     @BindView(R.id.platesEditText)
     protected EditText platesEditText;
+
     @BindView(R.id.snap)
     protected View snapButton;
+
     @BindView(R.id.next_button)
     protected View nextButton;
+
     private Unbinder unbinder;
+
+    private SurfaceView surfaceView;
+
+    private PhotoAdapter photoAdapter;
     private CameraWrapper cameraWrapper;
     private SensorManager sensorManager;
     private Sensor mySensor;
@@ -118,7 +128,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void onPhotosUpdated() {
-        int photosTaken = ClaimState.INST.getClaim().getPhotoFiles().size();
+        int photosTaken = ClaimService.INST.getClaim().getPhotoFiles().size();
         nextButton.setVisibility(photosTaken > 1 ? View.VISIBLE : View.GONE);
         snapButton.setVisibility(photosTaken > 1 ? View.GONE : View.VISIBLE);
         if (photosTaken == 0) {
@@ -135,9 +145,16 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             platesPreviewImage.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
 //            surfaceView.setVisibility(View.GONE);
-            setPic(platesPreviewImage, ClaimState.INST.getClaim().getPhotoFiles().get(1).getPath());
-            InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            setPic(platesPreviewImage, ClaimService.INST.getClaim().getPhotoFiles().get(1).getPath());
+            if (TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                    }
+                }, 300);
+            }
         }
     }
 
@@ -217,12 +234,14 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             case R.id.next_button:
                 InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                ClaimState.INST.getClaim().setLicensePlates(platesEditText.getText().toString());
+                ClaimService.INST.getClaim().setLicensePlates(platesEditText.getText().toString());
                 EventBus.getDefault().post(new ShowHeaderEvent(true));
+                platesEditText.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        ((MainActivity)getActivity()).moveToNext();
+                        ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CLAIM_TYPES);
                     }
                 }, 300);
 
@@ -231,8 +250,8 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onImageFileCreated(String photoPath) {
-        ClaimState.INST.getClaim().addPhoto(photoPath);
-        int numberOfPhotosTaken = ClaimState.INST.getClaim().getPhotoFiles().size();
+        ClaimService.INST.getClaim().addPhoto(photoPath);
+        int numberOfPhotosTaken = ClaimService.INST.getClaim().getPhotoFiles().size();
         snapButton.setVisibility(numberOfPhotosTaken > 2 ? View.GONE : View.VISIBLE);
         photoAdapter.notifyDataSetChanged();
         onPhotosUpdated();

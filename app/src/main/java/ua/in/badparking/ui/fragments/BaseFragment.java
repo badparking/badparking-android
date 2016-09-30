@@ -3,20 +3,20 @@ package ua.in.badparking.ui.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.Fragment;
 import android.view.inputmethod.InputMethodManager;
-
-import roboguice.fragment.RoboFragment;
 
 /**
  * Created by Dima Kovalenko on 7/4/16.
  */
-public class BaseFragment extends RoboFragment {
+public class BaseFragment extends Fragment {
+
     InputMethodManager inputManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        inputManager = (InputMethodManager) getContext()
+        inputManager = (InputMethodManager)getContext()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 

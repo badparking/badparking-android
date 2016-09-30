@@ -9,27 +9,23 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.badoualy.stepperindicator.StepperIndicator;
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -39,53 +35,120 @@ import java.security.NoSuchAlgorithmException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import roboguice.activity.RoboActionBarActivity;
-import roboguice.inject.ContentView;
 import ua.in.badparking.BuildConfig;
-import ua.in.badparking.CustomViewPager;
 import ua.in.badparking.R;
 import ua.in.badparking.events.ShowHeaderEvent;
-import ua.in.badparking.ui.dialogs.EnableGPSDialog;
+import ua.in.badparking.services.ClaimService;
+import ua.in.badparking.services.GeolocationState;
+import ua.in.badparking.ui.fragments.BaseFragment;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
 import ua.in.badparking.ui.fragments.ClaimTypeFragment;
 import ua.in.badparking.ui.fragments.LocationFragment;
 
 
-@ContentView(R.layout.activity_main)
-public class MainActivity extends RoboActionBarActivity {
+public class MainActivity extends AppCompatActivity {
+
+    public final static int PAGE_CAPTURE = 0;
+    public final static int PAGE_CLAIM_TYPES = 1;
+    public final static int PAGE_MAP = 2;
+    public final static int PAGE_CLAIM_OVERVIEW = 3;
 
     private static final boolean DEBUG = BuildConfig.DEBUG;
 
-    @BindView(R.id.pager)
-    protected CustomViewPager viewPager;
     @BindView(R.id.toolbar_top)
     protected Toolbar toolbarTop;
-    private SectionsPagerAdapter pagerAdapter;
+
+    @BindView(R.id.contentView)
+    protected FrameLayout contentView;
+
+    @BindView(R.id.stepper_indicator)
+    protected StepperIndicator stepperIndicator;
+
     private Dialog senderProgressDialog;
+
+//    private BroadcastReceiver connectionReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(this);
 
         setupToolbar();
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        pagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        // Set up the ViewPager with the sections adapter.
-        viewPager.setAdapter(pagerAdapter);
-        //block swipe
-        viewPager.setPagingEnabled(false);
-
-        StepperIndicator indicator = (StepperIndicator)findViewById(R.id.stepper_indicator);
-        assert indicator != null;
-        indicator.setViewPager(viewPager, true);
         if (DEBUG) {
             printDevHashKey();
         }
+        showPage(PAGE_CAPTURE);
+
+//        connectionReceiver = new BroadcastReceiver() { TODO uncomment
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                if (isConnected(context) & isLocationEnabled()) {
+//                    start();
+//                }
+//            }
+//        };
+//
+//        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+//        registerReceiver(connectionReceiver, intentFilter);
+
+        GeolocationState.INST.start(getApplicationContext());
+    }
+
+    public boolean isConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netinfo = cm.getActiveNetworkInfo();
+
+        if (netinfo != null && netinfo.isConnectedOrConnecting()) {
+            NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+            return (mobile != null && mobile.isConnectedOrConnecting()) || (wifi != null && wifi.isConnectedOrConnecting());
+        } else
+            return false;
+    }
+
+    public AlertDialog.Builder buildConnectionDialog(Context context) {
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+        dialog.setMessage(getResources().getString(R.string.network_not_enabled));
+
+        dialog.setPositiveButton(getResources().getString(R.string.open_location_settings),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                        Intent myIntent = new Intent(Settings.ACTION_SETTINGS);
+                        startActivity(myIntent);
+                        paramDialogInterface.dismiss();
+                    }
+                });
+        dialog.setCancelable(false);
+        return dialog;
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        unregisterReceiver(connectionReceiver);
+        GeolocationState.INST.stop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        EventBus.getDefault().register(this);
+        // checking internet connection
+        if (!isConnected(this)) {
+            buildConnectionDialog(this).show();
+            return;
+        } else {
+            ClaimService.INST.updateTypes();
+        }
+
+        checkLocationServices();
+
     }
 
     private void printDevHashKey() {
@@ -103,12 +166,6 @@ public class MainActivity extends RoboActionBarActivity {
         } catch (NoSuchAlgorithmException e) {
 
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -149,17 +206,6 @@ public class MainActivity extends RoboActionBarActivity {
         getSupportActionBar().setTitle("");
     }
 
-    private void showEnableGpsDialogIfNeeded() {
-        EnableGPSDialog introDialog = new EnableGPSDialog(this, android.R.style.Theme_Black_NoTitleBar,
-                new EnableGPSDialog.ActionListener() {
-                    @Override
-                    public void onAction() {
-
-                    }
-                });
-        introDialog.show();
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -176,23 +222,12 @@ public class MainActivity extends RoboActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_your_data) {
-//            Dialog senderInfoDialog = new SenderInfoDialog(this);
-//            senderInfoDialog.show();
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public boolean isOnline() {
-        try {
-            ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-            return cm.getActiveNetworkInfo().isConnectedOrConnecting();
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     public void handleResult(int code, String message) {
@@ -252,52 +287,21 @@ public class MainActivity extends RoboActionBarActivity {
         toolbarTop.setVisibility(event.isShow() ? View.VISIBLE : View.GONE);
     }
 
-    public void moveToNext() {
-        viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
-        if (viewPager.getCurrentItem() == pagerAdapter.getCount() - 1) {
-            viewPager.setPagingEnabled(true);
-        }
-    }
-
-    public void moveToFirst() {
-        viewPager.setCurrentItem(0);
-    }
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            if (position == 0) {
-                return CaptureFragment.newInstance();
-            } else if (position == 1) {
-                return ClaimTypeFragment.newInstance();
-            } else if (position == 2) {
-                return LocationFragment.newInstance();
-            } else return ClaimOverviewFragment.newInstance();
-        }
-
-        @Override
-        public int getCount() {
-            return 4;
-        }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        int currentItem = viewPager.getCurrentItem();
-        if (keyCode == KeyEvent.KEYCODE_BACK && currentItem > 0) {
-            viewPager.setCurrentItem(currentItem - 1, true);
-            return true;
+    public void showPage(int position) {
+        BaseFragment fragment;
+        if (position == 0) {
+            fragment = CaptureFragment.newInstance();
+        } else if (position == 1) {
+            fragment = ClaimTypeFragment.newInstance();
+        } else if (position == 2) {
+            fragment = LocationFragment.newInstance();
         } else {
-            return super.onKeyDown(keyCode, event);
+            fragment = ClaimOverviewFragment.newInstance();
         }
+        android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.contentView, fragment);
+        transaction.addToBackStack("page_" + position);
+        transaction.commit();
+        stepperIndicator.onPageSelected(position);
     }
 }

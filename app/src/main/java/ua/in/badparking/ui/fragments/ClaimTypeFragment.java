@@ -13,7 +13,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import ua.in.badparking.R;
-import ua.in.badparking.services.ClaimState;
+import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
 
@@ -25,8 +25,10 @@ public class ClaimTypeFragment extends BaseFragment {
 
     @BindView(R.id.reportTypeList)
     ListView listView;
+
     @BindView(R.id.next_button)
     Button nextButton;
+
     private Unbinder unbinder;
 
     @Override
@@ -42,19 +44,19 @@ public class ClaimTypeFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        CrimeTypeAdapter crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), ClaimState.INST.getCrimeTypes(), nextButton);
+        CrimeTypeAdapter crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), ClaimService.INST.getCrimeTypes(), nextButton);
         listView.setAdapter(crimeTypeAdapter);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity) getActivity()).moveToNext();
+                ((MainActivity)getActivity()).showPage(MainActivity.PAGE_MAP);
             }
         });
-        nextButton.setVisibility(View.GONE);
+//        nextButton.setVisibility(View.GONE);
     }
 
-    public static Fragment newInstance() {
+    public static BaseFragment newInstance() {
         return new ClaimTypeFragment();
     }
 

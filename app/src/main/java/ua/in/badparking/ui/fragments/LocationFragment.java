@@ -2,11 +2,8 @@ package ua.in.badparking.ui.fragments;
 
 import android.location.Address;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -33,7 +30,7 @@ import butterknife.ButterKnife;
 import pl.tajchert.sample.DotsTextView;
 import ua.in.badparking.R;
 import ua.in.badparking.events.LocationEvent;
-import ua.in.badparking.services.ClaimState;
+import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.services.GeolocationState;
 import ua.in.badparking.ui.activities.MainActivity;
 
@@ -47,15 +44,18 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     @BindView(R.id.dots)
     DotsTextView dotsTextView;
+
     @BindView(R.id.positioning_text_view)
     TextView positioningText;
+
     @BindView(R.id.next_button)
     Button nextButton;
+
     private GoogleMap mMap;
+
     private static boolean showHint = false;
 
-
-    public static Fragment newInstance() {
+    public static BaseFragment newInstance() {
         return new LocationFragment();
     }
 
@@ -79,20 +79,20 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity)getActivity()).moveToNext();
+                ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CLAIM_OVERVIEW);
             }
         });
         nextButton.setVisibility(View.GONE);
     }
 
     @Subscribe
-    public void onEvent(LocationEvent locationEvent){
+    public void onEvent(LocationEvent locationEvent) {
         Location location = locationEvent.getLocation();
 
         if (GeolocationState.INST.getUserMarker() == null && location != null && mMap != null) {
             Address address = GeolocationState.INST.getAddress(location.getLatitude(), location.getLongitude());
             setAddress(address);
-            GeolocationState.INST.getUserMarker().remove();
+//            GeolocationState.INST.getUserMarker().remove(); TODO vdranik can you take a look, looks like there is NP here <---
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
         }
     }
@@ -101,20 +101,12 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     public void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
-        if(!GeolocationState.INST.getLocationManager().isProviderEnabled(LocationManager.GPS_PROVIDER)){
-            GeolocationState.INST.locationUpdatesSubscription();
-        }
     }
 
     @Override
     public void onPause() {
         EventBus.getDefault().unregister(this);
         super.onPause();
-        try {
-            GeolocationState.INST.getLocationManager().removeUpdates(GeolocationState.INST.getLocationListener());
-        } catch (SecurityException se) {
-            Log.i(TAG, se.getMessage());
-        }
     }
 
     @Override
@@ -145,6 +137,10 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             mMap.getUiSettings().setCompassEnabled(false);
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
         }
+
+        if (GeolocationState.INST.getLocation() != null) {
+            onEvent(new LocationEvent(GeolocationState.INST.getLocation()));
+        }
     }
 
     @Override
@@ -168,24 +164,24 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     private void setAddress(Address address) {
         if (address == null) {
-            ClaimState.INST.getClaim().setCity(null);
-            ClaimState.INST.getClaim().setAddress(null);
+            ClaimService.INST.getClaim().setCity(null);
+            ClaimService.INST.getClaim().setAddress(null);
 
             dotsTextView.showAndPlay();
             positioningText.setText(getResources().getText(R.string.positioning_in_progress));
             nextButton.setVisibility(View.GONE);
 
         } else {
-            ClaimState.INST.getClaim().setCity(address.getLocality());
-            ClaimState.INST.getClaim().setAddress(address.getAddressLine(0));
+            ClaimService.INST.getClaim().setCity(address.getLocality());
+            ClaimService.INST.getClaim().setAddress(address.getAddressLine(0));
 
             dotsTextView.hideAndStop();
-            positioningText.setText(ClaimState.INST.getFullAddress());
+            positioningText.setText(ClaimService.INST.getFullAddress());
             nextButton.setVisibility(View.VISIBLE);
 
             DecimalFormat df = new DecimalFormat("#.######");
-            ClaimState.INST.getClaim().setLatitude(df.format(address.getLatitude()).replace(",", "."));
-            ClaimState.INST.getClaim().setLongitude(df.format(address.getLongitude()).replace(",", "."));
+            ClaimService.INST.getClaim().setLatitude(df.format(address.getLatitude()).replace(",", "."));
+            ClaimService.INST.getClaim().setLongitude(df.format(address.getLongitude()).replace(",", "."));
             GeolocationState.INST.mapPositioning(mMap, address.getLatitude(), address.getLongitude());
         }
     }
