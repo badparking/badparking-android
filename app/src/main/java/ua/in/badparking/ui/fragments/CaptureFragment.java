@@ -153,7 +153,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                         InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                     }
-                }, 300);
+                }, 800);
             }
         }
     }

@@ -1,8 +1,8 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:dots="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/mapLayout">
+<RelativeLayout android:id="@+id/mapLayout"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:dots="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
 
     <RelativeLayout
@@ -16,26 +16,26 @@
             android:id="@+id/positioning_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
+            android:layout_weight="1"
             android:text="@string/positioning_in_progress"
             android:textColor="@android:color/white"
-            android:textSize="17sp"
-            android:layout_weight="1"
-            android:layout_centerHorizontal="true" />
+            android:textSize="17sp"/>
 
         <pl.tajchert.sample.DotsTextView
+            android:id="@+id/dots"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/dots"
-            android:textSize="17sp"
-            android:textColor="@android:color/white"
-            dots:autoplay="true"
-            dots:period="1000"
-            android:layout_weight="1"
-            android:layout_toRightOf="@+id/positioning_text_view"
-            android:layout_alignEnd="@+id/next_button"
             android:layout_alignBottom="@+id/positioning_text_view"
-            android:layout_marginLeft="2dp" />
+            android:layout_alignEnd="@+id/next_button"
+            android:layout_marginLeft="2dp"
+            android:layout_toRightOf="@+id/positioning_text_view"
+            android:layout_weight="1"
+            android:textColor="@android:color/white"
+            android:textSize="17sp"
+            dots:autoplay="true"
+            dots:period="1000"/>
 
         <Button
             android:id="@+id/next_button"
@@ -54,17 +54,10 @@
             />
     </RelativeLayout>
 
-    <fragment
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:map="http://schemas.android.com/apk/res-auto"
-        class="com.google.android.gms.maps.SupportMapFragment"
-        android:id="@+id/mapFragment"
+    <FrameLayout
+        android:id="@+id/framelayout_location_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/bottomPanel"
-        android:layout_alignParentTop="true"
-        map:cameraTargetLat="48.655036"
-        map:cameraTargetLng="30.9668446"
-        map:cameraZoom="6"/>
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottomPanel"/>
 
 </RelativeLayout>

@@ -14,11 +14,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -52,8 +55,11 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     Button nextButton;
 
     private GoogleMap mMap;
+    private Marker userMarker;
+
 
     private static boolean showHint = false;
+    private SupportMapFragment mMapFragment;
 
     public static BaseFragment newInstance() {
         return new LocationFragment();
@@ -61,6 +67,8 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mMapFragment = SupportMapFragment.newInstance();
+        getChildFragmentManager().beginTransaction().add(R.id.framelayout_location_container, mMapFragment).commit();
         return inflater.inflate(R.layout.fragment_location, container, false);
     }
 
@@ -70,11 +78,10 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         ButterKnife.bind(this, view);
         view.postDelayed(new Runnable() {
             @Override
-            public void run() { // TODO:
-                SupportMapFragment fragment = (SupportMapFragment)getChildFragmentManager().findFragmentById(R.id.mapFragment);
-                fragment.getMapAsync(LocationFragment.this);
+            public void run() {
+                mMapFragment.getMapAsync(LocationFragment.this);
             }
-        }, 300);
+        }, 700);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,7 +96,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     public void onEvent(LocationEvent locationEvent) {
         Location location = locationEvent.getLocation();
 
-        if (GeolocationState.INST.getUserMarker() == null && location != null && mMap != null) {
+        if (userMarker == null && location != null && mMap != null) {
             Address address = GeolocationState.INST.getAddress(location.getLatitude(), location.getLongitude());
             setAddress(address);
 //            GeolocationState.INST.getUserMarker().remove(); TODO vdranik can you take a look, looks like there is NP here <---
@@ -101,6 +108,9 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     public void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
+//        if (GeolocationState.INST.getLocation() != null) {
+//            onEvent(new LocationEvent(GeolocationState.INST.getLocation()));
+//        }
     }
 
     @Override
@@ -143,6 +153,27 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         }
     }
 
+    public void mapPositioning(GoogleMap mMap, double latitude, double longitude) {
+        if (userMarker != null) {
+            userMarker.remove();
+        }
+
+        LatLng coordinates = new LatLng(latitude, longitude);
+        if (mMap != null) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 17));
+
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(latitude, longitude))
+                    .zoom(17)
+                    .bearing(45)
+                    //.tilt(45)
+                    .build();
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            userMarker = mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(latitude, longitude)));
+        }
+    }
+
     @Override
     public boolean onMyLocationButtonClick() {
         return false;
@@ -182,14 +213,14 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             DecimalFormat df = new DecimalFormat("#.######");
             ClaimService.INST.getClaim().setLatitude(df.format(address.getLatitude()).replace(",", "."));
             ClaimService.INST.getClaim().setLongitude(df.format(address.getLongitude()).replace(",", "."));
-            GeolocationState.INST.mapPositioning(mMap, address.getLatitude(), address.getLongitude());
+            mapPositioning(mMap, address.getLatitude(), address.getLongitude());
         }
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        GeolocationState.INST.getUserMarker().remove();
-        GeolocationState.INST.setUserMarker(null);
+        userMarker.remove();
+        userMarker = null;
         setAddress(null);
         return false;
     }

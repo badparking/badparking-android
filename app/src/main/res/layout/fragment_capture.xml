@@ -79,7 +79,7 @@
             android:background="@android:color/white"
             android:gravity="center"
             android:hint="Номери авто"
-            android:inputType="textCapCharacters|textFilter"
+            android:inputType="textCapCharacters|textNoSuggestions"
             android:visibility="gone"/>
 
         <android.support.v7.widget.RecyclerView

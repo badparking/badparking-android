@@ -301,6 +301,7 @@ public class MainActivity extends AppCompatActivity {
         android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.contentView, fragment);
         transaction.addToBackStack("page_" + position);
+        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_left, R.anim.exit_to_right);
         transaction.commit();
         stepperIndicator.onPageSelected(position);
     }
