@@ -15,13 +15,6 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
@@ -39,14 +32,13 @@ public enum GeolocationState {
 
     private Context context;
     private LocationManager locationManager;
-    private Location mLocation;
+    private Location lastLocation;
     private Geocoder geocoder;
-    private Marker userMarker;
 
     private LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            mLocation = location;
+            lastLocation = location;
             EventBus.getDefault().post(new LocationEvent(location));
         }
 
@@ -89,37 +81,9 @@ public enum GeolocationState {
         return null;
     }
 
-    public Marker getUserMarker() {
-        return userMarker;
-    }
-
-    public void setUserMarker(Marker userMarker) {
-        this.userMarker = userMarker;
-    }
-
-    public void mapPositioning(GoogleMap mMap, double latitude, double longitude) {
-        if (userMarker != null) {
-            userMarker.remove();
-        }
-
-        LatLng coordinates = new LatLng(latitude, longitude);
-        if (mMap != null) {
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 17));
-
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(new LatLng(latitude, longitude))
-                    .zoom(17)
-                    .bearing(45)
-                    //.tilt(45)
-                    .build();
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-            userMarker = mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(latitude, longitude)));
-        }
-    }
 
     public Location getLocation() {
-        return mLocation;
+        return lastLocation;
     }
 
     public void unsubscribeFromLocationUpdates() {
@@ -142,9 +106,9 @@ public enum GeolocationState {
                 GeolocationState.ACCURANCY_IN_METERS,
                 locationListener);
 
-        mLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (mLocation != null) {
-            locationListener.onLocationChanged(mLocation);
+        lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (lastLocation != null) {
+            locationListener.onLocationChanged(lastLocation);
         }
     }
 }
