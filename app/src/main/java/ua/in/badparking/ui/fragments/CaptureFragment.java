@@ -140,7 +140,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             recyclerView.setVisibility(View.VISIBLE);
         } else {
             EventBus.getDefault().post(new ShowHeaderEvent(false));
-            messageView.setVisibility(View.GONE);
+            messageView.setText("Введiть номернi знаки...");
             platesEditText.setVisibility(View.VISIBLE);
             platesPreviewImage.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
