@@ -172,7 +172,8 @@ public enum ClaimService {
     }
 
     public void recreateClaimsApi(String tokenHeader) {
-        mClaimsApi = mApiGenerator.createApi(ClaimsApi.class, Constants.API_BASE_URL, tokenHeader);
+        //todo для после того как обновили токен или проверили + пересоздавать userApi
+        mClaimsApi = ApiGenerator.INST.createApi(ClaimsApi.class, Constants.API_BASE_URL, tokenHeader);
     }
 
     public Claim getClaim() {

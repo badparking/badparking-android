@@ -81,7 +81,7 @@ public enum UserService {
     public User getUser() {
         return mUser;
     }
-
+//todo if user complete - do not check again
     public void putUserComplete(String email, String phone) {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("email", email);
@@ -109,7 +109,7 @@ public enum UserService {
 
             @Override
             public void failure(RetrofitError error) {
-
+//fb logout - delete token - log in
             }
         });
     }
@@ -159,5 +159,6 @@ public enum UserService {
     public void onGwtTokenFetched(String tokenHeader) {
 
 //        Jwts.parser().setSigningKey(key).parseClaimsJws(jwtString).getBody().getExpiration();
+        //if expeired - exception or date
     }
 }
