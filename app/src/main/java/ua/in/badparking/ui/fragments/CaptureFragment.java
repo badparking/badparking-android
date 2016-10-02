@@ -145,7 +145,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             platesPreviewImage.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
 //            surfaceView.setVisibility(View.GONE);
-            setPic(platesPreviewImage, ClaimService.INST.getClaim().getPhotoFiles().get(1).getPath());
+            setPic(platesPreviewImage, ClaimService.INST.getClaim().getPhotoFiles().get(0).getPath());
             if (TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())) {
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -243,7 +243,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                     public void run() {
                         ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CLAIM_TYPES);
                     }
-                }, 800);
+                }, 1000);
 
                 break;
         }

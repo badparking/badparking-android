@@ -38,7 +38,6 @@ import butterknife.ButterKnife;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
 import ua.in.badparking.events.ShowHeaderEvent;
-import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.services.GeolocationState;
 import ua.in.badparking.ui.fragments.BaseFragment;
 import ua.in.badparking.ui.fragments.CaptureFragment;
@@ -293,9 +292,9 @@ public class MainActivity extends AppCompatActivity {
     @Subscribe
     public void onShowHeaderEvent(final ShowHeaderEvent event) {
         int shift = event.isShow() ? 150 : -150;
-        toolbarTop.animate().yBy(shift).setDuration(500).start();
-        contentView.animate().yBy(shift).setDuration(500).start();
-//        toolbarTop.setVisibility(event.isShow() ? View.VISIBLE : View.GONE);
+//        toolbarTop.animate().yBy(shift).setDuration(500).start();
+//        contentView.animate().yBy(shift).setDuration(500).start();
+        toolbarTop.setVisibility(event.isShow() ? View.VISIBLE : View.GONE);
     }
 
     public void showPage(int position) {

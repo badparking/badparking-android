@@ -44,6 +44,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         GoogleMap.OnMarkerClickListener {
 
     private static final String TAG = LocationFragment.class.getName();
+    private static final int ZOOM = 17;
 
     @BindView(R.id.dots)
     DotsTextView dotsTextView;
@@ -98,10 +99,10 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     public void onEvent(LocationEvent locationEvent) {
         Location location = locationEvent.getLocation();
 
-        if (userMarker == null && location != null && mMap != null) {
-            Address address = GeolocationState.INST.getAddress(location.getLatitude(), location.getLongitude());
-            setAddress(address);
-//            GeolocationState.INST.getUserMarker().remove(); TODO vdranik can you take a look, looks like there is NP here <---
+        if (location != null && mMap != null) {
+            mapPositioning(mMap, location.getLatitude(), location.getLongitude());
+//            Address address = GeolocationState.INST.getAddress(location.getLatitude(), location.getLongitude());
+//            setAddress(address);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
         }
     }
@@ -110,9 +111,9 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     public void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
-//        if (GeolocationState.INST.getLocation() != null) {
-//            onEvent(new LocationEvent(GeolocationState.INST.getLocation()));
-//        }
+        if (GeolocationState.INST.getLocation() != null && mMap != null) {
+            onEvent(new LocationEvent(GeolocationState.INST.getLocation()));
+        }
         showTimePositioningHint();
     }
 
@@ -167,7 +168,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(new LatLng(latitude, longitude))
-                    .zoom(17)
+                    .zoom(ZOOM)
                     .bearing(45)
                     //.tilt(45)
                     .build();
@@ -197,13 +198,14 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     }
 
     private void setAddress(Address address) {
+
         if (address == null) {
             ClaimService.INST.getClaim().setCity(null);
             ClaimService.INST.getClaim().setAddress(null);
 
             dotsTextView.showAndPlay();
             positioningText.setText(getResources().getText(R.string.positioning_in_progress));
-            nextButton.setVisibility(View.GONE);
+//            nextButton.setVisibility(View.GONE);
 
         } else {
             ClaimService.INST.getClaim().setCity(address.getLocality());
@@ -216,7 +218,6 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             DecimalFormat df = new DecimalFormat("#.######");
             ClaimService.INST.getClaim().setLatitude(df.format(address.getLatitude()).replace(",", "."));
             ClaimService.INST.getClaim().setLongitude(df.format(address.getLongitude()).replace(",", "."));
-            mapPositioning(mMap, address.getLatitude(), address.getLongitude());
         }
     }
 
