@@ -311,11 +311,11 @@ public class MainActivity extends AppCompatActivity {
             fragment = ClaimOverviewFragment.newInstance();
         }
         android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_left, R.anim.exit_to_right);
         transaction.replace(R.id.contentView, fragment);
         if (position != 0) {
             transaction.addToBackStack("page_" + position);
         }
-        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_left, R.anim.exit_to_right);
         transaction.commit();
         stepperIndicator.onPageSelected(position);
     }
