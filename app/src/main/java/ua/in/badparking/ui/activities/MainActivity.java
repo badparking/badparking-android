@@ -38,6 +38,7 @@ import butterknife.ButterKnife;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
 import ua.in.badparking.events.ShowHeaderEvent;
+import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.services.GeolocationState;
 import ua.in.badparking.ui.fragments.BaseFragment;
 import ua.in.badparking.ui.fragments.CaptureFragment;
