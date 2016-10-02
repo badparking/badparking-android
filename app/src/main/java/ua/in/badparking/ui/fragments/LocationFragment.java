@@ -91,7 +91,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                 ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CLAIM_OVERVIEW);
             }
         });
-        nextButton.setVisibility(View.GONE);
+//        nextButton.setVisibility(View.GONE);
     }
 
     @Subscribe
@@ -113,6 +113,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 //        if (GeolocationState.INST.getLocation() != null) {
 //            onEvent(new LocationEvent(GeolocationState.INST.getLocation()));
 //        }
+        showTimePositioningHint();
     }
 
     @Override
@@ -225,13 +226,5 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         userMarker = null;
         setAddress(null);
         return false;
-    }
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser && isResumed()) {
-            showTimePositioningHint();
-        }
     }
 }

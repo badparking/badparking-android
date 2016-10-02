@@ -243,7 +243,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                     public void run() {
                         ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CLAIM_TYPES);
                     }
-                }, 300);
+                }, 800);
 
                 break;
         }
