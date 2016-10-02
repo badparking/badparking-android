@@ -24,7 +24,6 @@ import ua.in.badparking.Utils;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.UserApi;
 import ua.in.badparking.api.responses.TokenResponse;
-import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.TokenRefreshedEvent;
 import ua.in.badparking.events.UserLoadedEvent;
 import ua.in.badparking.events.UserUpdatedEvent;
@@ -40,7 +39,7 @@ public enum UserService {
     private SharedPreferences userDataPrefs;
     private Gson gson = new Gson();
 
-    private User mUser = null;
+    private User mUser;
 
     private UserApi mUserApi;
     private Context context;
@@ -48,7 +47,7 @@ public enum UserService {
     public void init(Context appContext) {
         context = appContext;
         userDataPrefs = appContext.getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE);
-        mUserApi = ApiGenerator.INST.createApi(UserApi.class, Constants.API_BASE_URL, null);
+        recreateUserApi(null);
     }
 
     public void fetchUser() {
@@ -81,23 +80,25 @@ public enum UserService {
     public User getUser() {
         return mUser;
     }
-//todo if user complete - do not check again
+
     public void putUserComplete(String email, String phone) {
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put("email", email);
-        params.put("phone", phone);
+        if (!mUser.isComplete().equals("true")) {
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put("email", email);
+            params.put("phone", phone);
 
-        mUserApi.putUserComplete(params, new Callback<User>() {
-            @Override
-            public void success(User user, Response response) {
-                EventBus.getDefault().post(new UserUpdatedEvent(user));
-            }
+            mUserApi.putUserComplete(params, new Callback<User>() {
+                @Override
+                public void success(User user, Response response) {
+                    EventBus.getDefault().post(new UserUpdatedEvent(user));
+                }
 
-            @Override
-            public void failure(RetrofitError error) {
+                @Override
+                public void failure(RetrofitError error) {
 
-            }
-        });
+                }
+            });
+        }
     }
 
     public void refreshToken(String tokenRequest) {
@@ -109,7 +110,7 @@ public enum UserService {
 
             @Override
             public void failure(RetrofitError error) {
-//fb logout - delete token - log in
+                //todo fb logout - delete token - log in
             }
         });
     }
@@ -137,8 +138,9 @@ public enum UserService {
             @Override
             public void success(User user, Response response) {
                 ClaimService.INST.recreateClaimsApi(user.getToken());
+                recreateUserApi(user.getToken());
                 saveUserToken(user.getToken());
-                EventBus.getDefault().post(new AuthorizedWithFacebookEvent(user));
+                UserService.INST.saveUser(user);
             }
 
             @Override
@@ -148,6 +150,15 @@ public enum UserService {
         });
     }
 
+    private void saveUser(User user) {
+        mUser = user;
+    }
+
+    public void recreateUserApi(String tokenHeader) {
+        mUserApi = ApiGenerator.INST.createApi(UserApi.class, Constants.API_BASE_URL, tokenHeader);
+    }
+
+
     public String getUserToken() {
         return userDataPrefs.getString(USER_TOKEN_KEY, null);
     }
@@ -156,9 +167,8 @@ public enum UserService {
         userDataPrefs.edit().putString(USER_TOKEN_KEY, token).commit();
     }
 
-    public void onGwtTokenFetched(String tokenHeader) {
-
-//        Jwts.parser().setSigningKey(key).parseClaimsJws(jwtString).getBody().getExpiration();
-        //if expeired - exception or date
+    public void onJwtTokenFetched(String tokenHeader) {
+       // Jwts.parser().setSigningKey(key).parseClaimsJws(jwtString).getBody().getExpiration();
+        //if expired - exception or date
     }
 }
