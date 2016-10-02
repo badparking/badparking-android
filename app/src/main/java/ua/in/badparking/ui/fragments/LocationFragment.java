@@ -101,8 +101,8 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
         if (location != null && mMap != null) {
             mapPositioning(mMap, location.getLatitude(), location.getLongitude());
-//            Address address = GeolocationState.INST.getAddress(location.getLatitude(), location.getLongitude());
-//            setAddress(address);
+            Address address = GeolocationState.INST.getAddress(location.getLatitude(), location.getLongitude());
+            setAddress(address);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
         }
     }
