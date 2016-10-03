@@ -182,11 +182,11 @@ public enum ClaimService {
     public List<CrimeType> getSelectedCrimeTypes() {
         List<CrimeType> selectedCrimeTypeList = new ArrayList<>();
 
-//        for (CrimeType ct : crimeTypes) {
-//            if (ct.isSelected()) {
-//                selectedCrimeTypeList.add(ct);
-//            }
-//        }
+        for(int id: claim.getCrimetypes()){
+            for(CrimeType ct: _crimeTypes){
+                if(ct.getId() == id) selectedCrimeTypeList.add(ct);
+            }
+        }
 
         return selectedCrimeTypeList;
     }
