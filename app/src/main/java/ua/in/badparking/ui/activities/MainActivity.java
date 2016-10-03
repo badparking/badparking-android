@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     protected StepperIndicator stepperIndicator;
 
     private Dialog senderProgressDialog;
+    private int mPosition;
 
 //    private BroadcastReceiver connectionReceiver;
 
@@ -273,6 +274,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        mPosition--;
+        if (mPosition >= 0) {
+            stepperIndicator.onPageSelected(mPosition);
+        }
+    }
+
     private void showSenderDialogWithMessage() {
         senderProgressDialog = new Dialog(this);
         senderProgressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -282,12 +292,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Subscribe
     public void onShowHeaderEvent(final ShowHeaderEvent event) {
-//        toolbarTop.animate().yBy(-150).setDuration(600).start();
-//        viewPager.animate().yBy(-150).setDuration(600).start();
+        int shift = event.isShow() ? 150 : -150;
+//        toolbarTop.animate().yBy(shift).setDuration(500).start();
+//        contentView.animate().yBy(shift).setDuration(500).start();
         toolbarTop.setVisibility(event.isShow() ? View.VISIBLE : View.GONE);
     }
 
     public void showPage(int position) {
+        mPosition = position;
         BaseFragment fragment;
         if (position == 0) {
             fragment = CaptureFragment.newInstance();
@@ -299,9 +311,11 @@ public class MainActivity extends AppCompatActivity {
             fragment = ClaimOverviewFragment.newInstance();
         }
         android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.contentView, fragment);
-        transaction.addToBackStack("page_" + position);
         transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_left, R.anim.exit_to_right);
+        transaction.replace(R.id.contentView, fragment);
+        if (position != 0) {
+            transaction.addToBackStack("page_" + position);
+        }
         transaction.commit();
         stepperIndicator.onPageSelected(position);
     }

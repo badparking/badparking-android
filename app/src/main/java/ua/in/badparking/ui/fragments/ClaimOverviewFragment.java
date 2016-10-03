@@ -148,16 +148,6 @@ public class ClaimOverviewFragment extends BaseFragment {
     }
 
     @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser && isResumed()) {
-            carPlateNumberTextView.setText(ClaimService.INST.getClaim().getLicensePlates());
-            crimeTypeTextView.setText(ClaimService.INST.getSelectedCrimeTypesNames());
-            addressTextView.setText(ClaimService.INST.getFullAddress());
-        }
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         if (isLoggedIn()) {
@@ -167,6 +157,9 @@ public class ClaimOverviewFragment extends BaseFragment {
             loginButton.setVisibility(View.VISIBLE);
             mSendButton.setVisibility(View.GONE);
         }
+        carPlateNumberTextView.setText(ClaimService.INST.getClaim().getLicensePlates());
+        crimeTypeTextView.setText(ClaimService.INST.getSelectedCrimeTypesNames());
+        addressTextView.setText(ClaimService.INST.getFullAddress());
     }
 
     private void send() {
