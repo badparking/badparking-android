@@ -13,8 +13,11 @@ import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.HashMap;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -54,9 +57,6 @@ public enum UserService {
         mUserApi.getUser(new Callback<User>() {
             @Override
             public void success(User user, Response response) {
-                mUser = user;
-                String userJson = gson.toJson(user);
-                userDataPrefs.edit().putString(USER_KEY, userJson).commit();
                 EventBus.getDefault().post(new UserLoadedEvent(user));
             }
 
@@ -74,10 +74,16 @@ public enum UserService {
             }.getType();
 
             mUser = gson.fromJson(userJson, fooType);
+            ClaimService.INST.recreateClaimsApi(mUser.getToken());
+            recreateUserApi(mUser.getToken());
+
         }
     }
 
     public User getUser() {
+        if(mUser == null) {
+            restoreUser();
+        }
         return mUser;
     }
 
@@ -152,6 +158,8 @@ public enum UserService {
 
     private void saveUser(User user) {
         mUser = user;
+        String userJson = gson.toJson(user);
+        userDataPrefs.edit().putString(USER_KEY, userJson).commit();
     }
 
     public void recreateUserApi(String tokenHeader) {
@@ -168,7 +176,15 @@ public enum UserService {
     }
 
     public void onJwtTokenFetched(String tokenHeader) {
-       // Jwts.parser().setSigningKey(key).parseClaimsJws(jwtString).getBody().getExpiration();
-        //if expired - exception or date
+        String  key = Utils.getConfigValue(context, "jwtKey");
+        try {
+             Jwts.parser()
+                    .setSigningKey(key.getBytes("UTF-8"))
+                    .parseClaimsJws(tokenHeader).getBody().getExpiration();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (ExpiredJwtException e) {
+            refreshToken(tokenHeader);
+        }
     }
 }
