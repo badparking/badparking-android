@@ -38,6 +38,7 @@ import ua.in.badparking.R;
 import ua.in.badparking.events.ClaimPostedEvent;
 import ua.in.badparking.events.ImageUploadedEvent;
 import ua.in.badparking.model.Claim;
+import ua.in.badparking.model.CrimeType;
 import ua.in.badparking.model.MediaFile;
 import ua.in.badparking.model.User;
 import ua.in.badparking.services.ClaimService;
@@ -279,5 +280,10 @@ public class ClaimOverviewFragment extends BaseFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Subscribe
+    public void onEvent(List<CrimeType> crimeTypeList) {
+
     }
 }

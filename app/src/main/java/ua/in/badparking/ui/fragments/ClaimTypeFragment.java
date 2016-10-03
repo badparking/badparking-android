@@ -2,16 +2,22 @@ package ua.in.badparking.ui.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import ua.in.badparking.R;
+import ua.in.badparking.model.CrimeType;
 import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.CrimeTypeAdapter;
@@ -46,6 +52,23 @@ public class ClaimTypeFragment extends BaseFragment {
         if (ClaimService.INST.getCrimeTypes() != null) {
             CrimeTypeAdapter crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), ClaimService.INST.getCrimeTypes(), nextButton);
             listView.setAdapter(crimeTypeAdapter);
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    SparseBooleanArray checkedItems = listView.getCheckedItemPositions();
+                    if (checkedItems != null) {
+                        Set<Integer> checkedCrimeTypesId = new HashSet<>();
+                        for (int i=0; i<checkedItems.size(); i++) {
+                            CrimeType ct = ClaimService.INST.getCrimeTypes().get(checkedItems.keyAt(i));
+                            checkedCrimeTypesId.add(ct.getId());
+                        }
+
+                        ClaimService.INST.getClaim().getCrimetypes().clear();
+                        ClaimService.INST.getClaim().getCrimetypes().addAll(checkedCrimeTypesId);
+                    }
+                }
+            });
         }
 
         nextButton.setOnClickListener(new View.OnClickListener() {
