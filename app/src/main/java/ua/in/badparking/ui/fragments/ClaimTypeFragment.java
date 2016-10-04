@@ -54,8 +54,8 @@ public class ClaimTypeFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        if (ClaimService.INST.getCrimeTypes() != null) {
-            CrimeTypeAdapter crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), ClaimService.INST.getCrimeTypes(), nextButton);
+        if (ClaimService.INST.getAvailableCrimeTypes() != null) {
+            CrimeTypeAdapter crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), ClaimService.INST.getAvailableCrimeTypes(), nextButton);
             listView.setAdapter(crimeTypeAdapter);
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -66,7 +66,7 @@ public class ClaimTypeFragment extends BaseFragment {
                     if (checkedItems != null) {
                         Set<Integer> checkedCrimeTypesId = new HashSet<>();
                         for (int i=0; i<checkedItems.size(); i++) {
-                            CrimeType ct = ClaimService.INST.getCrimeTypes().get(checkedItems.keyAt(i));
+                            CrimeType ct = ClaimService.INST.getAvailableCrimeTypes().get(checkedItems.keyAt(i));
                             checkedCrimeTypesId.add(ct.getId());
                             checkedCrimeTypesList.add(ct);
                         }

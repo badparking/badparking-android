@@ -35,7 +35,7 @@ public enum ClaimService {
     private TypesApi mTypesApi;
 
     private Context context;
-    private List<CrimeType> _crimeTypes;
+    private List<CrimeType> availableCrimeTypes;
 
     private String mLicensePlates;
     private Claim claim = new Claim();
@@ -54,7 +54,7 @@ public enum ClaimService {
 
             @Override
             public void success(List<CrimeType> crimeTypes, Response response) {
-                _crimeTypes = crimeTypes;
+                availableCrimeTypes = crimeTypes;
                 // TODO save to prefs
                 EventBus.getDefault().post(new TypesLoadedEvent(crimeTypes));
             }
@@ -66,8 +66,8 @@ public enum ClaimService {
         });
     }
 
-    public List<CrimeType> getCrimeTypes() {
-        return _crimeTypes;
+    public List<CrimeType> getAvailableCrimeTypes() {
+        return availableCrimeTypes;
     }
 
 //     CLAIMS
@@ -183,27 +183,12 @@ public enum ClaimService {
         List<CrimeType> selectedCrimeTypeList = new ArrayList<>();
 
         for(int id: claim.getCrimetypes()){
-            for(CrimeType ct: _crimeTypes){
+            for(CrimeType ct: availableCrimeTypes){
                 if(ct.getId() == id) selectedCrimeTypeList.add(ct);
             }
         }
 
         return selectedCrimeTypeList;
-    }
-
-    public String getSelectedCrimeTypesNames() {
-        StringBuilder sb = new StringBuilder();
-        Iterator<CrimeType> crimeTypeIterator = getSelectedCrimeTypes().iterator();
-
-        while (crimeTypeIterator.hasNext()) {
-            CrimeType ct = crimeTypeIterator.next();
-
-            sb.append("- ").append(ct.getName());
-            if (crimeTypeIterator.hasNext()) {
-                sb.append("\n");
-            }
-        }
-        return sb.toString();
     }
 
     public String getFullAddress() {
