@@ -10,13 +10,18 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import ua.in.badparking.R;
+import ua.in.badparking.events.CrimeTypeEvent;
 import ua.in.badparking.model.CrimeType;
 import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.ui.activities.MainActivity;
@@ -56,16 +61,19 @@ public class ClaimTypeFragment extends BaseFragment {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+                    List<CrimeType> checkedCrimeTypesList = new ArrayList<CrimeType>();
                     SparseBooleanArray checkedItems = listView.getCheckedItemPositions();
                     if (checkedItems != null) {
                         Set<Integer> checkedCrimeTypesId = new HashSet<>();
                         for (int i=0; i<checkedItems.size(); i++) {
                             CrimeType ct = ClaimService.INST.getCrimeTypes().get(checkedItems.keyAt(i));
                             checkedCrimeTypesId.add(ct.getId());
+                            checkedCrimeTypesList.add(ct);
                         }
 
                         ClaimService.INST.getClaim().getCrimetypes().clear();
                         ClaimService.INST.getClaim().getCrimetypes().addAll(checkedCrimeTypesId);
+                        EventBus.getDefault().post(new CrimeTypeEvent(checkedCrimeTypesList));
                     }
                 }
             });
