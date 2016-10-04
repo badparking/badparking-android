@@ -13,8 +13,11 @@ import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.HashMap;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -24,7 +27,6 @@ import ua.in.badparking.Utils;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.UserApi;
 import ua.in.badparking.api.responses.TokenResponse;
-import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.TokenRefreshedEvent;
 import ua.in.badparking.events.UserLoadedEvent;
 import ua.in.badparking.events.UserUpdatedEvent;
@@ -40,7 +42,7 @@ public enum UserService {
     private SharedPreferences userDataPrefs;
     private Gson gson = new Gson();
 
-    private User mUser = null;
+    private User mUser;
 
     private UserApi mUserApi;
     private Context context;
@@ -48,16 +50,13 @@ public enum UserService {
     public void init(Context appContext) {
         context = appContext;
         userDataPrefs = appContext.getSharedPreferences(USER_DATA_PREFS, Context.MODE_PRIVATE);
-        mUserApi = ApiGenerator.INST.createApi(UserApi.class, Constants.API_BASE_URL, null);
+        recreateUserApi(null);
     }
 
     public void fetchUser() {
         mUserApi.getUser(new Callback<User>() {
             @Override
             public void success(User user, Response response) {
-                mUser = user;
-                String userJson = gson.toJson(user);
-                userDataPrefs.edit().putString(USER_KEY, userJson).commit();
                 EventBus.getDefault().post(new UserLoadedEvent(user));
             }
 
@@ -75,29 +74,37 @@ public enum UserService {
             }.getType();
 
             mUser = gson.fromJson(userJson, fooType);
+            ClaimService.INST.recreateClaimsApi(mUser.getToken());
+            recreateUserApi(mUser.getToken());
+
         }
     }
 
     public User getUser() {
+        if(mUser == null) {
+            restoreUser();
+        }
         return mUser;
     }
 
     public void putUserComplete(String email, String phone) {
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put("email", email);
-        params.put("phone", phone);
+        if (!mUser.isComplete().equals("true")) {
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put("email", email);
+            params.put("phone", phone);
 
-        mUserApi.putUserComplete(params, new Callback<User>() {
-            @Override
-            public void success(User user, Response response) {
-                EventBus.getDefault().post(new UserUpdatedEvent(user));
-            }
+            mUserApi.putUserComplete(params, new Callback<User>() {
+                @Override
+                public void success(User user, Response response) {
+                    EventBus.getDefault().post(new UserUpdatedEvent(user));
+                }
 
-            @Override
-            public void failure(RetrofitError error) {
+                @Override
+                public void failure(RetrofitError error) {
 
-            }
-        });
+                }
+            });
+        }
     }
 
     public void refreshToken(String tokenRequest) {
@@ -109,7 +116,7 @@ public enum UserService {
 
             @Override
             public void failure(RetrofitError error) {
-
+                //todo fb logout - delete token - log in
             }
         });
     }
@@ -137,8 +144,9 @@ public enum UserService {
             @Override
             public void success(User user, Response response) {
                 ClaimService.INST.recreateClaimsApi(user.getToken());
+                recreateUserApi(user.getToken());
                 saveUserToken(user.getToken());
-                EventBus.getDefault().post(new AuthorizedWithFacebookEvent(user));
+                UserService.INST.saveUser(user);
             }
 
             @Override
@@ -148,6 +156,17 @@ public enum UserService {
         });
     }
 
+    private void saveUser(User user) {
+        mUser = user;
+        String userJson = gson.toJson(user);
+        userDataPrefs.edit().putString(USER_KEY, userJson).commit();
+    }
+
+    public void recreateUserApi(String tokenHeader) {
+        mUserApi = ApiGenerator.INST.createApi(UserApi.class, Constants.API_BASE_URL, tokenHeader);
+    }
+
+
     public String getUserToken() {
         return userDataPrefs.getString(USER_TOKEN_KEY, null);
     }
@@ -156,8 +175,16 @@ public enum UserService {
         userDataPrefs.edit().putString(USER_TOKEN_KEY, token).commit();
     }
 
-    public void onGwtTokenFetched(String tokenHeader) {
-
-//        Jwts.parser().setSigningKey(key).parseClaimsJws(jwtString).getBody().getExpiration(); // isaturina
+    public void onJwtTokenFetched(String tokenHeader) {
+        String  key = Utils.getConfigValue(context, "jwtKey");
+        try {
+             Jwts.parser()
+                    .setSigningKey(key.getBytes("UTF-8"))
+                    .parseClaimsJws(tokenHeader).getBody().getExpiration();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (ExpiredJwtException e) {
+            refreshToken(tokenHeader);
+        }
     }
 }

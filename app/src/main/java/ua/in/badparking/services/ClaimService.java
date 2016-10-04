@@ -172,7 +172,7 @@ public enum ClaimService {
     }
 
     public void recreateClaimsApi(String tokenHeader) {
-        mClaimsApi = mApiGenerator.createApi(ClaimsApi.class, Constants.API_BASE_URL, tokenHeader);
+         mClaimsApi = ApiGenerator.INST.createApi(ClaimsApi.class, Constants.API_BASE_URL, tokenHeader);
     }
 
     public Claim getClaim() {
@@ -205,7 +205,6 @@ public enum ClaimService {
     public void setPk(String pk) {
         this.pk = pk;
     }
-
 
 //    public void getClaims(String clientId, String clientSecret, String timestamp) {
 //        mClaimsApi.getClaims(new TypedString(clientId), new TypedString(clientSecret),

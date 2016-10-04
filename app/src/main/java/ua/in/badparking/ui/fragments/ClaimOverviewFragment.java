@@ -36,6 +36,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import ua.in.badparking.R;
+import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.ClaimPostedEvent;
 import ua.in.badparking.events.ImageUploadedEvent;
 import ua.in.badparking.model.Claim;
@@ -108,6 +109,9 @@ public class ClaimOverviewFragment extends BaseFragment {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(UserService.INST.getUser().getToken() != null) {
+                    UserService.INST.onJwtTokenFetched(UserService.INST.getUser().getToken());
+                }
                 send();
             }
         });
