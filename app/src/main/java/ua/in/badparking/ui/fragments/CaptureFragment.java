@@ -138,7 +138,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             messageView.setVisibility(View.VISIBLE);
             platesEditText.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
-        } else {
+        } else if (ClaimService.INST.getClaim().getLicensePlates() == null) {
             EventBus.getDefault().post(new ShowHeaderEvent(false));
             messageView.setText("Введiть номернi знаки...");
             platesEditText.setVisibility(View.VISIBLE);
@@ -238,6 +238,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                 EventBus.getDefault().post(new ShowHeaderEvent(true));
                 platesEditText.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
+                platesPreviewImage.setVisibility(View.GONE);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {

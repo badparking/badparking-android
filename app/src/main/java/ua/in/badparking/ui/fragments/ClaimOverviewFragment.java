@@ -121,6 +121,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         recyclerView.setHasFixedSize(true);
 
         callbackManager = CallbackManager.Factory.create();
+        crimeTypeTextView.setText(getCrimeTypesNames(ClaimService.INST.getSelectedCrimeTypes()));
 
         loginButton.setReadPermissions("email, public_profile");
         // If using in a fragment
@@ -280,11 +281,6 @@ public class ClaimOverviewFragment extends BaseFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Subscribe
-    public void onEvent(List<CrimeType> crimeTypeList) {
-        crimeTypeTextView.setText(getCrimeTypesNames(crimeTypeList));
     }
 
     public String getCrimeTypesNames(List<CrimeType> crimeTypeList) {

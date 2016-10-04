@@ -128,7 +128,6 @@ public class MainActivity extends AppCompatActivity {
         return dialog;
     }
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
