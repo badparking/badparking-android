@@ -11,7 +11,7 @@ public class CrimeTypeEvent {
         _crimeTypeList = crimeTypeList;
     }
 
-    public List<CrimeType> getCrimeType() {
+    public List<CrimeType> getCrimeTypeList() {
         return _crimeTypeList;
     }
 }

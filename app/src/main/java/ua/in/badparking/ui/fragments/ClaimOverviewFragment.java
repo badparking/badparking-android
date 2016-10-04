@@ -29,6 +29,7 @@ import com.facebook.login.widget.LoginButton;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.Iterator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -155,7 +156,6 @@ public class ClaimOverviewFragment extends BaseFragment {
             mSendButton.setVisibility(View.GONE);
         }
         carPlateNumberTextView.setText(ClaimService.INST.getClaim().getLicensePlates());
-        crimeTypeTextView.setText(ClaimService.INST.getSelectedCrimeTypesNames());
         addressTextView.setText(ClaimService.INST.getFullAddress());
     }
 
@@ -284,6 +284,21 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     @Subscribe
     public void onEvent(List<CrimeType> crimeTypeList) {
+        crimeTypeTextView.setText(getCrimeTypesNames(crimeTypeList));
+    }
 
+    public String getCrimeTypesNames(List<CrimeType> crimeTypeList) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<CrimeType> crimeTypeIterator = crimeTypeList.iterator();
+
+        while (crimeTypeIterator.hasNext()) {
+            CrimeType ct = crimeTypeIterator.next();
+
+            sb.append("- ").append(ct.getName());
+            if (crimeTypeIterator.hasNext()) {
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
     }
 }
