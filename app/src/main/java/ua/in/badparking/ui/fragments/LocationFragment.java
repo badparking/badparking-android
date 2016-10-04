@@ -44,7 +44,9 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         GoogleMap.OnMarkerClickListener {
 
     private static final String TAG = LocationFragment.class.getName();
-    private static final int ZOOM = 17;
+    private static final int START_MAP_ZOOM = 10;
+    private static final LatLng START_MAP_POINT = new LatLng(50.4501D, 30.523400000000038D); //KYIV CITY
+    private static final int SPECIFIC_LOCATION_ZOOM = 17;
 
     @BindView(R.id.dots)
     DotsTextView dotsTextView;
@@ -141,6 +143,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(this);
 
         if (mMap != null) {
+
             try {
                 mMap.setMyLocationEnabled(true);
             } catch (SecurityException se) {
@@ -150,6 +153,12 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             mMap.setOnMyLocationButtonClickListener(this);
             mMap.getUiSettings().setCompassEnabled(false);
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
+
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(START_MAP_POINT)
+                    .zoom(START_MAP_ZOOM).build();
+
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
 
         if (GeolocationState.INST.getLocation() != null) {
@@ -168,7 +177,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(new LatLng(latitude, longitude))
-                    .zoom(ZOOM)
+                    .zoom(SPECIFIC_LOCATION_ZOOM)
                     .bearing(45)
                     //.tilt(45)
                     .build();

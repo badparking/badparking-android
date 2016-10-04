@@ -2,7 +2,7 @@
 <ua.in.badparking.ui.adapters.CheckableLinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
@@ -20,6 +20,7 @@
     <ImageView android:src="?android:attr/listChoiceIndicatorMultiple"
         android:duplicateParentState="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"/>
 
 </ua.in.badparking.ui.adapters.CheckableLinearLayout>
