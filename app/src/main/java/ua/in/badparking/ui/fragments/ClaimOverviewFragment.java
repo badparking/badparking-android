@@ -36,9 +36,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import ua.in.badparking.R;
-import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.ClaimPostedEvent;
 import ua.in.badparking.events.ImageUploadedEvent;
+import ua.in.badparking.events.TokenRefreshFailedEvent;
 import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.CrimeType;
 import ua.in.badparking.model.MediaFile;
@@ -261,6 +261,12 @@ public class ClaimOverviewFragment extends BaseFragment {
         readyDialog = builder.create();
         readyDialog.show();
     }
+    @Subscribe
+    public void onTokenRefreshFailed(final TokenRefreshFailedEvent event) {
+        loginButton.setVisibility(View.VISIBLE);
+        mSendButton.setVisibility(View.GONE);
+    }
+
 
     @Subscribe
     public void onClaimPosted(final ClaimPostedEvent event) {

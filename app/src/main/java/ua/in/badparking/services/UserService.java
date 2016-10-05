@@ -27,7 +27,7 @@ import ua.in.badparking.Utils;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.UserApi;
 import ua.in.badparking.api.responses.TokenResponse;
-import ua.in.badparking.events.TokenRefreshedEvent;
+import ua.in.badparking.events.TokenRefreshFailedEvent;
 import ua.in.badparking.events.UserLoadedEvent;
 import ua.in.badparking.events.UserUpdatedEvent;
 import ua.in.badparking.model.User;
@@ -108,16 +108,21 @@ public enum UserService {
         }
     }
 
-    public void refreshToken(String tokenRequest) {
-        mUserApi.refreshToken(new TypedString(tokenRequest), new Callback<TokenResponse>() {
+    public void refreshToken(final String tokenRequest) {
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("token", tokenRequest);
+        mUserApi.refreshToken(params, new Callback<TokenResponse>() {
             @Override
             public void success(TokenResponse tokenResponse, Response response) {
-                EventBus.getDefault().post(new TokenRefreshedEvent());
+                saveUserToken(tokenResponse.getToken());
+                ClaimService.INST.recreateClaimsApi(tokenResponse.getToken());
+                recreateUserApi(tokenResponse.getToken());
+                UserService.INST.saveUser(getUser());
             }
 
             @Override
             public void failure(RetrofitError error) {
-                //todo fb logout - delete token - log in
+                EventBus.getDefault().post(new TokenRefreshFailedEvent());
             }
         });
     }

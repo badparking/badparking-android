@@ -19,8 +19,9 @@ import ua.in.badparking.model.User;
 
 public interface UserApi {
 
+    @Multipart
     @POST("/token/refresh")
-    void refreshToken(@Body TypedString tokenRequest, Callback<TokenResponse> responseCallback);
+    void refreshToken(@PartMap() Map tokenRequest, Callback<TokenResponse> responseCallback);
 
 //    @Multipart
 //    @POST("/token/verify")
