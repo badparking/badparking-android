@@ -46,6 +46,7 @@
     <string name="gps_network_not_enabled">Для корректної роботи додатку увiмкнiть будь-ласка геолокацiю в налаштуваннях телефона.</string>
     <string name="open_location_settings">Налаштування</string>
     <string name="ok">OK</string>
+    <string name="thanks">Дякуэмо</string>
     <string name="claim_sent">Скаргу відправлено</string>
     <string name="error_claim_sent">Помилка. Спробуйте ще</string>
     <string name="photo_uploaded">"Заватнажено фото "</string>
