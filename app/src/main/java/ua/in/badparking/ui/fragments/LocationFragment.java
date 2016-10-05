@@ -79,14 +79,13 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
-        if (mMap == null) {
-            view.postDelayed(new Runnable() {
+
+        view.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     mMapFragment.getMapAsync(LocationFragment.this);
                 }
             }, 700);
-        }
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
