@@ -34,7 +34,7 @@
     <string name="capture_claim_another_angle">Зробiть фото правопорушення (2)</string>
     <string name="consent_text">
         1. Увiмкнiть  GPS.\n2. Зробiть фото правопорушення та фото номерiв.\n
-        Дякуэмо за спiвпрацю!\n\n
+        Дякуємо за спiвпрацю!\n\n
         Щоб полiцiя прийняла заявку, потрiбно залогинитись через BankID.
     </string>
     <string name="electronic_identification" />
@@ -46,7 +46,7 @@
     <string name="gps_network_not_enabled">Для корректної роботи додатку увiмкнiть будь-ласка геолокацiю в налаштуваннях телефона.</string>
     <string name="open_location_settings">Налаштування</string>
     <string name="ok">OK</string>
-    <string name="thanks">Дякуэмо</string>
+    <string name="thanks">Дякуємо</string>
     <string name="claim_sent">Скаргу відправлено</string>
     <string name="error_claim_sent">Помилка. Спробуйте ще</string>
     <string name="photo_uploaded">"Заватнажено фото "</string>
