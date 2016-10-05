@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     public final static int PAGE_CLAIM_OVERVIEW = 3;
 
     private static final boolean DEBUG = BuildConfig.DEBUG;
+    private static final String TAG = MainActivity.class.getName();
 
     @BindView(R.id.toolbar_top)
     protected Toolbar toolbarTop;
@@ -230,48 +231,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void handleResult(int code, String message) {
-        if (senderProgressDialog == null || !senderProgressDialog.isShowing()) {
-            showSenderDialogWithMessage();
-        }
-        final TextView sendingMessageView = (TextView)senderProgressDialog.findViewById(R.id.sendingMessage);
-        final Button sendingMessageButton = (Button)senderProgressDialog.findViewById(R.id.sendingButton);
-        final View progressBar = senderProgressDialog.findViewById(R.id.progressBar);
-        switch (code) {
-            case 200: // OK
-                sendingMessageButton.setVisibility(View.VISIBLE);
-                progressBar.setVisibility(View.GONE);
-                sendingMessageButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        senderProgressDialog.dismiss();
-                    }
-                });
-                sendingMessageView.setText("Вiдiслано, дякую!");
-                break;
-            case 8001: // uploading photo
-                progressBar.setVisibility(View.GONE);
-                sendingMessageView.setText(message);
-                sendingMessageButton.setVisibility(View.GONE);
-                break;
-            default:
-                sendingMessageButton.setVisibility(View.VISIBLE);
-                sendingMessageButton.setText("Спробувати ще");
-                progressBar.setVisibility(View.GONE);
-                sendingMessageButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        senderProgressDialog.dismiss();
-                    }
-                });
-                String text = "Помилка " + code + ".\n Спробуйте пiзнiше.";
-                if (BuildConfig.DEBUG) {
-                    text += "\n" + message;
-                }
-                sendingMessageView.setText(text);
-
-        }
-    }
 
     @Override
     public void onBackPressed() {

@@ -245,6 +245,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         }
 
         if (ClaimService.INST.getPictures().size() == event.getImageCounter()) {
+            builder.setMessage(getActivity().getString(R.string.thanks));
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CAPTURE);
