@@ -13,7 +13,6 @@ import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 import java.util.HashMap;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -23,6 +22,7 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.mime.TypedString;
 import ua.in.badparking.Constants;
+import ua.in.badparking.Log;
 import ua.in.badparking.Utils;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.UserApi;
@@ -35,6 +35,7 @@ import ua.in.badparking.model.User;
 public enum UserService {
     INST;
 
+    private static final String TAG = UserService.class.getName();
     private static final String USER_DATA_PREFS = "userDataPrefs";
     private static final String USER_TOKEN_KEY = "userTokenKey";
     private static final String USER_KEY = "userKey";
@@ -81,7 +82,7 @@ public enum UserService {
     }
 
     public User getUser() {
-        if(mUser == null) {
+        if (mUser == null) {
             restoreUser();
         }
         return mUser;
@@ -152,6 +153,7 @@ public enum UserService {
             @Override
             public void failure(RetrofitError error) {
                 // TODO : show error dialog
+                Log.e(TAG, "authorizeWithFacebook call failed", error);
             }
         });
     }
@@ -176,13 +178,13 @@ public enum UserService {
     }
 
     public void onJwtTokenFetched(String tokenHeader) {
-        String  key = Utils.getConfigValue(context, "jwtKey");
+        String key = Utils.getConfigValue(context, "jwtKey");
         try {
-             Jwts.parser()
+            Jwts.parser()
                     .setSigningKey(key.getBytes("UTF-8"))
                     .parseClaimsJws(tokenHeader).getBody().getExpiration();
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            Log.e(TAG, "onJwtTokenFetched error", e);
         } catch (ExpiredJwtException e) {
             refreshToken(tokenHeader);
         }
