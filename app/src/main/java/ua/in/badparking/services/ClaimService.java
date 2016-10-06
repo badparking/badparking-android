@@ -38,6 +38,7 @@ public enum ClaimService {
     private String mLicensePlates;
     private Claim claim = new Claim();
     private String pk;
+    private List<String> uploadedPictures = new ArrayList<>();
 
 
     public void init(Context context) {
@@ -149,17 +150,20 @@ public enum ClaimService {
 //        });
 //    }
 
-    public void postImage(String pk, MediaFile image, final int imageCounter) {
+    public void postImage(final String pk, MediaFile image) {
         TypedFile typedImage = new TypedFile("multipart/form-data", image);
         mClaimsApi.postImage(pk, typedImage, new Callback<BaseResponse>() {
             @Override
             public void success(BaseResponse baseResponse, Response response) {
-                EventBus.getDefault().post(new ImageUploadedEvent(imageCounter));
+                uploadedPictures.add(pk);
+                if(uploadedPictures.size() == getPictures().size()) {
+                    EventBus.getDefault().post(new ImageUploadedEvent(true));
+                }
             }
 
             @Override
             public void failure(RetrofitError error) {
-                EventBus.getDefault().post(new ImageUploadedEvent(-1));
+                EventBus.getDefault().post(new ImageUploadedEvent(false));
             }
         });
     }

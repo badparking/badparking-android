@@ -1,13 +1,13 @@
 package ua.in.badparking.events;
 
 public class ImageUploadedEvent {
-    int imageCounter;
+    boolean filesUploaded;
 
-    public ImageUploadedEvent(int imageCounter) {
-        this.imageCounter = imageCounter;
+    public ImageUploadedEvent(boolean filesUploaded) {
+        this.filesUploaded = filesUploaded;
     }
 
-    public int getImageCounter() {
-        return imageCounter;
+    public boolean getFilesUploaded() {
+        return filesUploaded;
     }
 }
