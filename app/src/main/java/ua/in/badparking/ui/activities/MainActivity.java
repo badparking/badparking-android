@@ -21,9 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import com.badoualy.stepperindicator.StepperIndicator;
 
@@ -68,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Dialog senderProgressDialog;
     private int mPosition;
+    private AlertDialog locationDialog;
 
 //    private BroadcastReceiver connectionReceiver;
 
@@ -141,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         EventBus.getDefault().register(this);
         // checking internet connection
-        if (!isConnected(this)) {
+        if (!isConnected(this) && !DEBUG) {
             buildConnectionDialog(this).show();
             return;
         } else {
@@ -173,6 +172,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         EventBus.getDefault().unregister(this);
+        if (locationDialog != null && locationDialog.isShowing()) {
+            locationDialog.dismiss();
+        }
     }
 
     private void checkLocationServices() {
@@ -186,9 +188,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (!gps_enabled) {
             // notify user
-            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-            dialog.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
-            dialog.setPositiveButton(getResources().getString(R.string.open_location_settings),
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
+            builder.setPositiveButton(getResources().getString(R.string.open_location_settings),
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface paramDialogInterface, int paramInt) {
@@ -197,8 +199,8 @@ public class MainActivity extends AppCompatActivity {
                             paramDialogInterface.dismiss();
                         }
                     });
-            dialog.setCancelable(false);
-            dialog.show();
+            builder.setCancelable(false);
+            locationDialog = builder.show();
         }
     }
 
