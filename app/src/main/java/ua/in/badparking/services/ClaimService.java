@@ -5,10 +5,8 @@ import android.content.Context;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -75,19 +73,14 @@ public enum ClaimService {
     public void postMyClaims(Claim claim) {
         String latitude = claim.getLatitude();
         String longitude = claim.getLongitude();
-        Set<Integer> crimetypes = claim.getCrimetypes();
-        LinkedHashMap<String, Integer> crimeMap = new LinkedHashMap<>();
         LinkedHashMap<String, String> paramsMap = new LinkedHashMap<>();
         paramsMap.put("latitude", latitude);
         paramsMap.put("longitude", longitude);
         paramsMap.put("city", claim.getCity());
         paramsMap.put("address", claim.getAddress());
         paramsMap.put("license_plates", claim.getLicensePlates());
-        for (Integer crimetype : crimetypes) {
-            crimeMap.put("crimetypes", crimetype);
-        }
 
-        mClaimsApi.postMyClaims(crimeMap, paramsMap, new Callback<Claim>() {
+        mClaimsApi.postMyClaims(claim.getCrimetypes(), paramsMap, new Callback<Claim>() {
             @Override
             public void success(Claim claimsResponse, Response response) {
                 EventBus.getDefault().post(new ClaimPostedEvent(claimsResponse.getPk(), context.getString(R.string.claim_sent), true));

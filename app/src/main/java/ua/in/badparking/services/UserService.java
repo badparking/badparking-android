@@ -20,7 +20,6 @@ import io.jsonwebtoken.Jwts;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import retrofit.mime.TypedString;
 import ua.in.badparking.Constants;
 import ua.in.badparking.Log;
 import ua.in.badparking.Utils;
@@ -75,8 +74,10 @@ public enum UserService {
             }.getType();
 
             mUser = gson.fromJson(userJson, fooType);
-            ClaimService.INST.recreateClaimsApi(mUser.getToken());
-            recreateUserApi(mUser.getToken());
+
+            String token = getUserToken();
+            ClaimService.INST.recreateClaimsApi(token);
+            recreateUserApi(token);
 
         }
     }
@@ -89,7 +90,7 @@ public enum UserService {
     }
 
     public void putUserComplete(String email, String phone) {
-        if (!mUser.isComplete().equals("true")) {
+        if (!mUser.isComplete()) {
             HashMap<String, String> params = new HashMap<String, String>();
             params.put("email", email);
             params.put("phone", phone);
@@ -128,11 +129,8 @@ public enum UserService {
     }
 
     public void authorizeWithFacebook(String fbToken) {
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put("access_token", fbToken);
-        String clientId = Utils.getConfigValue(context, "clientId");// TODO: put this in config file, but don't add to git!!!!
+        String clientId = Utils.getConfigValue(context, "clientId");
         String clientSecret = Utils.getConfigValue(context, "clientSecret");
-        //String timestamp = String.valueOf(System.currentTimeMillis() / 1000); // in sec
 
         Long timestamp = System.currentTimeMillis() / 1000;
         String secretMessage = clientSecret + timestamp.toString();
@@ -146,7 +144,9 @@ public enum UserService {
             e.printStackTrace();
         }
 
-        mUserApi.authorizeWithFacebook(params, clientId, String.format("%064x", new BigInteger(1, secretHash)), String.valueOf(timestamp), new Callback<User>() {
+        // Make sure we're not using an old JWT when asking for a new one, which might have been stored
+        recreateUserApi(null);
+        mUserApi.authorizeWithFacebook(fbToken, clientId, String.format("%064x", new BigInteger(1, secretHash)), String.valueOf(timestamp), new Callback<User>() {
             @Override
             public void success(User user, Response response) {
                 ClaimService.INST.recreateClaimsApi(user.getToken());
@@ -163,7 +163,7 @@ public enum UserService {
         });
     }
 
-    private void saveUser(User user) {
+    public void saveUser(User user) {
         mUser = user;
         String userJson = gson.toJson(user);
         userDataPrefs.edit().putString(USER_KEY, userJson).commit();
