@@ -29,6 +29,7 @@ import com.facebook.login.widget.LoginButton;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,9 +37,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import ua.in.badparking.R;
-import ua.in.badparking.events.AuthorizedWithFacebookEvent;
 import ua.in.badparking.events.ClaimPostedEvent;
 import ua.in.badparking.events.ImageUploadedEvent;
+import ua.in.badparking.events.TokenRefreshFailedEvent;
+import ua.in.badparking.events.UserUpdatedEvent;
 import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.CrimeType;
 import ua.in.badparking.model.MediaFile;
@@ -127,7 +129,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         callbackManager = CallbackManager.Factory.create();
         crimeTypeTextView.setText(getCrimeTypesNames(ClaimService.INST.getSelectedCrimeTypes()));
 
-        loginButton.setReadPermissions("email, public_profile");
+        loginButton.setReadPermissions(Arrays.asList("email", "public_profile"));
         // If using in a fragment
         loginButton.setFragment(this);
         // Other app specific specialization
@@ -175,7 +177,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         }
         claim = ClaimService.INST.getClaim();
         User user = UserService.INST.getUser();
-        if (user.isComplete().equals("false")) {
+        if (!user.isComplete()) {
             showCompleteUserDataDialog();
         } else {
             showSendClaimDialog();
@@ -262,6 +264,12 @@ public class ClaimOverviewFragment extends BaseFragment {
         readyDialog = builder.create();
         readyDialog.show();
     }
+    @Subscribe
+    public void onTokenRefreshFailed(final TokenRefreshFailedEvent event) {
+        loginButton.setVisibility(View.VISIBLE);
+        mSendButton.setVisibility(View.GONE);
+    }
+
 
     @Subscribe
     public void onClaimPosted(final ClaimPostedEvent event) {
@@ -280,6 +288,11 @@ public class ClaimOverviewFragment extends BaseFragment {
             }
         }
 
+    }
+
+    @Subscribe
+    public void onUserUpdated(final UserUpdatedEvent event) {
+        UserService.INST.saveUser(event.getUser());
     }
 
     @Override

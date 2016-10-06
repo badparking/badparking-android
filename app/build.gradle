@@ -46,6 +46,8 @@ android {
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
         exclude 'META-INF/maven/com.squareup.okhttp/okhttp/pom.properties'
         exclude 'META-INF/maven/com.squareup.okhttp/okhttp/pom.xml'
         exclude 'META-INF/maven/com.squareup/otto/pom.properties'

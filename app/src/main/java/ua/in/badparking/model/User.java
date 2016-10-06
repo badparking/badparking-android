@@ -23,7 +23,7 @@ public class User {
     private String token;
 
     @SerializedName("is_complete")
-    private String isComplete;
+    private Boolean isComplete;
 
     public String getFirstName() {
         return firstName;
@@ -57,7 +57,7 @@ public class User {
         return phone;
     }
 
-    public String isComplete() {
+    public Boolean isComplete() {
         return isComplete;
     }
 

@@ -1,23 +1,19 @@
 package ua.in.badparking.api;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import retrofit.Callback;
-import retrofit.http.Body;
-import retrofit.http.GET;
+import retrofit.http.Field;
+import retrofit.http.FieldMap;
+import retrofit.http.FormUrlEncoded;
 import retrofit.http.Multipart;
-import retrofit.http.PATCH;
 import retrofit.http.POST;
-import retrofit.http.PUT;
 import retrofit.http.Part;
-import retrofit.http.PartMap;
 import retrofit.http.Path;
 import retrofit.mime.TypedFile;
-import retrofit.mime.TypedString;
 import ua.in.badparking.api.responses.BaseResponse;
 import ua.in.badparking.model.Claim;
-import ua.in.badparking.model.CrimeType;
 
 public interface ClaimsApi {
 
@@ -52,10 +48,10 @@ public interface ClaimsApi {
 //    @GET("/claims/my")
 //    void getMyClaims(Callback<List<Claim>> responseCallback);
 
-    @Multipart
+    @FormUrlEncoded
     @POST("/claims/my")
-    void postMyClaims(@PartMap() Map crimetypes,
-                      @PartMap() Map claimData,
+    void postMyClaims(@Field("crimetypes") Set<Integer> crimetypes,
+                      @FieldMap() Map claimData,
                       Callback<Claim> responseCallback);
 
 //    @PUT("/claims/my/{pk}")

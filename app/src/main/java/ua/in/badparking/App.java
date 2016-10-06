@@ -4,7 +4,6 @@ import android.support.multidex.MultiDexApplication;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
 
 import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.services.UserService;
@@ -18,7 +17,6 @@ public class App extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(this);
 //        if (!BuildConfig.DEBUG) {
         Crashlytics.start(this);
 //        }
