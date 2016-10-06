@@ -240,24 +240,14 @@ public class ClaimOverviewFragment extends BaseFragment {
     public void onImagePosted(final ImageUploadedEvent event) {
         readyDialog.hide();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if (event.getImageCounter() != -1) {
-            builder.setMessage(getActivity().getString(R.string.photo_uploaded) + event.getImageCounter() + "/" + ClaimService.INST.getPictures().size());
-        } else {
+        if (!event.getFilesUploaded()) {
             builder.setMessage(getActivity().getString(R.string.error_uploading_image));
         }
-
-        if (ClaimService.INST.getPictures().size() == event.getImageCounter()) {
+        else  {
             builder.setMessage(getActivity().getString(R.string.thanks));
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CAPTURE);
-                }
-            });
-        } else {
-            builder.setNegativeButton(getActivity().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
                 }
             });
         }
@@ -284,7 +274,7 @@ public class ClaimOverviewFragment extends BaseFragment {
             List<MediaFile> files = ClaimService.INST.getPictures();
             for (int i = 0; i < files.size(); i++) {
                 MediaFile file = files.get(i);
-                ClaimService.INST.postImage(event.getPk(), file, i + 1);
+                ClaimService.INST.postImage(event.getPk(), file);
             }
         }
 
