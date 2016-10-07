@@ -7,6 +7,8 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -80,8 +82,12 @@ public enum ClaimService {
         paramsMap.put("city", claim.getCity());
         paramsMap.put("address", claim.getAddress());
         paramsMap.put("license_plates", claim.getLicensePlates());
+        Set<String> filenames = new TreeSet<>();
+        for(MediaFile file : getPictures()) {
+            filenames.add(file.getName());
+        }
 
-        mClaimsApi.postMyClaims(claim.getCrimetypes(), paramsMap, new Callback<Claim>() {
+        mClaimsApi.postMyClaims(claim.getCrimetypes(), filenames, paramsMap, new Callback<Claim>() {
             @Override
             public void success(Claim claimsResponse, Response response) {
                 EventBus.getDefault().post(new ClaimPostedEvent(claimsResponse.getPk(), context.getString(R.string.claim_sent), true));
