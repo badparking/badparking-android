@@ -34,7 +34,7 @@ import pl.tajchert.sample.DotsTextView;
 import ua.in.badparking.R;
 import ua.in.badparking.events.LocationEvent;
 import ua.in.badparking.services.ClaimService;
-import ua.in.badparking.services.GeolocationState;
+import ua.in.badparking.services.GeolocationService;
 import ua.in.badparking.ui.activities.MainActivity;
 
 /**
@@ -102,7 +102,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
         if (location != null && mMap != null) {
             mapPositioning(mMap, location.getLatitude(), location.getLongitude());
-            Address address = GeolocationState.INST.getAddress(location.getLatitude(), location.getLongitude());
+            Address address = GeolocationService.INST.getAddress(location.getLatitude(), location.getLongitude());
             setAddress(address);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
         }
@@ -112,8 +112,8 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     public void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
-        if (GeolocationState.INST.getLocation() != null && mMap != null) {
-            onEvent(new LocationEvent(GeolocationState.INST.getLocation()));
+        if (GeolocationService.INST.getLocation() != null && mMap != null) {
+            onEvent(new LocationEvent(GeolocationService.INST.getLocation()));
         }
         showTimePositioningHint();
     }
@@ -133,7 +133,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             public void onMapClick(LatLng point) {
                 mMap.clear();
 
-                Address address = GeolocationState.INST.getAddress(point.latitude, point.longitude);
+                Address address = GeolocationService.INST.getAddress(point.latitude, point.longitude);
                 setAddress(address);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
             }
@@ -160,8 +160,8 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
 
-        if (GeolocationState.INST.getLocation() != null) {
-            onEvent(new LocationEvent(GeolocationState.INST.getLocation()));
+        if (GeolocationService.INST.getLocation() != null) {
+            onEvent(new LocationEvent(GeolocationService.INST.getLocation()));
         }
     }
 

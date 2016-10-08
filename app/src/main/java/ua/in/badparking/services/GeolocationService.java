@@ -23,10 +23,10 @@ import java.util.Locale;
 
 import ua.in.badparking.events.LocationEvent;
 
-public enum GeolocationState {
+public enum GeolocationService {
     INST;
 
-    private static final String TAG = GeolocationState.class.getName();
+    private static final String TAG = GeolocationService.class.getName();
     public static final long WAITING_TIME_MILLIS = 3000L;
     public static final float ACCURANCY_IN_METERS = 3f;
 
@@ -102,8 +102,8 @@ public enum GeolocationState {
 
         locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
-                GeolocationState.WAITING_TIME_MILLIS,
-                GeolocationState.ACCURANCY_IN_METERS,
+                GeolocationService.WAITING_TIME_MILLIS,
+                GeolocationService.ACCURANCY_IN_METERS,
                 locationListener);
 
         lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
