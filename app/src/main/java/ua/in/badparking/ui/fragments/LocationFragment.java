@@ -26,8 +26,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.text.DecimalFormat;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.tajchert.sample.DotsTextView;
@@ -81,11 +79,11 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         ButterKnife.bind(this, view);
 
         view.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mMapFragment.getMapAsync(LocationFragment.this);
-                }
-            }, 700);
+            @Override
+            public void run() {
+                mMapFragment.getMapAsync(LocationFragment.this);
+            }
+        }, 700);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -213,7 +211,6 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
             dotsTextView.showAndPlay();
             positioningText.setText(getResources().getText(R.string.positioning_in_progress));
-//            nextButton.setVisibility(View.GONE);
 
         } else {
             ClaimService.INST.getClaim().setCity(address.getLocality());
@@ -222,10 +219,6 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             dotsTextView.hideAndStop();
             positioningText.setText(ClaimService.INST.getFullAddress());
             nextButton.setVisibility(View.VISIBLE);
-
-            DecimalFormat df = new DecimalFormat("#.######");
-            ClaimService.INST.getClaim().setLatitude(df.format(address.getLatitude()).replace(",", "."));
-            ClaimService.INST.getClaim().setLongitude(df.format(address.getLongitude()).replace(",", "."));
         }
     }
 
