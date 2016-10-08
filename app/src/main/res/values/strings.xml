@@ -49,9 +49,9 @@
     <string name="thanks">Дякуємо</string>
     <string name="claim_sent">Скаргу відправлено</string>
     <string name="error_claim_sent">Помилка. Спробуйте ще</string>
-    <string name="photo_uploaded">"Заватнажено фото "</string>
+    <string name="photo_uploaded">"Заватнаженя зображень завершено "</string>
     <string name="claim_sending">Відправлення...</string>
-    <string name="error_uploading_image">Помилка завантаження зображення</string>
+    <string name="error_uploading_image">Помилка завантаження зображень</string>
     <string name="claim_overview_complete_user_message">Необхідно заповнити дані користувача</string>
 
     <string-array name="report_types">

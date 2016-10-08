@@ -51,6 +51,7 @@ public interface ClaimsApi {
     @FormUrlEncoded
     @POST("/claims/my")
     void postMyClaims(@Field("crimetypes") Set<Integer> crimetypes,
+                      @Field("media_filenames") Set<String> filenames,
                       @FieldMap() Map claimData,
                       Callback<Claim> responseCallback);
 

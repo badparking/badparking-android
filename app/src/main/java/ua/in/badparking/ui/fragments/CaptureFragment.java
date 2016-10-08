@@ -302,10 +302,10 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                     pitch = event.values[2];
                     break;
             }
-            if (pitch >= -45 && pitch < 45 && roll >= 45) orientation = 0;
-            else if (pitch < -45 && roll >= -45 && roll < 45) orientation = 90;
-            else if (pitch >= -45 && pitch < 45 && roll < -45) orientation = 180;
-            else if (pitch >= 45 && roll >= -45 && roll < 45) orientation = 270;
+            if (pitch < 45 && roll >= 45) orientation = 0;
+            else if (roll >= -45 && roll < 45) orientation = 90;
+            else if (pitch < 45 && roll < -45) orientation = 180;
+            else if (roll >= -45 && roll < 45) orientation = 270;
 
             if (m_nOrientation != orientation) {
                 m_nOrientation = orientation;

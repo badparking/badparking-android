@@ -7,6 +7,8 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -38,6 +40,7 @@ public enum ClaimService {
     private String mLicensePlates;
     private Claim claim = new Claim();
     private String pk;
+    private List<String> uploadedPictures = new ArrayList<>();
 
 
     public void init(Context context) {
@@ -79,8 +82,12 @@ public enum ClaimService {
         paramsMap.put("city", claim.getCity());
         paramsMap.put("address", claim.getAddress());
         paramsMap.put("license_plates", claim.getLicensePlates());
+        Set<String> filenames = new TreeSet<>();
+        for(MediaFile file : getPictures()) {
+            filenames.add(file.getName());
+        }
 
-        mClaimsApi.postMyClaims(claim.getCrimetypes(), paramsMap, new Callback<Claim>() {
+        mClaimsApi.postMyClaims(claim.getCrimetypes(), filenames, paramsMap, new Callback<Claim>() {
             @Override
             public void success(Claim claimsResponse, Response response) {
                 EventBus.getDefault().post(new ClaimPostedEvent(claimsResponse.getPk(), context.getString(R.string.claim_sent), true));
@@ -149,17 +156,20 @@ public enum ClaimService {
 //        });
 //    }
 
-    public void postImage(String pk, MediaFile image, final int imageCounter) {
+    public void postImage(final String pk, MediaFile image) {
         TypedFile typedImage = new TypedFile("multipart/form-data", image);
         mClaimsApi.postImage(pk, typedImage, new Callback<BaseResponse>() {
             @Override
             public void success(BaseResponse baseResponse, Response response) {
-                EventBus.getDefault().post(new ImageUploadedEvent(imageCounter));
+                uploadedPictures.add(pk);
+                if(uploadedPictures.size() == getPictures().size()) {
+                    EventBus.getDefault().post(new ImageUploadedEvent(true));
+                }
             }
 
             @Override
             public void failure(RetrofitError error) {
-                EventBus.getDefault().post(new ImageUploadedEvent(-1));
+                EventBus.getDefault().post(new ImageUploadedEvent(false));
             }
         });
     }
