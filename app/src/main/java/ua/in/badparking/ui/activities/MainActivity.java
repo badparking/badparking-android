@@ -37,7 +37,7 @@ import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
 import ua.in.badparking.events.ShowHeaderEvent;
 import ua.in.badparking.services.ClaimService;
-import ua.in.badparking.services.GeolocationState;
+import ua.in.badparking.services.GeolocationService;
 import ua.in.badparking.ui.fragments.BaseFragment;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 //        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
 //        registerReceiver(connectionReceiver, intentFilter);
 
-        GeolocationState.INST.start(getApplicationContext());
+        GeolocationService.INST.start(getApplicationContext());
     }
 
     public boolean isConnected(Context context) {
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 //        unregisterReceiver(connectionReceiver);
-        GeolocationState.INST.stop();
+        GeolocationService.INST.stop();
     }
 
     @Override
@@ -175,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         if (locationDialog != null && locationDialog.isShowing()) {
             locationDialog.dismiss();
         }
+        GeolocationService.INST.unsubscribeFromLocationUpdates();
     }
 
     private void checkLocationServices() {

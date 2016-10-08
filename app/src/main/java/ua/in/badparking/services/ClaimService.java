@@ -163,6 +163,7 @@ public enum ClaimService {
             public void success(BaseResponse baseResponse, Response response) {
                 uploadedPictures.add(pk);
                 if(uploadedPictures.size() == getPictures().size()) {
+                    claim = new Claim();
                     EventBus.getDefault().post(new ImageUploadedEvent(true));
                 }
             }

@@ -111,8 +111,10 @@ public class ClaimOverviewFragment extends BaseFragment {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(UserService.INST.getUser().getToken() != null) {
-                    UserService.INST.onJwtTokenFetched(UserService.INST.getUser().getToken());
+                if (UserService.INST.getUser().getToken() != null) {
+                    if (UserService.INST.onJwtTokenFetched(UserService.INST.getUser().getToken())) {
+                        return;
+                    }
                 }
                 send();
             }
@@ -242,8 +244,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if (!event.getFilesUploaded()) {
             builder.setMessage(getActivity().getString(R.string.error_uploading_image));
-        }
-        else  {
+        } else {
             builder.setMessage(getActivity().getString(R.string.thanks));
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
@@ -254,6 +255,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         readyDialog = builder.create();
         readyDialog.show();
     }
+
     @Subscribe
     public void onTokenRefreshFailed(final TokenRefreshFailedEvent event) {
         loginButton.setVisibility(View.VISIBLE);
