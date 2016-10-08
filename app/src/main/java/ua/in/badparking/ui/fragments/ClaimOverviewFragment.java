@@ -112,9 +112,7 @@ public class ClaimOverviewFragment extends BaseFragment {
             @Override
             public void onClick(View view) {
                 if (UserService.INST.getUser().getToken() != null) {
-                    if (UserService.INST.onJwtTokenFetched(UserService.INST.getUser().getToken())) {
-                        return;
-                    }
+                    UserService.INST.onJwtTokenFetched(UserService.INST.getUser().getToken());
                 }
                 send();
             }
