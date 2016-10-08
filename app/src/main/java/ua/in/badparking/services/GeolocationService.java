@@ -18,6 +18,7 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Locale;
 
@@ -39,6 +40,9 @@ public enum GeolocationService {
         @Override
         public void onLocationChanged(Location location) {
             lastLocation = location;
+            DecimalFormat df = new DecimalFormat("#.######");
+            ClaimService.INST.getClaim().setLatitude(df.format(location.getLatitude()).replace(",", "."));
+            ClaimService.INST.getClaim().setLongitude(df.format(location.getLongitude()).replace(",", "."));
             EventBus.getDefault().post(new LocationEvent(location));
         }
 
