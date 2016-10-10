@@ -27,6 +27,7 @@ import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.UserApi;
 import ua.in.badparking.api.responses.TokenResponse;
 import ua.in.badparking.events.TokenRefreshFailedEvent;
+import ua.in.badparking.events.TokenRefreshedEvent;
 import ua.in.badparking.events.UserLoadedEvent;
 import ua.in.badparking.events.UserUpdatedEvent;
 import ua.in.badparking.model.User;
@@ -118,7 +119,8 @@ public enum UserService {
                 saveUserToken(tokenResponse.getToken());
                 ClaimService.INST.recreateClaimsApi(tokenResponse.getToken());
                 recreateUserApi(tokenResponse.getToken());
-                UserService.INST.saveUser(getUser());
+                saveUser(getUser());
+                EventBus.getDefault().post(new TokenRefreshedEvent());
             }
 
             @Override
@@ -152,7 +154,7 @@ public enum UserService {
                 ClaimService.INST.recreateClaimsApi(user.getToken());
                 recreateUserApi(user.getToken());
                 saveUserToken(user.getToken());
-                UserService.INST.saveUser(user);
+                saveUser(user);
             }
 
             @Override
@@ -173,7 +175,6 @@ public enum UserService {
         mUserApi = ApiGenerator.INST.createApi(UserApi.class, Constants.API_BASE_URL, tokenHeader);
     }
 
-
     public String getUserToken() {
         return userDataPrefs.getString(USER_TOKEN_KEY, null);
     }
@@ -188,6 +189,7 @@ public enum UserService {
             Jwts.parser()
                     .setSigningKey(key.getBytes("UTF-8"))
                     .parseClaimsJws(tokenHeader).getBody().getExpiration();
+            EventBus.getDefault().post(new TokenRefreshedEvent());
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, "onJwtTokenFetched error", e);
         } catch (ExpiredJwtException e) {
