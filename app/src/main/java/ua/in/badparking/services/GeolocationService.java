@@ -2,6 +2,7 @@ package ua.in.badparking.services;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -67,6 +68,10 @@ public enum GeolocationService {
     }
 
     public void stop() {
+        Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
+        intent.putExtra("enabled", false);
+        context.sendBroadcast(intent);
+
         unsubscribeFromLocationUpdates();
     }
 
@@ -100,7 +105,7 @@ public enum GeolocationService {
 
     public void subscribeToLocationUpdates() {
         if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(context,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
 
