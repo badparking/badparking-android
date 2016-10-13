@@ -7,6 +7,7 @@ import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.MediaActionSound;
+import android.os.Build;
 import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceHolder;
@@ -244,8 +245,13 @@ public class CameraWrapper {
         AudioManager audio = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
         switch( audio.getRingerMode() ){
             case AudioManager.RINGER_MODE_NORMAL:
-                MediaActionSound sound = new MediaActionSound();
-                sound.play(MediaActionSound.SHUTTER_CLICK);
+                MediaActionSound sound = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                    sound = new MediaActionSound();
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    sound.play(MediaActionSound.SHUTTER_CLICK);
+                }
                 break;
             case AudioManager.RINGER_MODE_SILENT:
                 break;
