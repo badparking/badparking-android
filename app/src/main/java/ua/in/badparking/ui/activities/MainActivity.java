@@ -57,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
     private static final boolean DEBUG = BuildConfig.DEBUG;
     private static final String TAG = MainActivity.class.getName();
 
+    private static boolean firstChecked = false;
+
     @BindView(R.id.toolbar_top)
     protected Toolbar toolbarTop;
 
@@ -88,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
         showPage(PAGE_CAPTURE);
 
         GeolocationService.INST.start(getApplicationContext());
+
+
     }
 
     @Override
@@ -105,8 +109,9 @@ public class MainActivity extends AppCompatActivity {
 
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-        if (confirmNetworkProviderAvailable(lm) && !DEBUG) {
+        if (!firstChecked && confirmNetworkProviderAvailable(lm) ) {
             _gpsStatusReceiver = new GpsStatusReceiver();
+            _gpsStatusReceiver.setActivity(this);
             _gpsStatusReceiver.start(this);
 
             _gpsLocationListener = new UserLocationListener();
@@ -114,11 +119,13 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, _gpsLocationListener);
-            }catch (SecurityException se){
+            } catch (SecurityException se) {
 
             }
 
             ClaimService.INST.updateTypes();
+
+            firstChecked = true;
         }
     }
 

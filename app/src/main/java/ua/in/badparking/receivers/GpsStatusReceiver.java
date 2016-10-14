@@ -1,5 +1,6 @@
 package ua.in.badparking.receivers;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,12 +14,13 @@ import static android.content.Context.LOCATION_SERVICE;
 
 public class GpsStatusReceiver extends BroadcastReceiver {
 
+    private Activity activity;
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        Alerts alerts = new Alerts(context);
-        String action = intent.getAction();
+        Alerts alerts = new Alerts(activity);
 
-        if (action.equalsIgnoreCase("android.location.PROVIDERS_CHANGED")){
+        if (intent.getAction().matches("android.location.PROVIDERS_CHANGED")){
             LocationManager lm = (LocationManager) context.getSystemService(LOCATION_SERVICE);
 
             boolean isAvailable = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -37,5 +39,13 @@ public class GpsStatusReceiver extends BroadcastReceiver {
 
     public void stop(Context context) {
         context.unregisterReceiver(this);
+    }
+
+    public Activity getActivity() {
+        return activity;
+    }
+
+    public void setActivity(Activity activity) {
+        this.activity = activity;
     }
 }

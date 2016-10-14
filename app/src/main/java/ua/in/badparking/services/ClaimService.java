@@ -14,7 +14,7 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.mime.TypedFile;
-import ua.in.badparking.Constants;
+import ua.in.badparking.utils.Constants;
 import ua.in.badparking.R;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.ClaimsApi;

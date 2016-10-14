@@ -1,4 +1,4 @@
-package ua.in.badparking;
+package ua.in.badparking.utils;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;

@@ -4,32 +4,36 @@ import android.app.Activity;
 import android.content.Context;
 import android.provider.Settings;
 
-//TODO singleton
-public class Alerts {
-    private Context context;
+import ua.in.badparking.R;
 
-    public Alerts(Context context) {
-        this.context = context;
+public class Alerts {
+    private Activity activity;
+
+    public Alerts(Activity activity) {
+        this.activity = activity;
     }
 
     public void showWifiAlert(){
         AlertUserDialog dialog = new AlertUserDialog();
-        dialog.setDisplayMessage("Please Turn On Wi-Fi");
-        dialog.setSettingsActivityAction(Settings.ACTION_WIFI_SETTINGS);
-        dialog.show(((Activity)context).getFragmentManager(), null);
+        dialog.setDisplayMessage(activity.getResources().getString(R.string.network_not_enabled));
+        dialog.setSettingsActivityAction(Settings.ACTION_SETTINGS);
+        dialog.setActivity(activity);
+        dialog.show(activity.getFragmentManager(), null);
     }
 
     public void showAirModeAlert(){
         AlertUserDialog dialog = new AlertUserDialog();
-        dialog.setDisplayMessage("Please Disable Airplane Mode");
+        dialog.setDisplayMessage(activity.getResources().getString(R.string.air_mode_alert));
         dialog.setSettingsActivityAction(Settings.ACTION_AIRPLANE_MODE_SETTINGS);
-        dialog.show(((Activity)context).getFragmentManager(), null);
+        dialog.setActivity(activity);
+        dialog.show(activity.getFragmentManager(), null);
     }
 
     public void showGpsAlert(){
         AlertUserDialog dialog = new AlertUserDialog();
-        dialog.setDisplayMessage("Please Enable Location Services");
+        dialog.setDisplayMessage(activity.getResources().getString(R.string.gps_network_not_enabled));
         dialog.setSettingsActivityAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-        dialog.show(((Activity)context).getFragmentManager(), null);
+        dialog.setActivity(activity);
+        dialog.show(activity.getFragmentManager(), null);
     }
 }

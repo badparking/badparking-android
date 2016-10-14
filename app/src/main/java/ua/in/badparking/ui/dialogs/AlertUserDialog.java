@@ -2,6 +2,7 @@ package ua.in.badparking.ui.dialogs;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -10,13 +11,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.KeyEvent;
 
 public class AlertUserDialog extends DialogFragment implements DialogInterface.OnClickListener{
     private String displayMessage;
     private String settingsActivityAction;
-
-    public AlertUserDialog() {
-    }
+    private Activity activity;
 
     public String getDisplayMessage() {
         return displayMessage;
@@ -34,20 +34,23 @@ public class AlertUserDialog extends DialogFragment implements DialogInterface.O
         this.settingsActivityAction = settingsActivityAction;
     }
 
+    public void setActivity(Activity activity) {
+        this.activity = activity;
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-            builder = new AlertDialog.Builder(getActivity());
+            builder = new AlertDialog.Builder(activity);
         }
 
         builder.setMessage(displayMessage);
         builder.setPositiveButton("Налаштування", this);
 
-        Dialog theDialog = builder.create();
+        final Dialog theDialog = builder.create();
         theDialog.setCanceledOnTouchOutside(false);
-        theDialog.setCancelable(false);
+        theDialog.setCancelable(true);
 
         return theDialog;
     }
@@ -64,8 +67,5 @@ public class AlertUserDialog extends DialogFragment implements DialogInterface.O
                 dialogInterface.dismiss();
                 break;
         }
-        dialogInterface.dismiss();
     }
-
-
 }

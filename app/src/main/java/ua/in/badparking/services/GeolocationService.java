@@ -9,8 +9,10 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -68,11 +70,21 @@ public enum GeolocationService {
     }
 
     public void stop() {
-        Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
-        intent.putExtra("enabled", false);
-        context.sendBroadcast(intent);
+
+
 
         unsubscribeFromLocationUpdates();
+        turnGPSOff();
+    }
+
+    private void turnGPSOff(){
+        String provider = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+
+        if(provider.contains("gps")){ //if gps is enabled
+            Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
+            intent.putExtra("enabled", false);
+            context.sendBroadcast(intent);
+        }
     }
 
     public Address getAddress(double latitude, double longitude) {

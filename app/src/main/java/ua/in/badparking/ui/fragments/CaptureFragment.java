@@ -46,7 +46,7 @@ import ua.in.badparking.events.ShowHeaderEvent;
 import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.PhotoAdapter;
-import ua.in.badparking.CameraWrapper;
+import ua.in.badparking.utils.CameraWrapper;
 
 /**
  * @author Dima Kovalenko

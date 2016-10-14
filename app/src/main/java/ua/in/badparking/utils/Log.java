@@ -1,4 +1,4 @@
-package ua.in.badparking;
+package ua.in.badparking.utils;
 
 import com.crashlytics.android.Crashlytics;
 
