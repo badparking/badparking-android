@@ -43,7 +43,8 @@
     <string name="additionalInfo">Додаткова інформація:</string>
     <string name="actionbar_title_claim">Реєстрація порушення</string>
     <string name="network_not_enabled">Для корректної роботи додатку необхідний інтернет.</string>
-    <string name="gps_network_not_enabled">Для корректної роботи додатку увiмкнiть будь-ласка геолокацiю в налаштуваннях телефона.</string>
+    <string name="air_mode_alert">Будь ласка, вимкніть режим польоту.</string>
+    <string name="gps_network_not_enabled">Будь ласка, увiмкнiть геолокацiю в налаштуваннях телефона.</string>
     <string name="open_location_settings">Налаштування</string>
     <string name="ok">OK</string>
     <string name="thanks">Дякуємо</string>

@@ -2,17 +2,19 @@ package ua.in.badparking.ui.activities;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
@@ -30,14 +32,19 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
 import ua.in.badparking.events.ShowHeaderEvent;
+import ua.in.badparking.receivers.GpsStatusReceiver;
 import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.services.GeolocationService;
+import ua.in.badparking.services.UserLocationListener;
+import ua.in.badparking.ui.dialogs.Alerts;
 import ua.in.badparking.ui.fragments.BaseFragment;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
@@ -55,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     private static final boolean DEBUG = BuildConfig.DEBUG;
     private static final String TAG = MainActivity.class.getName();
 
+    private static boolean firstChecked = false;
+
     @BindView(R.id.toolbar_top)
     protected Toolbar toolbarTop;
 
@@ -64,11 +73,21 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.stepper_indicator)
     protected StepperIndicator stepperIndicator;
 
+    private LocationListener _gpsLocationListener;
+    private GpsStatusReceiver _gpsStatusReceiver;
+
     private Dialog senderProgressDialog;
     private int mPosition;
-    private AlertDialog locationDialog;
+    private Alerts alerts;
 
-//    private BroadcastReceiver connectionReceiver;
+
+    private final int REQUEST_ID_MULTIPLE_PERMISSIONS = 123;
+
+    private String[] permissions = new String[]{
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.ACCESS_FINE_LOCATION};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,56 +95,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        alerts = new Alerts(this);
+
         setupToolbar();
         if (DEBUG) {
             printDevHashKey();
         }
         showPage(PAGE_CAPTURE);
 
-//        connectionReceiver = new BroadcastReceiver() { TODO uncomment
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                if (isConnected(context) & isLocationEnabled()) {
-//                    start();
-//                }
-//            }
-//        };
-//
-//        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-//        registerReceiver(connectionReceiver, intentFilter);
-
         GeolocationService.INST.start(getApplicationContext());
-    }
 
-    public boolean isConnected(Context context) {
-        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netinfo = cm.getActiveNetworkInfo();
 
-        if (netinfo != null && netinfo.isConnectedOrConnecting()) {
-            NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-
-            return (mobile != null && mobile.isConnectedOrConnecting()) || (wifi != null && wifi.isConnectedOrConnecting());
-        } else
-            return false;
-    }
-
-    public AlertDialog.Builder buildConnectionDialog(Context context) {
-
-        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-        dialog.setMessage(getResources().getString(R.string.network_not_enabled));
-
-        dialog.setPositiveButton(getResources().getString(R.string.open_location_settings),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                        Intent myIntent = new Intent(Settings.ACTION_SETTINGS);
-                        startActivity(myIntent);
-                        paramDialogInterface.dismiss();
-                    }
-                });
-        dialog.setCancelable(false);
-        return dialog;
     }
 
     @Override
@@ -133,22 +113,45 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
 //        unregisterReceiver(connectionReceiver);
         GeolocationService.INST.stop();
+        stopLocationListener();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
-        // checking internet connection
-        if (!isConnected(this) && !DEBUG) {
-            buildConnectionDialog(this).show();
-            return;
-        } else {
-            ClaimService.INST.updateTypes();
+
+        if (checkPermissions()) {
+
+
+            LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+            if (!firstChecked && confirmNetworkProviderAvailable(lm)) {
+                _gpsStatusReceiver = new GpsStatusReceiver();
+                _gpsStatusReceiver.setActivity(this);
+                _gpsStatusReceiver.start(this);
+
+                _gpsLocationListener = new UserLocationListener();
+
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, _gpsLocationListener);
+
+
+                ClaimService.INST.updateTypes();
+
+                firstChecked = true;
+            }
         }
-
-        checkLocationServices();
-
     }
 
     private void printDevHashKey() {
@@ -172,37 +175,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         EventBus.getDefault().unregister(this);
-        if (locationDialog != null && locationDialog.isShowing()) {
-            locationDialog.dismiss();
-        }
         GeolocationService.INST.unsubscribeFromLocationUpdates();
-    }
-
-    private void checkLocationServices() {
-        LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        boolean gps_enabled = false;
-
-        try {
-            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch (Exception ex) {
-        }
-
-        if (!gps_enabled) {
-            // notify user
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
-            builder.setPositiveButton(getResources().getString(R.string.open_location_settings),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                            Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivity(myIntent);
-                            paramDialogInterface.dismiss();
-                        }
-                    });
-            builder.setCancelable(false);
-            locationDialog = builder.show();
-        }
     }
 
     private void setupToolbar() {
@@ -233,7 +206,6 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
 
     @Override
     public void onBackPressed() {
@@ -279,5 +251,88 @@ public class MainActivity extends AppCompatActivity {
         }
         transaction.commit();
         stepperIndicator.onPageSelected(position);
+    }
+
+    private void stopLocationListener() {
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        if (_gpsLocationListener != null) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+
+            lm.removeUpdates(_gpsLocationListener);
+
+            _gpsLocationListener = null;
+        }
+
+        if (_gpsStatusReceiver != null) {
+            _gpsStatusReceiver.stop(this);
+            _gpsStatusReceiver = null;
+        }
+    }
+
+    boolean confirmNetworkProviderAvailable(LocationManager lm) {
+        // TODO: Consider calling
+        //    ActivityCompat#requestPermissions
+        // here to request the missing permissions, and then overriding
+        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+        //                                          int[] grantResults)
+        // to handle the case where the user grants the permission. See the documentation
+        // for ActivityCompat#requestPermissions for more details.
+        return confirmAirplaneModeOff() && confirmWiFiAvailable() && confirmNetworkProviderEnabled(lm);
+    }
+
+    boolean confirmNetworkProviderEnabled(LocationManager lm) {
+
+        boolean isAvailable = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        if (!isAvailable) {
+            alerts.showGpsAlert();
+        }
+
+        return isAvailable;
+    }
+
+    boolean confirmAirplaneModeOff() {
+        boolean isOff = Settings.System.getInt(getContentResolver(),
+                Settings.System.AIRPLANE_MODE_ON, 0) == 0;
+
+        if (!isOff) {
+            alerts.showAirModeAlert();
+        }
+
+        return isOff;
+    }
+
+    boolean confirmWiFiAvailable() {
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+        boolean isConnected = (wifi != null && wifi.isConnectedOrConnecting()) ||
+                (mobile != null && mobile.isConnectedOrConnecting());
+
+        if (!isConnected) {
+            alerts.showWifiAlert();
+        }
+
+        return isConnected;
+    }
+
+    private boolean checkPermissions() {
+        int result;
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        for (String p : permissions) {
+            result = ContextCompat.checkSelfPermission(this, p);
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                listPermissionsNeeded.add(p);
+            }
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_ID_MULTIPLE_PERMISSIONS);
+            return false;
+        }
+        return true;
     }
 }

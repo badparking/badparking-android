@@ -1,4 +1,4 @@
-package ua.in.badparking;
+package ua.in.badparking.utils;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -7,6 +7,8 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+
+import ua.in.badparking.R;
 
 public class Utils {
     private static final String TAG = "Utils";
