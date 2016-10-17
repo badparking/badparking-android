@@ -40,6 +40,7 @@ import ua.in.badparking.R;
 import ua.in.badparking.events.ClaimPostedEvent;
 import ua.in.badparking.events.ImageUploadedEvent;
 import ua.in.badparking.events.TokenRefreshFailedEvent;
+import ua.in.badparking.events.TokenRefreshedEvent;
 import ua.in.badparking.events.UserUpdatedEvent;
 import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.CrimeType;
@@ -111,10 +112,9 @@ public class ClaimOverviewFragment extends BaseFragment {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (UserService.INST.getUser().getToken() != null) {
+                if (UserService.INST.getUser() != null) {
                     UserService.INST.onJwtTokenFetched(UserService.INST.getUser().getToken());
                 }
-                send();
             }
         });
 
@@ -260,6 +260,10 @@ public class ClaimOverviewFragment extends BaseFragment {
         mSendButton.setVisibility(View.GONE);
     }
 
+    @Subscribe
+    public void onTokenRefreshed(final TokenRefreshedEvent event) {
+        send();
+    }
 
     @Subscribe
     public void onClaimPosted(final ClaimPostedEvent event) {

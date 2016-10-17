@@ -19,6 +19,10 @@ public interface UserApi {
     @POST("/token/refresh")
     void refreshToken(@FieldMap() Map tokenRequest, Callback<TokenResponse> responseCallback);
 
+    @FormUrlEncoded
+    @POST("/token/refresh")
+    TokenResponse refreshToken(@FieldMap() Map tokenRequest);
+
 //    @Multipart
 //    @POST("/token/verify")
 //    void verifyToken(@Part("token") TypedString token, Callback<TokenResponse> responseCallback);
