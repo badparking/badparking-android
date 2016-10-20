@@ -14,7 +14,6 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.mime.TypedFile;
-import ua.in.badparking.utils.Constants;
 import ua.in.badparking.R;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.ClaimsApi;
@@ -26,6 +25,7 @@ import ua.in.badparking.events.TypesLoadedEvent;
 import ua.in.badparking.model.Claim;
 import ua.in.badparking.model.CrimeType;
 import ua.in.badparking.model.MediaFile;
+import ua.in.badparking.utils.Constants;
 
 public enum ClaimService {
     INST;
@@ -37,7 +37,6 @@ public enum ClaimService {
     private Context context;
     private List<CrimeType> availableCrimeTypes;
 
-    private String mLicensePlates;
     private Claim claim = new Claim();
     private String pk;
     private List<String> uploadedPictures = new ArrayList<>();
@@ -195,10 +194,15 @@ public enum ClaimService {
         return selectedCrimeTypeList;
     }
 
-    public String getFullAddress() {
+    public String getOverviewAddress() {
+        if(claim.getCity().equals("unrecognized") && claim.getAddress().equals("unrecognized")){
+            return claim.getLatitude() + ", " + claim.getLongitude();
+        }
+
         if (claim.getCity() != null && claim.getAddress() != null) {
             return getClaim().getCity() + ", " + getClaim().getAddress();
         }
+
         return "";
     }
 

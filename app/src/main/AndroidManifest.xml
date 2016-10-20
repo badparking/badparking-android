@@ -29,7 +29,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key_kovalenych"/>
+            android:value="@string/google_maps_key_vdranik"/>
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -60,8 +60,15 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             tools:replace="android:theme" />
 
-        <receiver android:name=".receivers.GpsStatusReceiver">
-        </receiver>
+        <receiver android:name=".receivers.GpsStatusReceiver" />
+        <receiver android:name=".ui.fragments.LocationFragment$LocationInfoReceiver" />
+
+        <service android:name=".services.TrackingService">
+            <intent-filter>
+                <action android:name="ua.in.badparking.START_MONITORING" />
+                <action android:name="ua.in.badparking.STOP_MONITORING" />
+            </intent-filter>
+        </service>
 
         <meta-data
             android:name="com.crashlytics.ApiKey"
