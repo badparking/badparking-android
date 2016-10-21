@@ -55,7 +55,7 @@ public class ClaimTypeFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         if (ClaimService.INST.getAvailableCrimeTypes() != null) {
-            CrimeTypeAdapter crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), ClaimService.INST.getAvailableCrimeTypes(), nextButton);
+            CrimeTypeAdapter crimeTypeAdapter = new CrimeTypeAdapter(getActivity(), ClaimService.INST.getAvailableCrimeTypes());
             listView.setAdapter(crimeTypeAdapter);
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -65,7 +65,7 @@ public class ClaimTypeFragment extends BaseFragment {
                     SparseBooleanArray checkedItems = listView.getCheckedItemPositions();
                     if (checkedItems != null) {
                         Set<Integer> checkedCrimeTypesId = new HashSet<>();
-                        for (int i=0; i<checkedItems.size(); i++) {
+                        for (int i = 0; i < checkedItems.size(); i++) {
                             CrimeType ct = ClaimService.INST.getAvailableCrimeTypes().get(checkedItems.keyAt(i));
                             checkedCrimeTypesId.add(ct.getId());
                             checkedCrimeTypesList.add(ct);
@@ -74,6 +74,7 @@ public class ClaimTypeFragment extends BaseFragment {
                         ClaimService.INST.getClaim().getCrimetypes().clear();
                         ClaimService.INST.getClaim().getCrimetypes().addAll(checkedCrimeTypesId);
                         EventBus.getDefault().post(new CrimeTypeEvent(checkedCrimeTypesList));
+                        nextButton.setVisibility(checkedItems.size() > 0 ? View.VISIBLE : View.GONE);
                     }
                 }
             });
@@ -85,7 +86,7 @@ public class ClaimTypeFragment extends BaseFragment {
                 ((MainActivity)getActivity()).showPage(MainActivity.PAGE_MAP);
             }
         });
-//        nextButton.setVisibility(View.GONE);
+        nextButton.setVisibility(View.GONE);
     }
 
     public static BaseFragment newInstance() {

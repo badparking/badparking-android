@@ -50,7 +50,7 @@ import static android.content.Context.LOCATION_SERVICE;
  * @author Dima Kovalenko & Vladimir Dranik
  */
 public class LocationFragment extends BaseFragment implements OnMapReadyCallback,
-        GoogleMap.OnMyLocationButtonClickListener{
+        GoogleMap.OnMyLocationButtonClickListener {
 
     private static final String TAG = LocationFragment.class.getName();
     private static final int LOCATION_ZOOM = 17;
@@ -69,9 +69,9 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     private Geocoder geocoder;
     private SupportMapFragment mMapFragment;
 
-    private static LatLng currentLocation;
-    private static Address currentAddress;
-    private static boolean isFirstAnimate = true;
+    private LatLng currentLocation;
+    private Address currentAddress;
+    private boolean isFirstAnimate = true;
 
     public static BaseFragment newInstance() {
         return new LocationFragment();
@@ -79,7 +79,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        LocationManager lm = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE); //вынести в общие
+        LocationManager lm = (LocationManager)getActivity().getSystemService(LOCATION_SERVICE); //вынести в общие
 
         if (ActivityCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -91,7 +91,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         geocoder = new Geocoder(getActivity(), Locale.getDefault());
 
-        if(location != null) {
+        if (location != null) {
             currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
             currentAddress = getCurrentAddress(currentLocation);
         }
@@ -118,7 +118,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                 ClaimService.INST.getClaim().setLatitude(String.valueOf(currentLocation.latitude));
                 ClaimService.INST.getClaim().setLongitude(String.valueOf(currentLocation.longitude));
 
-                if(currentAddress == null) {
+                if (currentAddress == null) {
                     ClaimService.INST.getClaim().setCity("unrecognized");
                     ClaimService.INST.getClaim().setAddress("unrecognized");
                 } else {
@@ -129,7 +129,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                     ClaimService.INST.getClaim().setAddress((addressStr != null) ? addressStr : "unrecognized");
                 }
 
-                ((MainActivity) getActivity()).showPage(MainActivity.PAGE_CLAIM_OVERVIEW);
+                ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CLAIM_OVERVIEW);
             }
         });
     }
@@ -138,7 +138,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     public void onResume() {
         super.onResume();
 
-        if(currentLocation == null) {
+        if (currentLocation == null) {
             showTimePositioningHint();
             nextButton.setVisibility(View.GONE);
         } else {
@@ -197,8 +197,8 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                     //.tilt(45)
                     .build();
 
-           // mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
-            if(isFirstAnimate) {
+            // mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+            if (isFirstAnimate) {
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 2000, null);
                 isFirstAnimate = false;
             } else {
@@ -213,30 +213,30 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     }
 
     private void showTimePositioningHint() {
-            Toast toast = Toast.makeText(getContext(), getResources().getText(R.string.please_wait_gps), Toast.LENGTH_LONG);
-            LinearLayout layout = (LinearLayout)toast.getView();
-            if (layout.getChildCount() > 0) {
-                TextView tv = (TextView)layout.getChildAt(0);
-                tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-            }
-            toast.setGravity(Gravity.CENTER, 0, 0);
-            toast.show();
+        Toast toast = Toast.makeText(getContext(), getResources().getText(R.string.please_wait_gps), Toast.LENGTH_LONG);
+        LinearLayout layout = (LinearLayout)toast.getView();
+        if (layout.getChildCount() > 0) {
+            TextView tv = (TextView)layout.getChildAt(0);
+            tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        }
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 
-    private void setAddressUI(Address address){
+    private void setAddressUI(Address address) {
         if (address == null) {
             positioningText.setText(String.valueOf(currentLocation.longitude + ", " + currentLocation.longitude));
         } else {
             String city = (address.getLocality() != null) ? address.getLocality() + ", " : "";
             String addressStr = (address.getAddressLine(0) != null) ? address.getAddressLine(0) : "";
 
-            if(city.isEmpty() && addressStr.isEmpty()){
+            if (city.isEmpty() && addressStr.isEmpty()) {
                 String.valueOf(currentLocation.longitude + ", " + currentLocation.longitude);
             } else positioningText.setText(city + addressStr);
         }
     }
 
-    private Address getCurrentAddress(LatLng latLng){
+    private Address getCurrentAddress(LatLng latLng) {
         GeocoderAsynkTask geocoderAsynkTask = new GeocoderAsynkTask(geocoder);
         geocoderAsynkTask.execute(latLng);
         Address address;
@@ -255,7 +255,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().matches(Constants.SEND_LOCATION_INFO_ACTION)){
+            if (intent.getAction().matches(Constants.SEND_LOCATION_INFO_ACTION)) {
                 String action = intent.getAction();
                 Log.d(LogHelper.LOCATION_MONITORING_TAG, "Monitor Location BROADCAST **1** Intent Action:" + action);
 
@@ -264,16 +264,16 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                 double longitude = extras.getDouble(Constants.LONGITUDE);
 
                 Log.d(LogHelper.LOCATION_MONITORING_TAG, "****Location Changed - " + latitude + " " + longitude);
-                currentLocation = new LatLng(latitude,longitude);
+                currentLocation = new LatLng(latitude, longitude);
 
-                if(mMap != null){
+                if (mMap != null) {
                     mapPositioning(mMap, currentLocation);
                 }
 
                 currentAddress = getCurrentAddress(currentLocation);
                 setAddressUI(currentAddress);
 
-                if(nextButton.getVisibility() == View.GONE){
+                if (nextButton.getVisibility() == View.GONE) {
                     nextButton.setVisibility(View.VISIBLE);
                 }
             }

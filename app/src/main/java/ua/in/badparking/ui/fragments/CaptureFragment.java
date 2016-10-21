@@ -18,7 +18,9 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -118,6 +120,24 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         recyclerView.setAdapter(photoAdapter);
         recyclerView.setHasFixedSize(true);
         onPhotosUpdated();
+
+        platesEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                int photosTaken = ClaimService.INST.getClaim().getPhotoFiles().size();
+                nextButton.setVisibility(photosTaken > 1 && platesEditText.getText().length() > 0 ? View.VISIBLE : View.GONE);
+            }
+        });
     }
 
     @Override
@@ -129,7 +149,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void onPhotosUpdated() {
         int photosTaken = ClaimService.INST.getClaim().getPhotoFiles().size();
-        nextButton.setVisibility(photosTaken > 1 ? View.VISIBLE : View.GONE);
+        nextButton.setVisibility(photosTaken > 1 && platesEditText.getText().length() > 0 ? View.VISIBLE : View.GONE);
         snapButton.setVisibility(photosTaken > 1 ? View.GONE : View.VISIBLE);
         if (photosTaken == 0) {
             messageView.setText(R.string.capture_claim);
@@ -144,7 +164,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             platesEditText.setVisibility(View.VISIBLE);
             platesPreviewImage.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
-//            surfaceView.setVisibility(View.GONE);
+//            surfaceView.setVisibility(View.GONE); // TODO
             setPic(platesPreviewImage, ClaimService.INST.getClaim().getPhotoFiles().get(0).getPath());
             if (TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())) {
                 new Handler().postDelayed(new Runnable() {

@@ -18,7 +18,7 @@ import ua.in.badparking.model.CrimeType;
  */
 public class CrimeTypeAdapter extends ArrayAdapter<CrimeType> {
 
-    public CrimeTypeAdapter(Context context, List<CrimeType> crimeTypes, Button nextButton) {
+    public CrimeTypeAdapter(Context context, List<CrimeType> crimeTypes) {
         super(context, 0, crimeTypes);
     }
 
