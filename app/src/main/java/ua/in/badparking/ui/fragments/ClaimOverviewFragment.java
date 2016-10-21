@@ -163,7 +163,7 @@ public class ClaimOverviewFragment extends BaseFragment {
             mSendButton.setVisibility(View.GONE);
         }
         carPlateNumberTextView.setText(ClaimService.INST.getClaim().getLicensePlates());
-        addressTextView.setText(ClaimService.INST.getFullAddress());
+        addressTextView.setText(ClaimService.INST.getOverviewAddress());
     }
 
     private void send() {

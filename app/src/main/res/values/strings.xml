@@ -22,7 +22,7 @@
     <string name="from_gallery">З галереї</string>
     <string name="no_connection">Немає мережi</string>
     <string name="choose_photo_mode">Ви можете зробити нове фото або додати фото з галереї</string>
-    <string name="positioning_in_progress">Miсцезнаходження визначається</string>
+    <string name="positioning_in_progress">Miсцезнаходження визначається...</string>
     <string name="please_wait_gps">Будь ласка, зачекайте для більш точного геопозиціювання або встановть адресу вручну</string>
     <string name="error">Помилка</string>
     <string name="simple_mode">Простий режим</string>

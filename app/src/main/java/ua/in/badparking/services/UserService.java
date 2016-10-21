@@ -20,9 +20,6 @@ import io.jsonwebtoken.Jwts;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import ua.in.badparking.utils.Constants;
-import ua.in.badparking.utils.Log;
-import ua.in.badparking.utils.Utils;
 import ua.in.badparking.api.ApiGenerator;
 import ua.in.badparking.api.UserApi;
 import ua.in.badparking.api.responses.TokenResponse;
@@ -31,6 +28,9 @@ import ua.in.badparking.events.TokenRefreshedEvent;
 import ua.in.badparking.events.UserLoadedEvent;
 import ua.in.badparking.events.UserUpdatedEvent;
 import ua.in.badparking.model.User;
+import ua.in.badparking.utils.Constants;
+import ua.in.badparking.utils.LogHelper;
+import ua.in.badparking.utils.Utils;
 
 public enum UserService {
     INST;
@@ -160,7 +160,7 @@ public enum UserService {
             @Override
             public void failure(RetrofitError error) {
                 // TODO : show error dialog
-                Log.e(TAG, "authorizeWithFacebook call failed", error);
+                LogHelper.e(TAG, "authorizeWithFacebook call failed", error);
             }
         });
     }
@@ -191,7 +191,7 @@ public enum UserService {
                     .parseClaimsJws(tokenHeader).getBody().getExpiration();
             EventBus.getDefault().post(new TokenRefreshedEvent());
         } catch (UnsupportedEncodingException e) {
-            Log.e(TAG, "onJwtTokenFetched error", e);
+            LogHelper.e(TAG, "onJwtTokenFetched error", e);
         } catch (ExpiredJwtException e) {
             refreshToken(tokenHeader);
         }
