@@ -1,8 +1,8 @@
 package ua.in.badparking.ui.activities;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
-import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -41,9 +41,9 @@ import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
 import ua.in.badparking.events.ShowHeaderEvent;
 import ua.in.badparking.receivers.GpsStatusReceiver;
+import ua.in.badparking.receivers.UserLocationListener;
 import ua.in.badparking.services.ClaimService;
-import ua.in.badparking.services.GeolocationService;
-import ua.in.badparking.services.UserLocationListener;
+import ua.in.badparking.services.TrackingService;
 import ua.in.badparking.ui.dialogs.Alerts;
 import ua.in.badparking.ui.fragments.BaseFragment;
 import ua.in.badparking.ui.fragments.CaptureFragment;
@@ -59,9 +59,9 @@ public class MainActivity extends AppCompatActivity {
     public final static int PAGE_MAP = 2;
     public final static int PAGE_CLAIM_OVERVIEW = 3;
 
+    private final int REQUEST_ID_MULTIPLE_PERMISSIONS = 123;
     private static final boolean DEBUG = BuildConfig.DEBUG;
     private static final String TAG = MainActivity.class.getName();
-
     private static boolean firstChecked = false;
 
     @BindView(R.id.toolbar_top)
@@ -73,15 +73,11 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.stepper_indicator)
     protected StepperIndicator stepperIndicator;
 
-    private LocationListener _gpsLocationListener;
-    private GpsStatusReceiver _gpsStatusReceiver;
+    private LocationListener gpsLocationListener;
+    private GpsStatusReceiver gpsStatusReceiver;
 
-    private Dialog senderProgressDialog;
     private int mPosition;
     private Alerts alerts;
-
-
-    private final int REQUEST_ID_MULTIPLE_PERMISSIONS = 123;
 
     private String[] permissions = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -101,20 +97,16 @@ public class MainActivity extends AppCompatActivity {
         if (DEBUG) {
             printDevHashKey();
         }
+
         showPage(PAGE_CAPTURE);
-
-        GeolocationService.INST.start(getApplicationContext());
-
-
+        controlTrackingService(TrackingService.ACTION_START_MONITORING);
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-//        unregisterReceiver(connectionReceiver);
-        GeolocationService.INST.stop();
         stopLocationListener();
-
+        controlTrackingService(TrackingService.ACTION_STOP_MONITORING);
+        super.onDestroy();
     }
 
     @Override
@@ -123,32 +115,24 @@ public class MainActivity extends AppCompatActivity {
         EventBus.getDefault().register(this);
 
         if (checkPermissions()) {
-
-
             LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
 
             if (!firstChecked && confirmNetworkProviderAvailable(lm)) {
-                _gpsStatusReceiver = new GpsStatusReceiver();
-                _gpsStatusReceiver.setActivity(this);
-                _gpsStatusReceiver.start(this);
+                gpsStatusReceiver = new GpsStatusReceiver();
+                gpsStatusReceiver.setActivity(this);
+                gpsStatusReceiver.start(this);
 
-                _gpsLocationListener = new UserLocationListener();
+                gpsLocationListener = new UserLocationListener(this);
 
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
+                if (ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                        ActivityCompat.checkSelfPermission(this,
+                                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    //permission logic
                 }
-                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, _gpsLocationListener);
 
-
+                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsLocationListener);
                 ClaimService.INST.updateTypes();
-
                 firstChecked = true;
             }
         }
@@ -165,9 +149,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
             }
         } catch (PackageManager.NameNotFoundException e) {
-
         } catch (NoSuchAlgorithmException e) {
-
         }
     }
 
@@ -175,7 +157,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         EventBus.getDefault().unregister(this);
-        GeolocationService.INST.unsubscribeFromLocationUpdates();
     }
 
     private void setupToolbar() {
@@ -217,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showSenderDialogWithMessage() {
-        senderProgressDialog = new Dialog(this);
+        Dialog senderProgressDialog = new Dialog(this);
         senderProgressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         senderProgressDialog.setContentView(R.layout.dialog_sending_progress);
         senderProgressDialog.show();
@@ -256,30 +237,25 @@ public class MainActivity extends AppCompatActivity {
     private void stopLocationListener() {
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-        if (_gpsLocationListener != null) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
+        if (gpsLocationListener != null) {
+            if (ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    //permission logic
             }
 
-            lm.removeUpdates(_gpsLocationListener);
-
-            _gpsLocationListener = null;
+            lm.removeUpdates(gpsLocationListener);
+            gpsLocationListener = null;
         }
 
-        if (_gpsStatusReceiver != null) {
-            _gpsStatusReceiver.stop(this);
-            _gpsStatusReceiver = null;
+        if (gpsStatusReceiver != null) {
+            gpsStatusReceiver.stop(this);
+            gpsStatusReceiver = null;
         }
     }
 
     boolean confirmNetworkProviderAvailable(LocationManager lm) {
-        // TODO: Consider calling
-        //    ActivityCompat#requestPermissions
-        // here to request the missing permissions, and then overriding
-        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-        //                                          int[] grantResults)
-        // to handle the case where the user grants the permission. See the documentation
-        // for ActivityCompat#requestPermissions for more details.
         return confirmAirplaneModeOff() && confirmWiFiAvailable() && confirmNetworkProviderEnabled(lm);
     }
 
@@ -323,16 +299,27 @@ public class MainActivity extends AppCompatActivity {
     private boolean checkPermissions() {
         int result;
         List<String> listPermissionsNeeded = new ArrayList<>();
+
         for (String p : permissions) {
             result = ContextCompat.checkSelfPermission(this, p);
             if (result != PackageManager.PERMISSION_GRANTED) {
                 listPermissionsNeeded.add(p);
             }
         }
+
         if (!listPermissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_ID_MULTIPLE_PERMISSIONS);
+            ActivityCompat.requestPermissions(this,
+                    listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),
+                    REQUEST_ID_MULTIPLE_PERMISSIONS);
             return false;
         }
+
         return true;
+    }
+
+    private void controlTrackingService(String command) {
+        Intent onTrackingServiceIntent = new Intent(this, TrackingService.class);
+        onTrackingServiceIntent.setAction(command);
+        startService(onTrackingServiceIntent);
     }
 }
