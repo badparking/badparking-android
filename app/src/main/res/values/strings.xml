@@ -55,6 +55,10 @@
     <string name="error_uploading_image">Помилка завантаження зображень</string>
     <string name="claim_overview_complete_user_message">Необхідно заповнити дані користувача</string>
 
+    <string name="camera_permission_confirmation">This app demonstrates the usage of CameraView. In order to do that, it needs permission to access camera.</string>
+    <string name="camera_permission_not_granted">Camera app cannot do anything without camera permission.</string>
+
+
     <string-array name="report_types">
         <item>Стоянка на пішохідному переході</item>
         <item>Стоянка на перехресті</item>
