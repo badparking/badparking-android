@@ -162,7 +162,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             platesPreviewImage.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
 //            surfaceView.setVisibility(View.GONE); // TODO
-            setPic(platesPreviewImage, ClaimService.INST.getClaim().getPhotoFiles().get(0).getPath());
+            setPic(platesPreviewImage, ClaimService.INST.getClaim().getPhotoFiles().get(1).getPath());
             if (TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())) {
                 new Handler().postDelayed(new Runnable() {
                     @Override
