@@ -54,7 +54,6 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     private static final String TAG = LocationFragment.class.getName();
     private static final int LOCATION_ZOOM = 17;
-    private static final int MAX_LAT_LON_LENGTH = 9;
 
     @BindView(R.id.positioning_text_view)
     TextView positioningText;
@@ -116,13 +115,8 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             @Override
             public void onClick(View view) {
 
-                String lat = String.valueOf(currentLocation.latitude);
-                String lon = String.valueOf(currentLocation.longitude);
-
-                ClaimService.INST.getClaim().setLatitude((lat.length() > MAX_LAT_LON_LENGTH) ?
-                        lat.substring(0, MAX_LAT_LON_LENGTH) : lat);
-                ClaimService.INST.getClaim().setLongitude((lon.length() > MAX_LAT_LON_LENGTH) ?
-                        lon.substring(0, MAX_LAT_LON_LENGTH) : lon);
+                ClaimService.INST.getClaim().setLatitude(String.valueOf(currentLocation.latitude));
+                ClaimService.INST.getClaim().setLongitude(String.valueOf(currentLocation.longitude));
 
                 if (currentAddress == null) {
                     ClaimService.INST.getClaim().setCity("unrecognized");
