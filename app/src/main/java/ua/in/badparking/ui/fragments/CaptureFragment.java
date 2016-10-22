@@ -1,33 +1,23 @@
 package ua.in.badparking.ui.fragments;
 
 import android.Manifest;
-import android.app.Dialog;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.hardware.Camera;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
+import android.media.AudioManager;
+import android.media.MediaActionSound;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -35,28 +25,21 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.cameraview.CameraView;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -66,7 +49,7 @@ import ua.in.badparking.events.ShowHeaderEvent;
 import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.PhotoAdapter;
-import ua.in.badparking.utils.CameraWrapper;
+import ua.in.badparking.utils.ConfirmationDialogFragment;
 
 /**
  * @author Dima Kovalenko
@@ -206,9 +189,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         cameraView.stop();
         removePhoneKeypad();
         super.onPause();
-
     }
-
 
     private static final int REQUEST_CAMERA_PERMISSION = 1;
 
@@ -224,77 +205,21 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                 Manifest.permission.CAMERA)) {
             ConfirmationDialogFragment
                     .newInstance(R.string.camera_permission_confirmation,
-                            new String[]{Manifest.permission.CAMERA},
+                            new String[] {Manifest.permission.CAMERA},
                             REQUEST_CAMERA_PERMISSION,
                             R.string.camera_permission_not_granted)
                     .show(getActivity().getSupportFragmentManager(), FRAGMENT_DIALOG);
         } else {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA},
+            ActivityCompat.requestPermissions(getActivity(), new String[] {Manifest.permission.CAMERA},
                     REQUEST_CAMERA_PERMISSION);
         }
-    }
-
-    public static class ConfirmationDialogFragment extends DialogFragment {
-
-        private static final String ARG_MESSAGE = "message";
-        private static final String ARG_PERMISSIONS = "permissions";
-        private static final String ARG_REQUEST_CODE = "request_code";
-        private static final String ARG_NOT_GRANTED_MESSAGE = "not_granted_message";
-
-        public static ConfirmationDialogFragment newInstance(@StringRes int message,
-                                                             String[] permissions, int requestCode,
-                                                             @StringRes int notGrantedMessage) {
-            ConfirmationDialogFragment fragment = new ConfirmationDialogFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_MESSAGE, message);
-            args.putStringArray(ARG_PERMISSIONS, permissions);
-            args.putInt(ARG_REQUEST_CODE, requestCode);
-            args.putInt(ARG_NOT_GRANTED_MESSAGE, notGrantedMessage);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final Bundle args = getArguments();
-            return new AlertDialog.Builder(getActivity())
-                    .setMessage(args.getInt(ARG_MESSAGE))
-                    .setPositiveButton(android.R.string.ok,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    String[] permissions = args.getStringArray(ARG_PERMISSIONS);
-                                    if (permissions == null) {
-                                        throw new IllegalArgumentException();
-                                    }
-                                    ActivityCompat.requestPermissions(getActivity(),
-                                            permissions, args.getInt(ARG_REQUEST_CODE));
-                                }
-                            })
-                    .setNegativeButton(android.R.string.cancel,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Toast.makeText(getActivity(),
-                                            args.getInt(ARG_NOT_GRANTED_MESSAGE),
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            })
-                    .create();
-        }
-
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.snap:
-//                if (cameraWrapper.isSafeToTakePicture()) {
-//                    cameraWrapper.getCamera().takePicture(null, null, jpegCallback);
-//                    cameraWrapper.shootSound();
-//                    cameraWrapper.setSafeToTakePicture(false);
-//                }
+                shootSound();
                 if (cameraView != null) {
                     cameraView.takePicture();
                 }
@@ -326,45 +251,8 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         onPhotosUpdated();
     }
 
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-            //The coordinate-system is defined relative to the screen of the phone in its default orientation
-            int orientation = 0;
-            float roll = 0;
-            float pitch = 0;
-            switch (getActivity().getWindowManager().getDefaultDisplay().getRotation()) {
-                case Surface.ROTATION_0:
-                    roll = event.values[2];
-                    pitch = event.values[1];
-                    break;
-                case Surface.ROTATION_90:
-                    roll = event.values[1];
-                    pitch = -event.values[2];
-                    break;
-                case Surface.ROTATION_180:
-                    roll = -event.values[2];
-                    pitch = -event.values[1];
-                    break;
-                case Surface.ROTATION_270:
-                    roll = -event.values[1];
-                    pitch = event.values[2];
-                    break;
-            }
-            if (pitch < 45 && roll >= 45) orientation = 0;
-            else if (roll >= -45 && roll < 45) orientation = 90;
-            else if (pitch < 45 && roll < -45) orientation = 180;
-            else if (roll >= -45 && roll < 45) orientation = 270;
-
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
-
-
     private Handler mBackgroundHandler;
+
     private Handler getBackgroundHandler() {
         if (mBackgroundHandler == null) {
             HandlerThread thread = new HandlerThread("background");
@@ -374,8 +262,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         return mBackgroundHandler;
     }
 
-    private CameraView.Callback mCallback
-            = new CameraView.Callback() {
+    private CameraView.Callback mCallback = new CameraView.Callback() {
 
         @Override
         public void onCameraOpened(CameraView cameraView) {
@@ -505,5 +392,25 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             cursor.close();
         }
         return selected;
+    }
+
+
+    public void shootSound() {
+        AudioManager audio = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
+        switch (audio.getRingerMode()) {
+            case AudioManager.RINGER_MODE_NORMAL:
+                MediaActionSound sound = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                    sound = new MediaActionSound();
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    sound.play(MediaActionSound.SHUTTER_CLICK);
+                }
+                break;
+            case AudioManager.RINGER_MODE_SILENT:
+                break;
+            case AudioManager.RINGER_MODE_VIBRATE:
+                break;
+        }
     }
 }
