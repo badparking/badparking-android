@@ -3,19 +3,16 @@ package ua.in.badparking.ui.fragments;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.hardware.SensorEventListener;
 import android.media.AudioManager;
 import android.media.MediaActionSound;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -40,6 +37,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,6 +49,7 @@ import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.PhotoAdapter;
 import ua.in.badparking.utils.ConfirmationDialogFragment;
+import ua.in.badparking.utils.Utils;
 
 /**
  * @author Dima Kovalenko
@@ -57,9 +57,12 @@ import ua.in.badparking.utils.ConfirmationDialogFragment;
  * @author Volodymyr Dranyk
  */
 @SuppressWarnings("deprecation")
-public class CaptureFragment extends BaseFragment implements View.OnClickListener, PhotoAdapter.PhotosUpdatedListener, SensorEventListener {
+public class CaptureFragment extends BaseFragment implements View.OnClickListener, PhotoAdapter.PhotosUpdatedListener {
 
     private static final String TAG = CaptureFragment.class.getName();
+
+    private static final int REQUEST_CAMERA_PERMISSION = 1;
+    private static final String FRAGMENT_DIALOG = "dialog";
 
     @BindView(R.id.camera)
     protected CameraView cameraView;
@@ -120,12 +123,10 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         platesEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
@@ -191,10 +192,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         super.onPause();
     }
 
-    private static final int REQUEST_CAMERA_PERMISSION = 1;
-
-    private static final String FRAGMENT_DIALOG = "dialog";
-
     @Override
     public void onResume() {
         super.onResume();
@@ -219,7 +216,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.snap:
-                shootSound();
+                Utils.shootSound(getActivity());
                 if (cameraView != null) {
                     cameraView.takePicture();
                 }
@@ -275,17 +272,14 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         }
 
         @Override
-        public void onPictureTaken(CameraView cameraView, final byte[] data) {
+        public void onPictureTaken(final CameraView cameraView, final byte[] data) {
             Log.d(TAG, "onPictureTaken " + data.length);
-//            Toast.makeText(cameraView.getContext(), R.string.picture_taken, Toast.LENGTH_SHORT)
-//                    .show();
             getBackgroundHandler().post(new Runnable() {
                 @Override
                 public void run() {
                     // This demo app saves the taken picture to a constant file.
                     // $ adb pull /sdcard/Android/data/com.google.android.cameraview.demo/files/Pictures/picture.jpg
-                    File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                            "picture.jpg");
+                    final File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), Utils.getFileName());
                     OutputStream os = null;
                     try {
                         os = new FileOutputStream(file);
@@ -302,115 +296,17 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                             }
                         }
                     }
+                    cameraView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            onImageFileCreated(file.getPath());
+                        }
+                    });
+
                 }
             });
         }
 
     };
 
-//    private class SaveImageTask extends AsyncTask<byte[], Void, String> {
-//
-//        private final int QUALITY_PHOTO = 40;
-//
-//        @Override
-//        protected String doInBackground(byte[]... data) {
-//            Uri imageFileUri = getActivity().getContentResolver().insert(
-//                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new ContentValues());
-//            try {
-//                OutputStream imageFileOS = null;
-//                if (imageFileUri != null) {
-//                    imageFileOS = getActivity().getContentResolver().openOutputStream(
-//                            imageFileUri);
-//                }
-//
-//                BitmapFactory.Options options = new BitmapFactory.Options();
-//                Bitmap photoBm = BitmapFactory.decodeByteArray(data[0], 0, data[0].length, options);
-//
-//                int bmOriginalWidth = photoBm.getWidth();
-//                int bmOriginalHeight = photoBm.getHeight();
-//                double originalWidthToHeightRatio = 1.0 * bmOriginalWidth / bmOriginalHeight;
-//                double originalHeightToWidthRatio = 1.0 * bmOriginalHeight / bmOriginalWidth;
-//
-//                photoBm = getScaledBitmap(photoBm, bmOriginalWidth, bmOriginalHeight,
-//                        originalWidthToHeightRatio, originalHeightToWidthRatio,
-//                        CameraWrapper.PHOTO_MAX_HEIGHT, CameraWrapper.PHOTO_MAX_WIDTH);
-//
-//                Matrix matrix = new Matrix();
-//                matrix.postRotate(m_nOrientation);
-//                Bitmap rotatedBitmap = Bitmap.createBitmap(photoBm, 0, 0, photoBm.getWidth(), photoBm.getHeight(), matrix, true);
-//
-//                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-//                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY_PHOTO, bytes);
-//
-//                if (imageFileOS != null) {
-//                    imageFileOS.write(bytes.toByteArray());
-//                    imageFileOS.flush();
-//                    imageFileOS.close();
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            return getPathFromUri(imageFileUri);
-//        }
-//
-//        private Bitmap getScaledBitmap(Bitmap bm, int bmOriginalWidth, int bmOriginalHeight, double originalWidthToHeightRatio, double originalHeightToWidthRatio, int maxHeight, int maxWidth) {
-//            if (bmOriginalWidth > maxWidth || bmOriginalHeight > maxHeight) {
-//
-//                if (bmOriginalWidth > bmOriginalHeight) {
-//                    bm = scaleDeminsFromWidth(bm, maxWidth, bmOriginalHeight, originalHeightToWidthRatio);
-//                } else if (bmOriginalHeight > bmOriginalWidth) {
-//                    bm = scaleDeminsFromHeight(bm, maxHeight, bmOriginalHeight, originalWidthToHeightRatio);
-//                }
-//
-//            }
-//            return bm;
-//        }
-//
-//        private Bitmap scaleDeminsFromHeight(Bitmap bm, int maxHeight, int bmOriginalHeight, double originalWidthToHeightRatio) {
-//            int newHeight = (int)Math.max(maxHeight, bmOriginalHeight * .55);
-//            int newWidth = (int)(newHeight * originalWidthToHeightRatio);
-//            bm = Bitmap.createScaledBitmap(bm, newWidth, newHeight, true);
-//            return bm;
-//        }
-//
-//        private Bitmap scaleDeminsFromWidth(Bitmap bm, int maxWidth, int bmOriginalWidth, double originalHeightToWidthRatio) {
-//            int newWidth = (int)Math.max(maxWidth, bmOriginalWidth * .75);
-//            int newHeight = (int)(newWidth * originalHeightToWidthRatio);
-//            bm = Bitmap.createScaledBitmap(bm, newWidth, newHeight, true);
-//            return bm;
-//        }
-//    }
-
-    private String getPathFromUri(Uri uri) {
-        String selected = null;
-        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getActivity().getContentResolver().query(uri, filePathColumn, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            selected = cursor.getString(columnIndex);
-            cursor.close();
-        }
-        return selected;
-    }
-
-
-    public void shootSound() {
-        AudioManager audio = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
-        switch (audio.getRingerMode()) {
-            case AudioManager.RINGER_MODE_NORMAL:
-                MediaActionSound sound = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
-                    sound = new MediaActionSound();
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    sound.play(MediaActionSound.SHUTTER_CLICK);
-                }
-                break;
-            case AudioManager.RINGER_MODE_SILENT:
-                break;
-            case AudioManager.RINGER_MODE_VIBRATE:
-                break;
-        }
-    }
 }

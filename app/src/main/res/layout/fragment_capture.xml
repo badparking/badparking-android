@@ -4,35 +4,6 @@
                 android:layout_height="match_parent"
                 android:background="@color/cardview_dark_background">
 
-    <com.google.android.cameraview.CameraView
-        android:id="@+id/camera"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        app:autoFocus="true"/>
-
-    <ImageView
-        android:id="@+id/platesPreviewImage"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/bottomPanel"
-        android:visibility="gone"
-        />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/snap"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/bottomPanel"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"
-        android:clickable="true"
-        android:src="@drawable/icon_camera"
-        app:backgroundTint="@color/snap_button_bg"
-        app:borderWidth="0dp"
-        app:elevation="6dp"
-        app:fabSize="normal"/>
-
     <RelativeLayout
         android:id="@+id/bottomPanel"
         android:layout_width="match_parent"
@@ -94,5 +65,36 @@
             android:scrollbars="none"/>
 
     </RelativeLayout>
+
+
+    <com.google.android.cameraview.CameraView
+        android:id="@+id/camera"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottomPanel"
+        android:adjustViewBounds="true"
+        app:autoFocus="true"/>
+
+    <ImageView
+        android:id="@+id/platesPreviewImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottomPanel"
+        android:visibility="gone"
+        />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/snap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bottomPanel"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:clickable="true"
+        android:src="@drawable/icon_camera"
+        app:backgroundTint="@color/snap_button_bg"
+        app:borderWidth="0dp"
+        app:elevation="6dp"
+        app:fabSize="normal"/>
 
 </RelativeLayout>
