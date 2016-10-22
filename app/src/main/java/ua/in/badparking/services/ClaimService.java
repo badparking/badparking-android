@@ -164,6 +164,7 @@ public enum ClaimService {
                 if(uploadedPictures.size() == getPictures().size()) {
                     claim = new Claim();
                     EventBus.getDefault().post(new ImageUploadedEvent(true));
+                    uploadedPictures.clear();
                 }
             }
 
