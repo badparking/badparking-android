@@ -4,12 +4,12 @@
                 android:layout_height="match_parent"
                 android:background="@color/cardview_dark_background">
 
-    <FrameLayout
-        android:id="@+id/surface_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"/>
+    <com.google.android.cameraview.CameraView
+        android:id="@+id/camera"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        app:autoFocus="true"/>
 
     <ImageView
         android:id="@+id/platesPreviewImage"
