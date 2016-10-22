@@ -110,7 +110,7 @@ public enum UserService {
         }
     }
 
-    public void refreshToken(final String tokenRequest) {
+    public void refreshTokenSoft(final String tokenRequest) {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("token", tokenRequest);
         mUserApi.refreshToken(params, new Callback<TokenResponse>() {
@@ -125,6 +125,9 @@ public enum UserService {
 
             @Override
             public void failure(RetrofitError error) {
+                saveUser(null);
+                saveUserToken(null);
+                // refresh token hard - need to re-login in fb.
                 EventBus.getDefault().post(new TokenRefreshFailedEvent());
             }
         });
@@ -183,17 +186,17 @@ public enum UserService {
         userDataPrefs.edit().putString(USER_TOKEN_KEY, token).commit();
     }
 
-    public void onJwtTokenFetched(String tokenHeader) {
+    public void validateTokenAndSend(String token) {
         String key = Utils.getConfigValue(context, "jwtKey");
         try {
             Jwts.parser()
                     .setSigningKey(key.getBytes("UTF-8"))
-                    .parseClaimsJws(tokenHeader).getBody().getExpiration();
+                    .parseClaimsJws(token).getBody().getExpiration();
             EventBus.getDefault().post(new TokenRefreshedEvent());
         } catch (UnsupportedEncodingException e) {
-            LogHelper.e(TAG, "onJwtTokenFetched error", e);
+            LogHelper.e(TAG, "validateTokenAndSend error", e);
         } catch (ExpiredJwtException e) {
-            refreshToken(tokenHeader);
+            refreshTokenSoft(token);
         }
     }
 }

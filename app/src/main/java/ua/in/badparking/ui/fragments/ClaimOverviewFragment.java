@@ -18,11 +18,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
@@ -113,7 +115,7 @@ public class ClaimOverviewFragment extends BaseFragment {
             @Override
             public void onClick(View view) {
                 if (UserService.INST.getUser() != null) {
-                    UserService.INST.onJwtTokenFetched(UserService.INST.getUser().getToken());
+                    UserService.INST.validateTokenAndSend(UserService.INST.getUser().getToken());
                 }
             }
         });
@@ -246,7 +248,11 @@ public class ClaimOverviewFragment extends BaseFragment {
             builder.setMessage(getActivity().getString(R.string.thanks));
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CAPTURE);
+                    //restart activity
+                    Intent intent = new Intent(getContext(), MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    getActivity().finish(); // call this to finish the current activity
                 }
             });
         }
@@ -258,6 +264,10 @@ public class ClaimOverviewFragment extends BaseFragment {
     public void onTokenRefreshFailed(final TokenRefreshFailedEvent event) {
         loginButton.setVisibility(View.VISIBLE);
         mSendButton.setVisibility(View.GONE);
+        // logout
+        LoginManager.getInstance().logOut();
+        Toast.makeText(getContext(), "Cecciя закiнчилась...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Залогiнтесь ще раз, будь-ласка", Toast.LENGTH_LONG).show();
     }
 
     @Subscribe

@@ -12,10 +12,13 @@ import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
 import retrofit.converter.GsonConverter;
+import ua.in.badparking.BuildConfig;
 
 
 public enum ApiGenerator {
     INST;
+
+    private static final boolean DEBUG = BuildConfig.DEBUG;
 
     private <S> S buildApi(Class<S> apiClass, RestAdapter.Builder builder) {
         RestAdapter adapter = builder.build();
@@ -43,6 +46,7 @@ public enum ApiGenerator {
         builder = new RestAdapter.Builder()
                 .setConverter(new GsonConverter(gson))
                 .setEndpoint(baseUrl)
+                .setLogLevel(DEBUG ? RestAdapter.LogLevel.FULL : RestAdapter.LogLevel.NONE)
                 .setClient(new OkClient(client));
         if (token != null) {
             builder.setRequestInterceptor(requestInterceptor);
