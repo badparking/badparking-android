@@ -59,10 +59,10 @@ public class MainActivity extends AppCompatActivity {
     public final static int PAGE_MAP = 2;
     public final static int PAGE_CLAIM_OVERVIEW = 3;
 
-    private final int REQUEST_ID_MULTIPLE_PERMISSIONS = 123;
+    private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 123;
     private static final boolean DEBUG = BuildConfig.DEBUG;
     private static final String TAG = MainActivity.class.getName();
-    private static boolean firstChecked = false;
+    private boolean firstChecked = false;
 
     @BindView(R.id.toolbar_top)
     protected Toolbar toolbarTop;
@@ -79,10 +79,9 @@ public class MainActivity extends AppCompatActivity {
     private int mPosition;
     private Alerts alerts;
 
-    private String[] permissions = new String[]{
+    private String[] permissions = new String[] {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA,
-            Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.ACCESS_FINE_LOCATION};
 
     @Override
@@ -99,23 +98,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         showPage(PAGE_CAPTURE);
-        controlTrackingService(TrackingService.ACTION_START_MONITORING);
-    }
 
-    @Override
-    protected void onDestroy() {
-        stopLocationListener();
-        controlTrackingService(TrackingService.ACTION_STOP_MONITORING);
-        super.onDestroy();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
-
+        ClaimService.INST.updateTypes();
         if (checkPermissions()) {
-            LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+            LocationManager lm = (LocationManager)getSystemService(LOCATION_SERVICE);
 
             if (!firstChecked && confirmNetworkProviderAvailable(lm)) {
                 gpsStatusReceiver = new GpsStatusReceiver();
@@ -132,8 +124,9 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsLocationListener);
-                ClaimService.INST.updateTypes();
+
                 firstChecked = true;
+                controlTrackingService(TrackingService.ACTION_START_MONITORING);
             }
         }
     }
@@ -156,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        stopLocationListener();
+        controlTrackingService(TrackingService.ACTION_STOP_MONITORING);
         EventBus.getDefault().unregister(this);
     }
 
@@ -235,14 +230,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void stopLocationListener() {
-        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        LocationManager lm = (LocationManager)getSystemService(LOCATION_SERVICE);
 
         if (gpsLocationListener != null) {
             if (ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                     ActivityCompat.checkSelfPermission(this,
                             Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    //permission logic
+                //permission logic
             }
 
             lm.removeUpdates(gpsLocationListener);
@@ -282,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     boolean confirmWiFiAvailable() {
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
