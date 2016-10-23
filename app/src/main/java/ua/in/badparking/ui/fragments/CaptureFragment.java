@@ -194,12 +194,12 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         } else if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.CAMERA)) {
             ConfirmationDialogFragment
                     .newInstance(R.string.camera_permission_confirmation,
-                            new String[] {Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION},
+                            new String[] {Manifest.permission.CAMERA},
                             REQUEST_CAMERA_PERMISSION,
                             R.string.camera_permission_not_granted)
                     .show(getActivity().getSupportFragmentManager(), FRAGMENT_DIALOG);
         } else {
-            ActivityCompat.requestPermissions(getActivity(), new String[] {Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION},
+            ActivityCompat.requestPermissions(getActivity(), new String[] {Manifest.permission.CAMERA},
                     REQUEST_CAMERA_PERMISSION);
         }
     }
