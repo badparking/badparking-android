@@ -10,7 +10,7 @@
     <string name="choose">Вибрати</string>
     <string name="cancel">Відмінити</string>
     <string name="your_data">Вашi даннi</string>
-    <string name="send">Вiдicлати</string>
+    <string name="send">Надiслати</string>
     <string name="next">Далi</string>
     <string name="add_photo">Додати\n фото</string>
     <string name="comment">Коментар (необов\'язково)</string>
@@ -32,11 +32,6 @@
     <string name="capture_plates">Зробiть фото номерних знакiв </string>
     <string name="capture_claim">Зробiть фото правопорушення </string>
     <string name="capture_claim_another_angle">Зробiть фото правопорушення (2)</string>
-    <string name="consent_text">
-        1. Увiмкнiть  GPS.\n2. Зробiть фото правопорушення та фото номерiв.\n
-        Дякуємо за спiвпрацю!\n\n
-        Щоб полiцiя прийняла заявку, потрiбно залогинитись через BankID.
-    </string>
     <string name="electronic_identification" />
     <string name="choose_bank" />
     <string name="chooseCrimeType">Оберіть тип порушення</string>
@@ -48,7 +43,7 @@
     <string name="open_location_settings">Налаштування</string>
     <string name="ok">OK</string>
     <string name="thanks">Дякуємо</string>
-    <string name="claim_sent">Скаргу відправлено</string>
+    <string name="claim_sent">Скаргу надiслано</string>
     <string name="error_claim_sent">Помилка. Спробуйте ще</string>
     <string name="photo_uploaded">"Заватнаженя зображень завершено "</string>
     <string name="claim_sending">Відправлення...</string>
@@ -57,20 +52,5 @@
 
     <string name="camera_permission_confirmation">This app demonstrates the usage of CameraView. In order to do that, it needs permission to access camera.</string>
     <string name="camera_permission_not_granted">Camera app cannot do anything without camera permission.</string>
-
-
-    <string-array name="report_types">
-        <item>Стоянка на пішохідному переході</item>
-        <item>Стоянка на перехресті</item>
-        <item>Стоянка на мосту/естакаді</item>
-        <item>Стоянка у два ряди</item>
-        <item>Стоянка на зупинці громадського транспорту</item>
-        <item>Стоянка на смузі руху для громадського транспорту</item>
-        <item>Стоянка на під знаком "Зупинку заборонено"</item>
-        <item>Стоянка на газоні</item>
-        <item>Стоянка на тротуарі</item>
-        <item>Стоянка на місцях для людей з інвалідністю</item>
-        <item>Стоянка на виїзді з прилеглої території</item>
-    </string-array>
 
 </resources>
