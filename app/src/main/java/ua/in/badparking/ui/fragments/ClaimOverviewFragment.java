@@ -200,10 +200,6 @@ public class ClaimOverviewFragment extends BaseFragment {
         final EditText phoneText = new EditText(getActivity());
         phoneText.setHint("Phone Number");
         String phone = UserService.INST.getUser().getPhone();
-        if (TextUtils.isEmpty(phone)) {
-            TelephonyManager tMgr = (TelephonyManager)getActivity().getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-            phone = tMgr.getLine1Number();
-        }
         phoneText.setText(phone);
         layout.addView(phoneText);
 
