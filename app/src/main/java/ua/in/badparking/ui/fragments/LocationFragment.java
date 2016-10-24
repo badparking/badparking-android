@@ -49,8 +49,7 @@ import static android.content.Context.LOCATION_SERVICE;
 /**
  * @author Dima Kovalenko & Vladimir Dranik
  */
-public class LocationFragment extends BaseFragment implements OnMapReadyCallback,
-        GoogleMap.OnMyLocationButtonClickListener {
+public class LocationFragment extends BaseFragment implements OnMapReadyCallback {
 
     private static final String TAG = LocationFragment.class.getName();
     private static final int LOCATION_ZOOM = 17;
@@ -91,9 +90,10 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         geocoder = new Geocoder(getActivity(), Locale.getDefault());
 
-        if (location != null) {
+        if (location != null && currentLocation == null) {
             currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
             currentAddress = getCurrentAddress(currentLocation);
+            Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****FIRST NETWORK LAST_LOCATION " + currentLocation.latitude + " " + currentLocation.longitude);
         }
 
         locationInfoReceiver = new LocationInfoReceiver();
@@ -110,7 +110,6 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         ButterKnife.bind(this, view);
 
         mMapFragment.getMapAsync(LocationFragment.this);
-
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -146,11 +145,13 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         }
 
         getActivity().registerReceiver(locationInfoReceiver, intentFilter);
+        Log.d(LogHelper.LOCATION_MONITORING_TAG,"*****Register LocationInfoReciver");
     }
 
     @Override
     public void onPause() {
         getActivity().unregisterReceiver(locationInfoReceiver);
+        Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****Unregister LocationInfoReciver!");
         super.onPause();
     }
 
@@ -171,13 +172,10 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                 // permission logic
             }
 
-            mMap.setMyLocationEnabled(true);
-            mMap.setOnMyLocationButtonClickListener(this);
             mMap.getUiSettings().setCompassEnabled(false);
-            mMap.getUiSettings().setMyLocationButtonEnabled(false);
-
 
             mapPositioning(mMap, currentLocation);
+            Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****onMapReady finished " + currentLocation.latitude + " " + currentLocation.longitude);
         }
     }
 
@@ -189,6 +187,8 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         if (mMap != null) {
             marker = mMap.addMarker(new MarkerOptions()
                     .position(latLng));
+
+            Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****NEW MARKER POSITION - " + latLng.latitude + " " + latLng.longitude);
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(latLng)
@@ -205,11 +205,6 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1, null);
             }
         }
-    }
-
-    @Override
-    public boolean onMyLocationButtonClick() {
-        return false;
     }
 
     private void showTimePositioningHint() {
@@ -257,17 +252,17 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().matches(Constants.SEND_LOCATION_INFO_ACTION)) {
                 String action = intent.getAction();
-                Log.d(LogHelper.LOCATION_MONITORING_TAG, "Monitor Location BROADCAST **1** Intent Action:" + action);
+                Log.d(LogHelper.LOCATION_MONITORING_TAG, "******Monitor Location BROADCAST **1** Intent Action:" + action);
 
                 Bundle extras = intent.getExtras();
                 double latitude = extras.getDouble(Constants.LATITUDE);
                 double longitude = extras.getDouble(Constants.LONGITUDE);
 
-                Log.d(LogHelper.LOCATION_MONITORING_TAG, "****Location Changed - " + latitude + " " + longitude);
                 currentLocation = new LatLng(latitude, longitude);
 
                 if (mMap != null) {
                     mapPositioning(mMap, currentLocation);
+                    Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****GPS LOCATION CHANGED - " + latitude + " " + longitude);
                 }
 
                 currentAddress = getCurrentAddress(currentLocation);
