@@ -11,6 +11,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
@@ -50,6 +51,7 @@ import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
 import ua.in.badparking.ui.fragments.ClaimTypeFragment;
 import ua.in.badparking.ui.fragments.LocationFragment;
+import ua.in.badparking.utils.LogHelper;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -106,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         EventBus.getDefault().register(this);
         ClaimService.INST.updateTypes();
+
         if (checkPermissions()) {
             LocationManager lm = (LocationManager)getSystemService(LOCATION_SERVICE);
 
@@ -126,8 +129,9 @@ public class MainActivity extends AppCompatActivity {
                 lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsLocationListener);
 
                 firstChecked = true;
-                controlTrackingService(TrackingService.ACTION_START_MONITORING);
             }
+
+            controlTrackingService(TrackingService.ACTION_START_MONITORING);
         }
     }
 
@@ -316,5 +320,24 @@ public class MainActivity extends AppCompatActivity {
         Intent onTrackingServiceIntent = new Intent(this, TrackingService.class);
         onTrackingServiceIntent.setAction(command);
         startService(onTrackingServiceIntent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        turnGPSOff();
+        super.onDestroy();
+    }
+
+    private void turnGPSOff(){
+        String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+
+        if(provider.contains("gps")){ //if gps is enabled
+            final Intent poke = new Intent();
+            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
+            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+            poke.setData(Uri.parse("3"));
+            sendBroadcast(poke);
+            Log.d(LogHelper.LOCATION_MONITORING_TAG, "GPS TURN OFF!");
+        }
     }
 }
