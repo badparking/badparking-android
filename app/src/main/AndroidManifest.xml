@@ -58,7 +58,7 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             tools:replace="android:theme" />
 
-        <receiver android:name=".receivers.GpsStatusReceiver" />
+        <receiver android:name=".ui.activities.MainActivity$RequiredStateReceiver" />
         <receiver android:name=".ui.fragments.LocationFragment$LocationInfoReceiver" />
 
         <service android:name=".services.TrackingService">

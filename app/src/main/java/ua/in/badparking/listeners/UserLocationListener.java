@@ -1,4 +1,4 @@
-package ua.in.badparking.receivers;
+package ua.in.badparking.listeners;
 
 import android.content.Context;
 import android.content.Intent;

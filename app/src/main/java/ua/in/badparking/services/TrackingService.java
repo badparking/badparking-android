@@ -14,7 +14,7 @@ import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
-import ua.in.badparking.receivers.UserLocationListener;
+import ua.in.badparking.listeners.UserLocationListener;
 import ua.in.badparking.utils.LogHelper;
 
 public class TrackingService extends Service implements Handler.Callback {
@@ -29,7 +29,7 @@ public class TrackingService extends Service implements Handler.Callback {
 
     private LocationListener listener;
     private Looper looper;
-    private android.os.Handler handler;
+    private Handler handler;
 
     @Override
     public void onCreate() {
@@ -65,7 +65,7 @@ public class TrackingService extends Service implements Handler.Callback {
         String threadId = LogHelper.threadId();
         Log.d(LogHelper.LOCATION_MONITORING_TAG, "Location Monitoring Service onStartCommand - " + threadId);
 
-        Intent intent = (Intent)message.obj;
+        Intent intent = (Intent) message.obj;
 
         if (intent == null) {
             return false;
@@ -86,31 +86,24 @@ public class TrackingService extends Service implements Handler.Callback {
     private void doStartTracking() {
         doStopTracking();
 
-        LocationManager lm = (LocationManager)getSystemService(LOCATION_SERVICE);
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         listener = new UserLocationListener(this);
 
         if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            //permission logic
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, WAITING_TIME_MILLIS, ACCURANCY_IN_METERS, listener, looper);
         }
-
-        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, WAITING_TIME_MILLIS, ACCURANCY_IN_METERS, listener, looper);
     }
 
     private void doStopTracking() {
         if (listener != null) {
-            LocationManager lm = (LocationManager)getSystemService(LOCATION_SERVICE);
+            LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
 
             if (ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                //permission logic
+                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                lm.removeUpdates(listener);
             }
 
-            lm.removeUpdates(listener);
             listener = null;
         }
     }
