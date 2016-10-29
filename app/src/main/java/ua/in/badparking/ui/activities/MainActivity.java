@@ -2,8 +2,10 @@ package ua.in.badparking.ui.activities;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -12,10 +14,10 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
@@ -25,6 +27,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.badoualy.stepperindicator.StepperIndicator;
 
@@ -34,15 +37,16 @@ import org.greenrobot.eventbus.Subscribe;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ua.in.badparking.BuildConfig;
 import ua.in.badparking.R;
 import ua.in.badparking.events.ShowHeaderEvent;
-import ua.in.badparking.receivers.GpsStatusReceiver;
-import ua.in.badparking.receivers.UserLocationListener;
+import ua.in.badparking.listeners.UserLocationListener;
 import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.services.TrackingService;
 import ua.in.badparking.ui.dialogs.Alerts;
@@ -61,10 +65,10 @@ public class MainActivity extends AppCompatActivity {
     public final static int PAGE_MAP = 2;
     public final static int PAGE_CLAIM_OVERVIEW = 3;
 
-    private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 123;
+    final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
+
     private static final boolean DEBUG = BuildConfig.DEBUG;
     private static final String TAG = MainActivity.class.getName();
-    private boolean firstChecked = false;
 
     @BindView(R.id.toolbar_top)
     protected Toolbar toolbarTop;
@@ -76,15 +80,10 @@ public class MainActivity extends AppCompatActivity {
     protected StepperIndicator stepperIndicator;
 
     private LocationListener gpsLocationListener;
-    private GpsStatusReceiver gpsStatusReceiver;
+    private RequiredStateReceiver requiredStateReceiver;
 
     private int mPosition;
     private Alerts alerts;
-
-    private String[] permissions = new String[] {
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.CAMERA,
-            Manifest.permission.ACCESS_FINE_LOCATION};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,8 +98,11 @@ public class MainActivity extends AppCompatActivity {
             printDevHashKey();
         }
 
-        showPage(PAGE_CAPTURE);
+        if (Build.VERSION.SDK_INT >= 23) {
+            checkMultiplePermissions();
+        }
 
+        showPage(PAGE_CAPTURE);
     }
 
     @Override
@@ -109,26 +111,16 @@ public class MainActivity extends AppCompatActivity {
         EventBus.getDefault().register(this);
         ClaimService.INST.updateTypes();
 
-        if (checkPermissions()) {
-            LocationManager lm = (LocationManager)getSystemService(LOCATION_SERVICE);
+        if (confirmNetworkProviderAvailable()) {
+            requiredStateReceiver = new RequiredStateReceiver();
+            requiredStateReceiver.start(this);
 
-            if (!firstChecked && confirmNetworkProviderAvailable(lm)) {
-                gpsStatusReceiver = new GpsStatusReceiver();
-                gpsStatusReceiver.setActivity(this);
-                gpsStatusReceiver.start(this);
+            gpsLocationListener = new UserLocationListener(this);
 
-                gpsLocationListener = new UserLocationListener(this);
-
-                if (ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                        ActivityCompat.checkSelfPermission(this,
-                                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    //permission logic
-                }
-
+            if (ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
                 lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsLocationListener);
-
-                firstChecked = true;
             }
 
             controlTrackingService(TrackingService.ACTION_START_MONITORING);
@@ -234,32 +226,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void stopLocationListener() {
-        LocationManager lm = (LocationManager)getSystemService(LOCATION_SERVICE);
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         if (gpsLocationListener != null) {
             if (ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                //permission logic
+                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                lm.removeUpdates(gpsLocationListener);
             }
 
-            lm.removeUpdates(gpsLocationListener);
             gpsLocationListener = null;
         }
 
-        if (gpsStatusReceiver != null) {
-            gpsStatusReceiver.stop(this);
-            gpsStatusReceiver = null;
+        if (requiredStateReceiver != null) {
+            requiredStateReceiver.stop(this);
+            requiredStateReceiver = null;
         }
     }
 
-    boolean confirmNetworkProviderAvailable(LocationManager lm) {
-        return confirmAirplaneModeOff() && confirmWiFiAvailable() && confirmNetworkProviderEnabled(lm);
+    boolean confirmNetworkProviderAvailable() {
+        return confirmAirplaneModeOff() && confirmWiFiAvailable() && confirmNetworkProviderEnabled();
     }
 
-    boolean confirmNetworkProviderEnabled(LocationManager lm) {
-
+    boolean confirmNetworkProviderEnabled() {
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         boolean isAvailable = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
         if (!isAvailable) {
@@ -281,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     boolean confirmWiFiAvailable() {
-        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
@@ -295,24 +284,78 @@ public class MainActivity extends AppCompatActivity {
         return isConnected;
     }
 
-    private boolean checkPermissions() {
-        int result;
-        List<String> listPermissionsNeeded = new ArrayList<>();
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS: {
 
-        for (String p : permissions) {
-            result = ContextCompat.checkSelfPermission(this, p);
-            if (result != PackageManager.PERMISSION_GRANTED) {
-                listPermissionsNeeded.add(p);
+                Map<String, Integer> perms = new HashMap<String, Integer>();
+                // Initial
+                perms.put(Manifest.permission.ACCESS_FINE_LOCATION, PackageManager.PERMISSION_GRANTED);
+                perms.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+                perms.put(Manifest.permission.CAMERA, PackageManager.PERMISSION_GRANTED);
+
+                // Fill with results
+                for (int i = 0; i < permissions.length; i++)
+                    perms.put(permissions[i], grantResults[i]);
+                if (perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        && perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                        && perms.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    // All Permissions Granted
+                    return;
+                } else {
+                    // Permission Denied
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        Toast.makeText(
+                                getApplicationContext(),
+                                R.string.need_enable_all_permissions,
+                                Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                }
+            }
+            break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    private void checkMultiplePermissions() {
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            List<String> permissionsNeeded = new ArrayList<String>();
+            List<String> permissionsList = new ArrayList<String>();
+
+            if (!addPermission(permissionsList, Manifest.permission.ACCESS_FINE_LOCATION)) {
+                permissionsNeeded.add("GPS");
+            }
+
+            if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                permissionsNeeded.add("Read Storage");
+            }
+
+            if (!addPermission(permissionsList, Manifest.permission.CAMERA)) {
+                permissionsNeeded.add("Camera");
+            }
+
+            if (permissionsList.size() > 0) {
+                requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
+                        REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
+                return;
             }
         }
+    }
 
-        if (!listPermissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(this,
-                    listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),
-                    REQUEST_ID_MULTIPLE_PERMISSIONS);
-            return false;
-        }
+    private boolean addPermission(List<String> permissionsList, String permission) {
+        if (Build.VERSION.SDK_INT >= 23)
 
+            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                permissionsList.add(permission);
+
+                // Check for Rationale Option
+                if (!shouldShowRequestPermissionRationale(permission))
+                    return false;
+            }
         return true;
     }
 
@@ -328,16 +371,53 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private void turnGPSOff(){
+    private void turnGPSOff() {
         String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
 
-        if(provider.contains("gps")){ //if gps is enabled
+        if (provider.contains("gps")) { //if gps is enabled
             final Intent poke = new Intent();
             poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
             poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
             poke.setData(Uri.parse("3"));
             sendBroadcast(poke);
             Log.d(LogHelper.LOCATION_MONITORING_TAG, "GPS TURN OFF!");
+        }
+    }
+
+    public class RequiredStateReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            switch (intent.getAction()) {
+                case LocationManager.PROVIDERS_CHANGED_ACTION:
+                    confirmNetworkProviderEnabled();
+                    break;
+
+                case ConnectivityManager.CONNECTIVITY_ACTION:
+                    confirmWiFiAvailable();
+                    break;
+
+                case Intent.ACTION_AIRPLANE_MODE_CHANGED:
+                    confirmAirplaneModeOff();
+                    break;
+
+                default:
+                    break;
+            }
+
+        }
+
+        public void start(Context context) {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
+            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+            filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+            context.registerReceiver(this, filter);
+        }
+
+        public void stop(Context context) {
+            context.unregisterReceiver(this);
         }
     }
 }
