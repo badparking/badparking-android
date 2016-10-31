@@ -20,7 +20,7 @@ public class Utils {
 
     private static final String TAG = "Utils";
 
-    public static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss.S");
+    public static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
 
     public static String getConfigValue(Context context, String name) {
         Resources resources = context.getResources();
@@ -41,7 +41,7 @@ public class Utils {
 
     @NonNull
     public static String getFileName() {
-        return "snapshot_" + format.format(new Date()) + "jpg";
+        return "snapshot_" + format.format(new Date()) + ".jpg";
     }
 
     public static void shootSound(Context context) {
