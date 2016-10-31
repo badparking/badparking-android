@@ -29,6 +29,7 @@ import com.google.android.cameraview.CameraView;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -56,6 +57,9 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     private static final String TAG = CaptureFragment.class.getName();
 
     private static final int REQUEST_CAMERA_PERMISSION = 1;
+    private static final int PHOTO_MAX_WIDTH = 1024;
+    private static final int PHOTO_MAX_HEIGHT = 1024;
+    private static final int QUALITY_PHOTO = 40;
     private static final String FRAGMENT_DIALOG = "dialog";
 
     @BindView(R.id.camera)
@@ -208,9 +212,10 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.snap:
-                Utils.shootSound(getActivity());
+
                 if (cameraView != null) {
                     cameraView.takePicture();
+                    Utils.shootSound(getActivity());
                 }
                 break;
             case R.id.next_button:
@@ -273,9 +278,25 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                     // $ adb pull /sdcard/Android/data/com.google.android.cameraview.demo/files/Pictures/picture.jpg
                     final File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), Utils.getFileName());
                     OutputStream os = null;
+
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    Bitmap photoBm = BitmapFactory.decodeByteArray(data, 0, data.length, options);
+
+                    int bmOriginalWidth = photoBm.getWidth();
+                    int bmOriginalHeight = photoBm.getHeight();
+                    double originalWidthToHeightRatio = 1.0 * bmOriginalWidth / bmOriginalHeight;
+                    double originalHeightToWidthRatio = 1.0 * bmOriginalHeight / bmOriginalWidth;
+
+                    photoBm = getScaledBitmap(photoBm, bmOriginalWidth, bmOriginalHeight,
+                            originalWidthToHeightRatio, originalHeightToWidthRatio,
+                            PHOTO_MAX_HEIGHT, PHOTO_MAX_WIDTH);
+
+                    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                    photoBm.compress(Bitmap.CompressFormat.JPEG, QUALITY_PHOTO, bytes);
+
                     try {
                         os = new FileOutputStream(file);
-                        os.write(data);
+                        os.write(bytes.toByteArray());
                         os.close();
                     } catch (IOException e) {
                         Log.w(TAG, "Cannot write to " + file, e);
@@ -299,6 +320,31 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             });
         }
 
-    };
+        private Bitmap getScaledBitmap(Bitmap bm, int bmOriginalWidth, int bmOriginalHeight, double originalWidthToHeightRatio, double originalHeightToWidthRatio, int maxHeight, int maxWidth) {
+            if (bmOriginalWidth > maxWidth || bmOriginalHeight > maxHeight) {
 
+                if (bmOriginalWidth > bmOriginalHeight) {
+                    bm = scaleDeminsFromWidth(bm, maxWidth, bmOriginalHeight, originalHeightToWidthRatio);
+                } else if (bmOriginalHeight > bmOriginalWidth) {
+                    bm = scaleDeminsFromHeight(bm, maxHeight, bmOriginalHeight, originalWidthToHeightRatio);
+                }
+
+            }
+            return bm;
+        }
+
+        private Bitmap scaleDeminsFromHeight(Bitmap bm, int maxHeight, int bmOriginalHeight, double originalWidthToHeightRatio) {
+            int newHeight = (int)Math.max(maxHeight, bmOriginalHeight * .11);
+            int newWidth = (int)(newHeight * originalWidthToHeightRatio);
+            bm = Bitmap.createScaledBitmap(bm, newWidth, newHeight, true);
+            return bm;
+        }
+
+        private Bitmap scaleDeminsFromWidth(Bitmap bm, int maxWidth, int bmOriginalWidth, double originalHeightToWidthRatio) {
+            int newWidth = (int)Math.max(maxWidth, bmOriginalWidth * .15);
+            int newHeight = (int)(newWidth * originalHeightToWidthRatio);
+            bm = Bitmap.createScaledBitmap(bm, newWidth, newHeight, true);
+            return bm;
+        }
+    };
 }

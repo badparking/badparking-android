@@ -1,8 +1,8 @@
 package ua.in.badparking.ui.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
@@ -22,7 +22,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import ua.in.badparking.R;
 import ua.in.badparking.services.UserService;
 
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends AppCompatActivity {
 
     private static final String TAG = SettingsActivity.class.getName();
 
