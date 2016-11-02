@@ -84,8 +84,8 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     protected View nextButton;
 
     private Unbinder unbinder;
-
     private PhotoAdapter photoAdapter;
+    private boolean safeToTakePicture = false;
 
     public static CaptureFragment newInstance() {
         return new CaptureFragment();
@@ -95,6 +95,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_capture, container, false);
         unbinder = ButterKnife.bind(this, rootView);
+
         return rootView;
     }
 
@@ -144,7 +145,10 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void onPhotosUpdated() {
         int photosTaken = ClaimService.INST.getClaim().getPhotoFiles().size();
-        nextButton.setVisibility(photosTaken > 1 && platesEditText.getText().length() > 0 ? View.VISIBLE : View.GONE);
+        nextButton.setVisibility(photosTaken > 1 &&
+                (platesEditText.toString().length() > 0 ||
+                        !TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())) ?
+                View.VISIBLE : View.GONE);
         snapButton.setVisibility(photosTaken > 1 ? View.GONE : View.VISIBLE);
         if (photosTaken == 0) {
             messageView.setText(R.string.capture_claim);
@@ -195,6 +199,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         super.onResume();
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             cameraView.start();
+            safeToTakePicture = true;
         } else if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.CAMERA)) {
             ConfirmationDialogFragment
                     .newInstance(R.string.camera_permission_confirmation,
@@ -213,15 +218,19 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         switch (view.getId()) {
             case R.id.snap:
 
-                if (cameraView != null) {
+                if (cameraView != null && isSafeToTakePicture()) {
+                    snapButton.setVisibility(View.GONE);
                     cameraView.takePicture();
                     Utils.shootSound(getActivity());
+                    setSafeToTakePicture(false);
                 }
                 break;
             case R.id.next_button:
                 InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                ClaimService.INST.getClaim().setLicensePlates(platesEditText.getText().toString());
+                if(TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())) {
+                    ClaimService.INST.getClaim().setLicensePlates(platesEditText.getText().toString());
+                }
                 EventBus.getDefault().post(new ShowHeaderEvent(true));
                 platesEditText.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
@@ -274,6 +283,11 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             getBackgroundHandler().post(new Runnable() {
                 @Override
                 public void run() {
+                    if (data == null) {
+                        setSafeToTakePicture(true);
+                        return;
+                    }
+
                     // This demo app saves the taken picture to a constant file.
                     // $ adb pull /sdcard/Android/data/com.google.android.cameraview.demo/files/Pictures/picture.jpg
                     final File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), Utils.getFileName());
@@ -315,8 +329,9 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                             onImageFileCreated(file.getPath());
                         }
                     });
-
+                    setSafeToTakePicture(true);
                 }
+
             });
         }
 
@@ -347,4 +362,12 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             return bm;
         }
     };
+
+    public boolean isSafeToTakePicture() {
+        return safeToTakePicture;
+    }
+
+    public void setSafeToTakePicture(boolean safeToTakePicture) {
+        this.safeToTakePicture = safeToTakePicture;
+    }
 }
