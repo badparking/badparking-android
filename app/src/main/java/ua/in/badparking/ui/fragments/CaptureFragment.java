@@ -5,6 +5,11 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -18,6 +23,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -52,7 +58,7 @@ import ua.in.badparking.utils.Utils;
  * @author Volodymyr Dranyk
  */
 @SuppressWarnings("deprecation")
-public class CaptureFragment extends BaseFragment implements View.OnClickListener, PhotoAdapter.PhotosUpdatedListener {
+public class CaptureFragment extends BaseFragment implements View.OnClickListener, PhotoAdapter.PhotosUpdatedListener, SensorEventListener {
 
     private static final String TAG = CaptureFragment.class.getName();
 
@@ -87,6 +93,10 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     private PhotoAdapter photoAdapter;
     private boolean safeToTakePicture = false;
 
+    private SensorManager sensorManager;
+    private Sensor mySensor;
+    private int m_nOrientation = 0;
+
     public static CaptureFragment newInstance() {
         return new CaptureFragment();
     }
@@ -95,7 +105,8 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_capture, container, false);
         unbinder = ButterKnife.bind(this, rootView);
-
+        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        mySensor = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
         return rootView;
     }
 
@@ -191,12 +202,21 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     public void onPause() {
         cameraView.stop();
         removePhoneKeypad();
+
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(this, mySensor);
+        }
         super.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        if (sensorManager != null) {
+            sensorManager.registerListener(this, mySensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
+
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             cameraView.start();
             safeToTakePicture = true;
@@ -305,8 +325,13 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                             originalWidthToHeightRatio, originalHeightToWidthRatio,
                             PHOTO_MAX_HEIGHT, PHOTO_MAX_WIDTH);
 
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(m_nOrientation);
+                    Bitmap rotatedBitmap = Bitmap.createBitmap(photoBm, 0, 0, photoBm.getWidth(), photoBm.getHeight(), matrix, true);
+                    Log.d(TAG,"ORIENTATION "+ m_nOrientation);
+
                     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                    photoBm.compress(Bitmap.CompressFormat.JPEG, QUALITY_PHOTO, bytes);
+                    rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY_PHOTO, bytes);
 
                     try {
                         os = new FileOutputStream(file);
@@ -369,5 +394,48 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     public void setSafeToTakePicture(boolean safeToTakePicture) {
         this.safeToTakePicture = safeToTakePicture;
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+            //The coordinate-system is defined relative to the screen of the phone in its default orientation
+            int orientation = 0;
+            float roll = 0;
+            float pitch = 0;
+            switch (getActivity().getWindowManager().getDefaultDisplay().getRotation()) {
+                case Surface.ROTATION_0:
+                    roll = event.values[2];
+                    pitch = event.values[1];
+                    break;
+                case Surface.ROTATION_90:
+                    roll = event.values[1];
+                    pitch = -event.values[2];
+                    break;
+                case Surface.ROTATION_180:
+                    roll = -event.values[2];
+                    pitch = -event.values[1];
+                    break;
+                case Surface.ROTATION_270:
+                    roll = -event.values[1];
+                    pitch = event.values[2];
+                    break;
+            }
+
+            if (pitch < 0 && roll >= -35 && roll <= 35) orientation = 0;
+            else if (roll > 0 && pitch >= -45 && pitch  <= 65) orientation = 270;
+            else if (roll < 0 && pitch >= -65 && pitch <=45) orientation = 90;
+
+            if (m_nOrientation != orientation) {
+                m_nOrientation = orientation;
+            }
+
+//            Log.d(TAG,"PITCH "+ pitch);
+//            Log.d(TAG,"ROLL "+ roll);
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 }
