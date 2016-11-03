@@ -8,14 +8,15 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/bottomPanel">
+        android:layout_above="@+id/bottomPanel"
+        android:id="@+id/claimOverview"
+        android:background="@android:color/white">
 
         <LinearLayout
             android:id="@+id/claimOverviewLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/bottomPanel"
-            android:background="@android:color/white"
             android:orientation="vertical">
 
             <TextView
@@ -193,51 +194,6 @@
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="@color/accent"/>
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/additionalInfoLinearLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/additionalInfoImageView"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="top"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="8dp"
-                    android:src="@drawable/ic_create_black_24dp"/>
-
-                <LinearLayout
-                    android:id="@+id/specificAdditionalInfoLinearLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="6dp"
-                    android:orientation="vertical"
-                    android:weightSum="1">
-
-                    <TextView
-                        android:id="@+id/additionalInfoTextView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="-3dp"
-                        android:text="Додаткова інформація:"
-                        android:textAppearance="?android:attr/textAppearanceMedium"/>
-
-                    <EditText
-                        android:id="@+id/additionalInfoEditText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:ems="10"
-                        android:gravity="top|left"
-                        android:inputType="textMultiLine"
-                        android:text=""/>
                 </LinearLayout>
             </LinearLayout>
 
