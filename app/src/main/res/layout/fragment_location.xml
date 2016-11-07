@@ -1,9 +1,9 @@
 <RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/mapLayout"
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:id="@+id/bottomPanel"
@@ -39,10 +39,39 @@
             tools:ignore="RtlHardcoded" />
     </RelativeLayout>
 
+
     <FrameLayout
-        android:id="@+id/framelayout_location_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/bottomPanel"/>
+        android:layout_above="@+id/bottomPanel">
+
+        <FrameLayout
+            android:id="@+id/framelayout_location_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </FrameLayout>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_place_black_24dp"
+            android:layout_marginBottom="9dp"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/myLocationButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="20dp"
+            android:layout_marginRight="20dp"
+            android:clickable="true"
+            android:src="@android:drawable/ic_menu_mylocation"
+            app:backgroundTint="@color/cast_libraries_material_featurehighlight_outer_highlight_default_color"
+            app:borderWidth="0dp"
+            app:elevation="6dp"
+            app:fabSize="normal" />
+    </FrameLayout>
+
 
 </RelativeLayout>

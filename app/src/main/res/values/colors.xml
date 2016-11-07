@@ -7,4 +7,5 @@
     <color name="darkTextColor">#000000</color>
     <color name="accent">#000000</color>
     <color name="white">#FFFFFF</color>
+    <color name="my_location">#8800CCFF</color>
 </resources>

@@ -6,18 +6,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,37 +32,47 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import ua.in.badparking.R;
+import ua.in.badparking.events.ShowHeaderEvent;
 import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.services.GeocoderAsynkTask;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.utils.Constants;
 import ua.in.badparking.utils.LogHelper;
+import ua.in.badparking.utils.Utils;
 
 import static android.content.Context.LOCATION_SERVICE;
 
 /**
  * @author Dima Kovalenko & Vladimir Dranik
  */
-public class LocationFragment extends BaseFragment implements OnMapReadyCallback {
+public class LocationFragment extends BaseFragment implements OnMapReadyCallback, View.OnClickListener {
 
     private static final String TAG = LocationFragment.class.getName();
     private static final int LOCATION_ZOOM = 17;
 
     @BindView(R.id.positioning_text_view)
-    TextView positioningText;
+    protected TextView positioningText;
 
     @BindView(R.id.next_button)
-    Button nextButton;
+    protected Button nextButton;
+
+    @BindView(R.id.myLocationButton)
+    protected View myLocationButton;
 
     private GoogleMap mMap;
     private Marker marker;
@@ -67,6 +81,8 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     private IntentFilter intentFilter;
     private Geocoder geocoder;
     private SupportMapFragment mMapFragment;
+
+    private Unbinder unbinder;
 
     private LatLng currentLocation;
     private Address currentAddress;
@@ -79,6 +95,10 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LocationManager lm = (LocationManager)getActivity().getSystemService(LOCATION_SERVICE); //вынести в общие
+
+        View rootView = inflater.inflate(R.layout.fragment_location, container, false);
+        unbinder = ButterKnife.bind(this, rootView);
+        myLocationButton.setOnClickListener(this);
 
         if (ActivityCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -101,13 +121,13 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         mMapFragment = SupportMapFragment.newInstance();
 
         getChildFragmentManager().beginTransaction().add(R.id.framelayout_location_container, mMapFragment).commit();
-        return inflater.inflate(R.layout.fragment_location, container, false);
+
+        return rootView;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(this, view);
 
         mMapFragment.getMapAsync(LocationFragment.this);
         nextButton.setOnClickListener(new View.OnClickListener() {
@@ -157,6 +177,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     @Override
     public void onDestroyView() {
+        unbinder.unbind();
         super.onDestroyView();
     }
 
@@ -173,6 +194,15 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             }
 
             mMap.getUiSettings().setCompassEnabled(false);
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+            mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener(){
+                @Override
+                public boolean onMyLocationButtonClick()
+                {
+                    //TODO: Any custom actions
+                    return false;
+                }
+            });
 
             mapPositioning(mMap, currentLocation);
             Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****onMapReady finished " + currentLocation.latitude + " " + currentLocation.longitude);
@@ -185,8 +215,18 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         }
 
         if (mMap != null) {
-            marker = mMap.addMarker(new MarkerOptions()
-                    .position(latLng));
+//            marker = mMap.addMarker(new MarkerOptions()
+//                    .position(latLng));
+
+            CircleOptions circleOptions = new CircleOptions()
+                    .center(latLng)
+                    .radius(5) // radius in meters
+                    .fillColor(getResources().getColor(R.color.cast_libraries_material_featurehighlight_outer_highlight_default_color)) //this is a half transparent blue, change "88" for the transparency
+                    .strokeColor(getResources().getColor(R.color.cast_libraries_material_featurehighlight_outer_highlight_default_color)); //The stroke (border) is blue
+                    //.strokeWidth(2); // The width is in pixel, so try it!
+
+// Get back the mutable Circle
+            Circle circle = mMap.addCircle(circleOptions);
 
             Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****NEW MARKER POSITION - " + latLng.latitude + " " + latLng.longitude);
 
@@ -243,6 +283,16 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         }
 
         return address;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.myLocationButton:
+
+                mapPositioning(mMap, currentLocation);
+                break;
+        }
     }
 
 
