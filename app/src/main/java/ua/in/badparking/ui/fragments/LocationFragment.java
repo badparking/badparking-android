@@ -16,9 +16,11 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +29,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -37,6 +40,7 @@ import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import ua.in.badparking.R;
 import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.services.GeocoderAsynkTask;
@@ -49,16 +53,27 @@ import static android.content.Context.LOCATION_SERVICE;
 /**
  * @author Dima Kovalenko & Vladimir Dranik
  */
-public class LocationFragment extends BaseFragment implements OnMapReadyCallback {
+public class LocationFragment extends BaseFragment implements OnMapReadyCallback,
+        View.OnClickListener, GoogleMap.OnCameraIdleListener, GoogleMap.OnCameraMoveStartedListener,
+        View.OnTouchListener {
 
     private static final String TAG = LocationFragment.class.getName();
     private static final int LOCATION_ZOOM = 17;
 
     @BindView(R.id.positioning_text_view)
-    TextView positioningText;
+    protected TextView positioningText;
 
     @BindView(R.id.next_button)
-    Button nextButton;
+    protected Button nextButton;
+
+    @BindView(R.id.myLocationButton)
+    protected View myLocationButton;
+
+    @BindView(R.id.mapOverlay)
+    protected View mapOverlay;
+
+    @BindView(R.id.customLocationIcon)
+    protected ImageView customLocationIcon;
 
     private GoogleMap mMap;
     private Marker marker;
@@ -68,9 +83,13 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     private Geocoder geocoder;
     private SupportMapFragment mMapFragment;
 
+    private Unbinder unbinder;
+
     private LatLng currentLocation;
-    private Address currentAddress;
+    private LatLng customLocation;
+    private Address address;
     private boolean isFirstAnimate = true;
+    private boolean isOnCurrentPosition = true;
 
     public static BaseFragment newInstance() {
         return new LocationFragment();
@@ -78,21 +97,23 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        LocationManager lm = (LocationManager)getActivity().getSystemService(LOCATION_SERVICE); //вынести в общие
+        LocationManager lm = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE); //вынести в общие
+
+        View rootView = inflater.inflate(R.layout.fragment_location, container, false);
+        unbinder = ButterKnife.bind(this, rootView);
+        myLocationButton.setOnClickListener(this);
+        Location location = null;
 
         if (ActivityCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getActivity(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // permission logic
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         }
 
-        Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         geocoder = new Geocoder(getActivity(), Locale.getDefault());
 
         if (location != null && currentLocation == null) {
             currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-            currentAddress = getCurrentAddress(currentLocation);
+            address = getAddress(currentLocation);
             Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****FIRST NETWORK LAST_LOCATION " + currentLocation.latitude + " " + currentLocation.longitude);
         }
 
@@ -100,35 +121,36 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         intentFilter = new IntentFilter(Constants.SEND_LOCATION_INFO_ACTION);
         mMapFragment = SupportMapFragment.newInstance();
 
+        mapOverlay.setOnTouchListener(this);
         getChildFragmentManager().beginTransaction().add(R.id.framelayout_location_container, mMapFragment).commit();
-        return inflater.inflate(R.layout.fragment_location, container, false);
+        mMapFragment.getMapAsync(LocationFragment.this);
+        return rootView;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(this, view);
 
-        mMapFragment.getMapAsync(LocationFragment.this);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                ClaimService.INST.getClaim().setLatitude(String.valueOf(currentLocation.latitude));
-                ClaimService.INST.getClaim().setLongitude(String.valueOf(currentLocation.longitude));
+                LatLng location = (isOnCurrentPosition) ? currentLocation : customLocation;
+                ClaimService.INST.getClaim().setLatitude(String.valueOf(location.latitude));
+                ClaimService.INST.getClaim().setLongitude(String.valueOf(location.longitude));
 
-                if (currentAddress == null) {
+                if (address == null) {
                     ClaimService.INST.getClaim().setCity("unrecognized");
                     ClaimService.INST.getClaim().setAddress("unrecognized");
                 } else {
-                    String city = currentAddress.getLocality();
-                    String addressStr = currentAddress.getAddressLine(0);
+                    String city = address.getLocality();
+                    String addressStr = address.getAddressLine(0);
 
                     ClaimService.INST.getClaim().setCity((city != null) ? city : "unrecognized");
                     ClaimService.INST.getClaim().setAddress((addressStr != null) ? addressStr : "unrecognized");
                 }
 
-                ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CLAIM_OVERVIEW);
+                ((MainActivity) getActivity()).showPage(MainActivity.PAGE_CLAIM_OVERVIEW);
             }
         });
     }
@@ -141,11 +163,11 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             showTimePositioningHint();
             nextButton.setVisibility(View.GONE);
         } else {
-            setAddressUI(currentAddress);
+            setAddressUI(address);
         }
 
         getActivity().registerReceiver(locationInfoReceiver, intentFilter);
-        Log.d(LogHelper.LOCATION_MONITORING_TAG,"*****Register LocationInfoReciver");
+        Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****Register LocationInfoReciver");
     }
 
     @Override
@@ -157,6 +179,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     @Override
     public void onDestroyView() {
+        unbinder.unbind();
         super.onDestroyView();
     }
 
@@ -165,53 +188,60 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         mMap = googleMap;
 
         if (mMap != null) {
-            if (ActivityCompat.checkSelfPermission(getActivity(),
-                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(getActivity(),
-                            Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // permission logic
-            }
+            marker = getUpdatedCurrentLocationMarker();
 
+            mMap.setOnCameraIdleListener(this);
             mMap.getUiSettings().setCompassEnabled(false);
 
-            mapPositioning(mMap, currentLocation);
+            LatLng location;
+            if (isOnCurrentPosition) {
+                location = currentLocation;
+            } else location = customLocation;
+
+            mapPositioning(mMap, location);
+            address = getAddress(location);
+            setAddressUI(address);
+
             Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****onMapReady finished " + currentLocation.latitude + " " + currentLocation.longitude);
         }
     }
 
-    public void mapPositioning(GoogleMap mMap, LatLng latLng) {
+    private Marker getUpdatedCurrentLocationMarker() {
         if (marker != null) {
             marker.remove();
         }
 
-        if (mMap != null) {
-            marker = mMap.addMarker(new MarkerOptions()
-                    .position(latLng));
+        Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****NEW MARKER POSITION - " + currentLocation.latitude + " " + currentLocation.longitude);
 
-            Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****NEW MARKER POSITION - " + latLng.latitude + " " + latLng.longitude);
+        return mMap.addMarker(new MarkerOptions()
+                .position(currentLocation)
+                //.title("Current location")
+                .snippet("Current location")
+                .icon(BitmapDescriptorFactory
+                        .fromResource(R.drawable.ic_mylocation_dot_24dp)));
+    }
 
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(latLng)
-                    .zoom(LOCATION_ZOOM)
-                    .bearing(45)
-                    //.tilt(45)
-                    .build();
+    private void mapPositioning(GoogleMap mMap, LatLng latLng) {
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(latLng)
+                .zoom(LOCATION_ZOOM)
+                .bearing(45)
+                //.tilt(45)
+                .build();
 
-            // mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
-            if (isFirstAnimate) {
-                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 2000, null);
-                isFirstAnimate = false;
-            } else {
-                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1, null);
-            }
+        if (isFirstAnimate) {
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 2000, null);
+            isFirstAnimate = false;
+        } else {
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1, null);
         }
     }
 
     private void showTimePositioningHint() {
         Toast toast = Toast.makeText(getContext(), getResources().getText(R.string.please_wait_gps), Toast.LENGTH_LONG);
-        LinearLayout layout = (LinearLayout)toast.getView();
+        LinearLayout layout = (LinearLayout) toast.getView();
         if (layout.getChildCount() > 0) {
-            TextView tv = (TextView)layout.getChildAt(0);
+            TextView tv = (TextView) layout.getChildAt(0);
             tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         }
         toast.setGravity(Gravity.CENTER, 0, 0);
@@ -231,7 +261,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         }
     }
 
-    private Address getCurrentAddress(LatLng latLng) {
+    private Address getAddress(LatLng latLng) {
         GeocoderAsynkTask geocoderAsynkTask = new GeocoderAsynkTask(geocoder);
         geocoderAsynkTask.execute(latLng);
         Address address;
@@ -245,6 +275,54 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         return address;
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.myLocationButton:
+                customLocationIcon.setColorFilter(getContext().getResources().getColor(R.color.accent));
+                mapPositioning(mMap, currentLocation);
+                isOnCurrentPosition = true;
+                break;
+        }
+    }
+
+    @Override
+    public void onCameraIdle() {
+        if (!isOnCurrentPosition) {
+            customLocationIcon.setColorFilter(getContext().getResources().getColor(R.color.custom_location));
+        }
+
+        LatLng location = null;
+        if (isOnCurrentPosition) {
+            location = currentLocation;
+        }
+
+        if (!isOnCurrentPosition) {
+            location = mMap.getCameraPosition().target;
+            customLocation = location;
+        }
+
+        address = getAddress(location);
+        setAddressUI(address);
+
+        getActivity().registerReceiver(locationInfoReceiver, intentFilter);
+    }
+
+    @Override
+    public void onCameraMoveStarted(int i) {
+        getActivity().unregisterReceiver(locationInfoReceiver);
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                isOnCurrentPosition = false;
+                break;
+        }
+
+        return false;
+    }
 
     public class LocationInfoReceiver extends BroadcastReceiver {
 
@@ -261,12 +339,14 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                 currentLocation = new LatLng(latitude, longitude);
 
                 if (mMap != null) {
-                    mapPositioning(mMap, currentLocation);
                     Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****GPS LOCATION CHANGED - " + latitude + " " + longitude);
-                }
 
-                currentAddress = getCurrentAddress(currentLocation);
-                setAddressUI(currentAddress);
+                    marker = getUpdatedCurrentLocationMarker();
+
+                    if (isOnCurrentPosition) {
+                        mapPositioning(mMap, currentLocation);
+                    }
+                }
 
                 if (nextButton.getVisibility() == View.GONE) {
                     nextButton.setVisibility(View.VISIBLE);
