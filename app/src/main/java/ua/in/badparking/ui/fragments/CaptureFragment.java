@@ -95,7 +95,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     private SensorManager sensorManager;
     private Sensor mySensor;
-    private int m_nOrientation = 0;
+    private int m_nOrientation;
 
     public static CaptureFragment newInstance() {
         return new CaptureFragment();
@@ -107,6 +107,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         unbinder = ButterKnife.bind(this, rootView);
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         mySensor = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+        m_nOrientation = getAgleCorrection();
         return rootView;
     }
 
@@ -357,6 +358,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                     setSafeToTakePicture(true);
                 }
 
+
             });
         }
 
@@ -399,32 +401,21 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-            //The coordinate-system is defined relative to the screen of the phone in its default orientation
-            int orientation = 0;
+            int orientation = getAgleCorrection();
+
             float roll = 0;
             float pitch = 0;
+
             switch (getActivity().getWindowManager().getDefaultDisplay().getRotation()) {
                 case Surface.ROTATION_0:
                     roll = event.values[2];
                     pitch = event.values[1];
                     break;
-                case Surface.ROTATION_90:
-                    roll = event.values[1];
-                    pitch = -event.values[2];
-                    break;
-                case Surface.ROTATION_180:
-                    roll = -event.values[2];
-                    pitch = -event.values[1];
-                    break;
-                case Surface.ROTATION_270:
-                    roll = -event.values[1];
-                    pitch = event.values[2];
-                    break;
             }
 
-            if (pitch < 0 && roll >= -35 && roll <= 35) orientation = 0;
-            else if (roll > 0 && pitch >= -45 && pitch  <= 65) orientation = 270;
-            else if (roll < 0 && pitch >= -65 && pitch <=45) orientation = 90;
+            if (pitch < 0 && roll >= -35 && roll <= 35) orientation += 0;
+            else if (roll > 0 && pitch >= -45 && pitch  <= 65) orientation += 270;
+            else if (roll < 0 && pitch >= -65 && pitch <=45) orientation += 90;
 
             if (m_nOrientation != orientation) {
                 m_nOrientation = orientation;
@@ -433,6 +424,10 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 //            Log.d(TAG,"PITCH "+ pitch);
 //            Log.d(TAG,"ROLL "+ roll);
         }
+    }
+
+    private int getAgleCorrection(){
+        return  (isTablet) ? 90 : 0;
     }
 
     @Override

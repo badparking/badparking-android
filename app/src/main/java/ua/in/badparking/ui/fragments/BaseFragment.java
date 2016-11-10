@@ -1,6 +1,7 @@
 package ua.in.badparking.ui.fragments;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
@@ -11,13 +12,20 @@ import android.view.inputmethod.InputMethodManager;
  */
 public class BaseFragment extends Fragment {
 
-    InputMethodManager inputManager;
+    private InputMethodManager inputManager;
+    protected boolean isTablet;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         inputManager = (InputMethodManager)getContext()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        boolean large = ((getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE);
+        boolean xlarge = ((getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK) == 4);
+        isTablet = large || xlarge;
     }
 
     public void removePhoneKeypad() {
