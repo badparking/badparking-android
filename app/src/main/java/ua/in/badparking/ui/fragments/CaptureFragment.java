@@ -10,6 +10,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -70,6 +71,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     @BindView(R.id.camera)
     protected CameraView cameraView;
+    private Handler mBackgroundHandler;
 
     @BindView(R.id.recyclerView)
     protected RecyclerView recyclerView;
@@ -105,6 +107,11 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_capture, container, false);
         unbinder = ButterKnife.bind(this, rootView);
+
+        if (cameraView != null) {
+            cameraView.addCallback(mCallback);
+        }
+
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         mySensor = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
         m_nOrientation = getAgleCorrection();
@@ -116,10 +123,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         super.onViewCreated(view, savedInstanceState);
         snapButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
-
-        if (cameraView != null) {
-            cameraView.addCallback(mCallback);
-        }
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -150,8 +153,16 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
+        if (mBackgroundHandler != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                mBackgroundHandler.getLooper().quitSafely();
+            } else {
+                mBackgroundHandler.getLooper().quit();
+            }
+            mBackgroundHandler = null;
+        }
         unbinder.unbind();
+        super.onDestroyView();
     }
 
     @Override
@@ -238,14 +249,15 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.snap:
-
-                if (cameraView != null && isSafeToTakePicture()) {
+                if (cameraView != null && cameraView.isCameraOpened() && isSafeToTakePicture()) {
+                    Log.d(TAG, String.valueOf(cameraView.isCameraOpened()));
                     snapButton.setVisibility(View.GONE);
                     cameraView.takePicture();
                     Utils.shootSound(getActivity());
                     setSafeToTakePicture(false);
                 }
                 break;
+
             case R.id.next_button:
                 InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -256,6 +268,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                 platesEditText.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
                 platesPreviewImage.setVisibility(View.GONE);
+
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -275,8 +288,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         onPhotosUpdated();
     }
 
-    private Handler mBackgroundHandler;
-
     private Handler getBackgroundHandler() {
         if (mBackgroundHandler == null) {
             HandlerThread thread = new HandlerThread("background");
@@ -290,12 +301,12 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
         @Override
         public void onCameraOpened(CameraView cameraView) {
-            Log.d(TAG, "onCameraOpened");
+            Log.d(TAG, "onCameraOpened - " + cameraView.isCameraOpened());
         }
 
         @Override
         public void onCameraClosed(CameraView cameraView) {
-            Log.d(TAG, "onCameraClosed");
+            Log.d(TAG, "onCameraClosed: isopen - " + cameraView.isCameraOpened());
         }
 
         @Override
@@ -349,16 +360,16 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                             }
                         }
                     }
+
                     cameraView.post(new Runnable() {
                         @Override
                         public void run() {
                             onImageFileCreated(file.getPath());
                         }
                     });
+
                     setSafeToTakePicture(true);
                 }
-
-
             });
         }
 
