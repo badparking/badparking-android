@@ -179,12 +179,17 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
     public void onBackPressed() {
-        super.onBackPressed();
         mPosition--;
+
         if (mPosition >= 0) {
             stepperIndicator.onPageSelected(mPosition);
+        }
+
+        if (getFragmentManager().getBackStackEntryCount() > 0) {
+            getFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
         }
     }
 
