@@ -90,6 +90,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     private Address address;
     private boolean isFirstAnimate = true;
     private boolean isOnCurrentPosition = true;
+    private static final LatLng DISABLE_GPS_START_MAP_POINT = new LatLng(50.4501D, 30.523400000000038D);
 
     public static BaseFragment newInstance() {
         return new LocationFragment();
@@ -97,7 +98,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        LocationManager lm = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE); //вынести в общие
+        LocationManager lm = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
 
         View rootView = inflater.inflate(R.layout.fragment_location, container, false);
         unbinder = ButterKnife.bind(this, rootView);
@@ -134,7 +135,6 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 LatLng location = (isOnCurrentPosition) ? currentLocation : customLocation;
                 ClaimService.INST.getClaim().setLatitude(String.valueOf(location.latitude));
                 ClaimService.INST.getClaim().setLongitude(String.valueOf(location.longitude));
@@ -161,7 +161,8 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
         if (currentLocation == null) {
             showTimePositioningHint();
-            nextButton.setVisibility(View.GONE);
+            currentLocation = DISABLE_GPS_START_MAP_POINT;
+            //nextButton.setVisibility(View.GONE);
         } else {
             setAddressUI(address);
         }
@@ -188,8 +189,6 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         mMap = googleMap;
 
         if (mMap != null) {
-            marker = getUpdatedCurrentLocationMarker();
-
             mMap.setOnCameraIdleListener(this);
             mMap.getUiSettings().setCompassEnabled(false);
 
@@ -198,11 +197,16 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                 location = currentLocation;
             } else location = customLocation;
 
-            mapPositioning(mMap, location);
-            address = getAddress(location);
-            setAddressUI(address);
+            if(location != null) {
+                mapPositioning(mMap, location);
+                address = getAddress(location);
+                setAddressUI(address);
+            }
 
-            Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****onMapReady finished " + currentLocation.latitude + " " + currentLocation.longitude);
+            if(currentLocation != null) {
+                marker = getUpdatedCurrentLocationMarker();
+                Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****onMapReady finished " + currentLocation.latitude + " " + currentLocation.longitude);
+            }
         }
     }
 
@@ -238,7 +242,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     }
 
     private void showTimePositioningHint() {
-        Toast toast = Toast.makeText(getContext(), getResources().getText(R.string.please_wait_gps), Toast.LENGTH_LONG);
+        Toast toast = Toast.makeText(getContext(), getResources().getText(R.string.please_check_gps), Toast.LENGTH_LONG);
         LinearLayout layout = (LinearLayout) toast.getView();
         if (layout.getChildCount() > 0) {
             TextView tv = (TextView) layout.getChildAt(0);
@@ -280,8 +284,12 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         switch (v.getId()) {
             case R.id.myLocationButton:
                 customLocationIcon.setColorFilter(getContext().getResources().getColor(R.color.accent));
-                mapPositioning(mMap, currentLocation);
-                isOnCurrentPosition = true;
+
+                if(currentLocation != null) {
+                    mapPositioning(mMap, currentLocation);
+                    isOnCurrentPosition = true;
+                }
+
                 break;
         }
     }
@@ -302,8 +310,10 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             customLocation = location;
         }
 
-        address = getAddress(location);
-        setAddressUI(address);
+        if(location != null) {
+            address = getAddress(location);
+            setAddressUI(address);
+        }
 
         getActivity().registerReceiver(locationInfoReceiver, intentFilter);
     }
