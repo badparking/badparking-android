@@ -12,7 +12,6 @@ import android.content.pm.Signature;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,16 +48,16 @@ import ua.in.badparking.events.ShowHeaderEvent;
 import ua.in.badparking.listeners.UserLocationListener;
 import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.services.TrackingService;
-import ua.in.badparking.ui.dialogs.Alerts;
 import ua.in.badparking.ui.fragments.BaseFragment;
 import ua.in.badparking.ui.fragments.CaptureFragment;
 import ua.in.badparking.ui.fragments.ClaimOverviewFragment;
 import ua.in.badparking.ui.fragments.ClaimTypeFragment;
 import ua.in.badparking.ui.fragments.LocationFragment;
 import ua.in.badparking.utils.LogHelper;
+import ua.in.badparking.utils.PermissionsChecker;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  {
 
     public final static int PAGE_CAPTURE = 0;
     public final static int PAGE_CLAIM_TYPES = 1;
@@ -81,9 +80,10 @@ public class MainActivity extends AppCompatActivity {
 
     private LocationListener gpsLocationListener;
     private RequiredStateReceiver requiredStateReceiver;
+    private PermissionsChecker permissionsChecker;
 
     private int mPosition;
-    private Alerts alerts;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,18 +91,25 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        alerts = new Alerts(this);
-
         setupToolbar();
         if (DEBUG) {
             printDevHashKey();
         }
 
+        permissionsChecker = new PermissionsChecker(this);
+        permissionsChecker.getGoogleApiClient().connect();
+
+        showPage(PAGE_CAPTURE);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         if (Build.VERSION.SDK_INT >= 23) {
             checkMultiplePermissions();
         }
 
-        showPage(PAGE_CAPTURE);
+        permissionsChecker.confirmGPSEnabled();
     }
 
     @Override
@@ -111,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         EventBus.getDefault().register(this);
         ClaimService.INST.updateTypes();
 
-        if (confirmNetworkProviderAvailable()) {
+        if (permissionsChecker.confirmPermissionsAvailable()) {
             requiredStateReceiver = new RequiredStateReceiver();
             requiredStateReceiver.start(this);
 
@@ -248,46 +255,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    boolean confirmNetworkProviderAvailable() {
-        return confirmAirplaneModeOff() && confirmWiFiAvailable() && confirmNetworkProviderEnabled();
-    }
-
-    boolean confirmNetworkProviderEnabled() {
-        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-        boolean isAvailable = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
-        if (!isAvailable) {
-            alerts.showGpsAlert();
-        }
-
-        return isAvailable;
-    }
-
-    boolean confirmAirplaneModeOff() {
-        boolean isOff = Settings.System.getInt(getContentResolver(),
-                Settings.System.AIRPLANE_MODE_ON, 0) == 0;
-
-        if (!isOff) {
-            alerts.showAirModeAlert();
-        }
-
-        return isOff;
-    }
-
-    boolean confirmWiFiAvailable() {
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-
-        boolean isConnected = (wifi != null && wifi.isConnectedOrConnecting()) ||
-                (mobile != null && mobile.isConnectedOrConnecting());
-
-        if (!isConnected) {
-            alerts.showWifiAlert();
-        }
-
-        return isConnected;
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -296,16 +263,16 @@ public class MainActivity extends AppCompatActivity {
 
                 Map<String, Integer> perms = new HashMap<String, Integer>();
                 // Initial
-                perms.put(Manifest.permission.ACCESS_FINE_LOCATION, PackageManager.PERMISSION_GRANTED);
+                //perms.put(Manifest.permission.ACCESS_FINE_LOCATION, PackageManager.PERMISSION_GRANTED);
                 perms.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
                 perms.put(Manifest.permission.CAMERA, PackageManager.PERMISSION_GRANTED);
 
                 // Fill with results
                 for (int i = 0; i < permissions.length; i++)
                     perms.put(permissions[i], grantResults[i]);
-                if (perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        && perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                        && perms.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                if (/*perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&*/
+                         perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                         perms.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                     // All Permissions Granted
                     return;
                 } else {
@@ -326,14 +293,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkMultiplePermissions() {
-
         if (Build.VERSION.SDK_INT >= 23) {
             List<String> permissionsNeeded = new ArrayList<String>();
             List<String> permissionsList = new ArrayList<String>();
 
-            if (!addPermission(permissionsList, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                permissionsNeeded.add("GPS");
-            }
+//            if (!addPermission(permissionsList, Manifest.permission.ACCESS_FINE_LOCATION)) {
+//                permissionsNeeded.add("GPS");
+//            }
 
             if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 permissionsNeeded.add("Read Storage");
@@ -372,6 +338,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        permissionsChecker.getGoogleApiClient().disconnect();
         turnGPSOff();
         super.onDestroy();
     }
@@ -396,26 +363,25 @@ public class MainActivity extends AppCompatActivity {
 
             switch (intent.getAction()) {
                 case LocationManager.PROVIDERS_CHANGED_ACTION:
-                    confirmNetworkProviderEnabled();
+                    //permissionsChecker.confirmGPSEnabled();
                     break;
 
                 case ConnectivityManager.CONNECTIVITY_ACTION:
-                    confirmWiFiAvailable();
+                    permissionsChecker.confirmWiFiAvailable();
                     break;
 
                 case Intent.ACTION_AIRPLANE_MODE_CHANGED:
-                    confirmAirplaneModeOff();
+                    permissionsChecker.confirmAirplaneModeOff();
                     break;
 
                 default:
                     break;
             }
-
         }
 
         public void start(Context context) {
             IntentFilter filter = new IntentFilter();
-            filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
+            //filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
             filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
             filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
             context.registerReceiver(this, filter);
