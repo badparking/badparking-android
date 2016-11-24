@@ -39,7 +39,6 @@ public class ClaimTypeFragment extends BaseFragment {
 
     private Unbinder unbinder;
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
@@ -59,11 +58,11 @@ public class ClaimTypeFragment extends BaseFragment {
                     ClaimService.INST.getAvailableCrimeTypes());
 
             listView.setAdapter(crimeTypeAdapter);
+
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
                     List<CrimeType> checkedCrimeTypesList = new ArrayList<>();
                     SparseBooleanArray checkedItems = listView.getCheckedItemPositions();
 
@@ -75,7 +74,7 @@ public class ClaimTypeFragment extends BaseFragment {
                                 CrimeType ct = ClaimService.INST.getAvailableCrimeTypes().get(checkedItems.keyAt(i));
                                 checkedCrimeTypesId.add(ct.getId());
                                 checkedCrimeTypesList.add(ct);
-                            } else listView.getCheckedItemPositions().delete(checkedItems.keyAt(i));
+                            }
                         }
 
                         ClaimService.INST.getClaim().getCrimetypes().clear();
@@ -84,6 +83,10 @@ public class ClaimTypeFragment extends BaseFragment {
                     }
                 }
             });
+        }
+
+        for(Integer crimeTypeId : ClaimService.INST.getClaim().getCrimetypes()){
+            listView.setItemChecked(crimeTypeId - 1, true);
         }
 
         nextButton.setOnClickListener(new View.OnClickListener() {
