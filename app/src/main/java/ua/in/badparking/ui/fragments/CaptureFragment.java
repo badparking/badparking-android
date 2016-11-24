@@ -414,15 +414,8 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
             int orientation = getAgleCorrection();
 
-            float roll = 0;
-            float pitch = 0;
-
-//            switch (getActivity().getWindowManager().getDefaultDisplay().getRotation()) {
-//                case Surface.ROTATION_0:
-                    roll = event.values[2];
-                    pitch = event.values[1];
-//                    break;
-//            }
+            float roll = event.values[2];
+            float pitch = event.values[1];
 
             if (pitch < 0 && roll >= -35 && roll <= 35) orientation += 0;
             else if (roll > 0 && pitch >= -45 && pitch  <= 65) orientation += 270;
