@@ -417,12 +417,12 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             float roll = 0;
             float pitch = 0;
 
-            switch (getActivity().getWindowManager().getDefaultDisplay().getRotation()) {
-                case Surface.ROTATION_0:
+//            switch (getActivity().getWindowManager().getDefaultDisplay().getRotation()) {
+//                case Surface.ROTATION_0:
                     roll = event.values[2];
                     pitch = event.values[1];
-                    break;
-            }
+//                    break;
+//            }
 
             if (pitch < 0 && roll >= -35 && roll <= 35) orientation += 0;
             else if (roll > 0 && pitch >= -45 && pitch  <= 65) orientation += 270;
