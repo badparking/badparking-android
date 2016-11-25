@@ -28,7 +28,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
 
     private static final String TAG = PhotoAdapter.class.getName();
     private final LayoutInflater mLayoutInflater;
-    private MovieViewHolder holder;
     private final boolean hideCross;
     private Context mContext;
 
@@ -72,15 +71,12 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
         mListener = listener;
     }
 
-
     /**
      * {@link RecyclerView.ViewHolder}
      */
     class MovieViewHolder extends RecyclerView.ViewHolder {
-
         @BindView(R.id.image)
         protected ImageView _photoView;
-
         @BindView(R.id.deleteCross)
         protected ImageView _deleteCross;
 
