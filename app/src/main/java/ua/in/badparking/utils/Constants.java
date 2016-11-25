@@ -6,4 +6,5 @@ public class Constants {
     public final static String PROVIDERS_CHANGED_ACTION = "android.location.PROVIDERS_CHANGED";
     public final static String LATITUDE = "latitude";
     public final static String LONGITUDE = "longitude";
+    public final static int MIN_CARPLATE_LENGTH = 4;
 }
