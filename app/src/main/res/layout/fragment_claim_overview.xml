@@ -146,11 +146,14 @@
                         android:text="Номер авто:"
                         android:textAppearance="?android:attr/textAppearanceMedium"/>
 
-                    <TextView
-                        android:id="@+id/carPlateNumberTextView"
+                    <EditText
+                        android:id="@+id/carPlateNumberEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:background="@null"
+                        android:maxLines="1"
+                        android:maxLength="8"
                         android:textColor="@color/accent"/>
                 </LinearLayout>
             </LinearLayout>

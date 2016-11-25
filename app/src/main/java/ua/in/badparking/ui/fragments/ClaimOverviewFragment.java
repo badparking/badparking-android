@@ -1,7 +1,6 @@
 package ua.in.badparking.ui.fragments;
 
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,8 +8,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.telephony.TelephonyManager;
-import android.text.TextUtils;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +51,7 @@ import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.services.UserService;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.PhotoAdapter;
+import ua.in.badparking.utils.Constants;
 
 /**
  * Created by Dima Kovalenko on 7/3/16.
@@ -64,8 +64,8 @@ public class ClaimOverviewFragment extends BaseFragment {
     @BindView(R.id.send_button)
     protected Button mSendButton;
 
-    @BindView(R.id.carPlateNumberTextView)
-    protected TextView carPlateNumberTextView;
+    @BindView(R.id.carPlateNumberEditText)
+    protected EditText carPlateNumberEditText;
 
     @BindView(R.id.crimeTypesTextView)
     protected TextView crimeTypeTextView;
@@ -96,6 +96,26 @@ public class ClaimOverviewFragment extends BaseFragment {
         View rootView = inflater.inflate(R.layout.fragment_claim_overview, container, false);
         unbinder = ButterKnife.bind(this, rootView);
         EventBus.getDefault().register(this);
+
+        carPlateNumberEditText.setEnabled(true);
+        carPlateNumberEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(carPlateNumberEditText.getText().length() >= Constants.MIN_CARPLATE_LENGTH){
+                    mSendButton.setEnabled(true);
+                    ClaimService.INST.getClaim().setLicensePlates(String.valueOf(carPlateNumberEditText.getText()));
+                } else mSendButton.setEnabled(false);
+
+            }
+        });
         return rootView;
     }
 
@@ -125,6 +145,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         recyclerView.setLayoutManager(layoutManager);
 
         photoAdapter = new PhotoAdapter(getActivity());
+
         recyclerView.setAdapter(photoAdapter);
         recyclerView.setHasFixedSize(true);
 
@@ -157,6 +178,7 @@ public class ClaimOverviewFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+
         if (isLoggedIn()) {
             loginButton.setVisibility(View.GONE);
             mSendButton.setVisibility(View.VISIBLE);
@@ -164,7 +186,7 @@ public class ClaimOverviewFragment extends BaseFragment {
             loginButton.setVisibility(View.VISIBLE);
             mSendButton.setVisibility(View.GONE);
         }
-        carPlateNumberTextView.setText(ClaimService.INST.getClaim().getLicensePlates());
+        carPlateNumberEditText.setText(ClaimService.INST.getClaim().getLicensePlates());
         addressTextView.setText(ClaimService.INST.getOverviewAddress());
     }
 
@@ -287,7 +309,6 @@ public class ClaimOverviewFragment extends BaseFragment {
                 ClaimService.INST.postImage(event.getPk(), file);
             }
         }
-
     }
 
     @Subscribe

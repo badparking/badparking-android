@@ -24,7 +24,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -51,6 +50,7 @@ import ua.in.badparking.services.ClaimService;
 import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.PhotoAdapter;
 import ua.in.badparking.utils.ConfirmationDialogFragment;
+import ua.in.badparking.utils.Constants;
 import ua.in.badparking.utils.Utils;
 
 /**
@@ -146,7 +146,8 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             @Override
             public void afterTextChanged(Editable editable) {
                 int photosTaken = ClaimService.INST.getClaim().getPhotoFiles().size();
-                nextButton.setVisibility(photosTaken > 1 && platesEditText.getText().length() > 0 ? View.VISIBLE : View.GONE);
+                nextButton.setEnabled(photosTaken > 1 && platesEditText.getText().length() >=
+                        Constants.MIN_CARPLATE_LENGTH ? true : false);
             }
         });
     }
@@ -168,35 +169,35 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void onPhotosUpdated() {
         int photosTaken = ClaimService.INST.getClaim().getPhotoFiles().size();
-        nextButton.setVisibility(photosTaken > 1 &&
-                (platesEditText.toString().length() > 0 ||
-                        !TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())) ?
-                View.VISIBLE : View.GONE);
         snapButton.setVisibility(photosTaken > 1 ? View.GONE : View.VISIBLE);
+
         if (photosTaken == 0) {
             messageView.setText(R.string.capture_claim);
         } else if (photosTaken == 1) {
+            nextButton.setVisibility(View.GONE);
             messageView.setText(R.string.capture_plates);
             messageView.setVisibility(View.VISIBLE);
-            platesEditText.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
         } else if (TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())) {
             EventBus.getDefault().post(new ShowHeaderEvent(false));
             messageView.setText("Введiть номернi знаки...");
+            nextButton.setEnabled(false);
+            nextButton.setVisibility(View.VISIBLE);
             platesEditText.setVisibility(View.VISIBLE);
-            platesPreviewImage.setVisibility(View.VISIBLE);
+
             recyclerView.setVisibility(View.GONE);
-//            surfaceView.setVisibility(View.GONE); // TODO
             setPic(platesPreviewImage, ClaimService.INST.getClaim().getPhotoFiles().get(1).getPath());
             if (TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())) {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                        imm.showSoftInput(platesEditText, InputMethodManager.SHOW_IMPLICIT);
                     }
                 }, 800);
             }
+        } else {
+            nextButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -224,6 +225,10 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void onResume() {
         super.onResume();
+
+        if(ClaimService.INST.getClaim().getPhotoFiles().size() > 1 && !TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())){
+            nextButton.setVisibility(View.VISIBLE);
+        }
 
         if (sensorManager != null) {
             sensorManager.registerListener(this, mySensor, SensorManager.SENSOR_DELAY_NORMAL);
@@ -261,9 +266,11 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             case R.id.next_button:
                 InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
                 if(TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())) {
                     ClaimService.INST.getClaim().setLicensePlates(platesEditText.getText().toString());
                 }
+
                 EventBus.getDefault().post(new ShowHeaderEvent(true));
                 platesEditText.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
