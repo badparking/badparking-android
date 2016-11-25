@@ -144,7 +144,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         recyclerView.setLayoutManager(layoutManager);
 
-        photoAdapter = new PhotoAdapter(getActivity());
+        photoAdapter = new PhotoAdapter(getActivity(), true);
 
         recyclerView.setAdapter(photoAdapter);
         recyclerView.setHasFixedSize(true);

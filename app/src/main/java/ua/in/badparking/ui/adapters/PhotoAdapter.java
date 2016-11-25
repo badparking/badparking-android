@@ -28,6 +28,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
 
     private static final String TAG = PhotoAdapter.class.getName();
     private final LayoutInflater mLayoutInflater;
+    private final boolean hideCross;
     private Context mContext;
 
     private PhotosUpdatedListener mListener;
@@ -37,9 +38,11 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
      *
      * @param context {@link Context}
      */
-    public PhotoAdapter(Context context) {
+    public PhotoAdapter(Context context, boolean hideCross) {
         mContext = context;
+        this.hideCross = hideCross;
         mLayoutInflater = LayoutInflater.from(context);
+
     }
 
     @Override
@@ -50,6 +53,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
     @Override
     public void onBindViewHolder(MovieViewHolder holder, int position) {
         holder.setViewData(getItems().get(position));
+        if(hideCross) {
+            holder._deleteCross.setVisibility(View.GONE);
+        } else holder._deleteCross.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -66,13 +72,11 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
     }
 
     /**
-     * {@link android.support.v7.widget.RecyclerView.ViewHolder}
+     * {@link RecyclerView.ViewHolder}
      */
     class MovieViewHolder extends RecyclerView.ViewHolder {
-
         @BindView(R.id.image)
         protected ImageView _photoView;
-
         @BindView(R.id.deleteCross)
         protected ImageView _deleteCross;
 

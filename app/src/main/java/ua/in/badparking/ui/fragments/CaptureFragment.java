@@ -128,7 +128,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         recyclerView.setLayoutManager(layoutManager);
 
-        photoAdapter = new PhotoAdapter(getActivity());
+        photoAdapter = new PhotoAdapter(getActivity(), false);
         photoAdapter.setListener(this);
         recyclerView.setAdapter(photoAdapter);
         recyclerView.setHasFixedSize(true);
