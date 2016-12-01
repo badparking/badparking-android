@@ -8,5 +8,5 @@
     <color name="accent">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="my_location">#8800CCFF</color>
-    <color name="custom_location">#FF0000</color>
+    <color name="red">#FF0000</color>
 </resources>

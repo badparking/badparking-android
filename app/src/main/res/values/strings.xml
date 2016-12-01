@@ -53,5 +53,7 @@
 
     <string name="camera_permission_confirmation">This app demonstrates the usage of CameraView. In order to do that, it needs permission to access camera.</string>
     <string name="camera_permission_not_granted">Camera app cannot do anything without camera permission.</string>
+    <string name="car_plate_number">Номери авто</string>
+    <string name="min_four_numbers">Мінімум 4 символи</string>
 
 </resources>

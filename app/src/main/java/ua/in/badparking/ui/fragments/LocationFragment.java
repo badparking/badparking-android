@@ -298,7 +298,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     @Override
     public void onCameraIdle() {
         if (!isOnCurrentPosition) {
-            customLocationIcon.setColorFilter(getContext().getResources().getColor(R.color.custom_location));
+            customLocationIcon.setColorFilter(getContext().getResources().getColor(R.color.red));
         }
 
         LatLng location = null;

@@ -23,6 +23,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -146,7 +147,13 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             @Override
             public void afterTextChanged(Editable editable) {
                 int photosTaken = ClaimService.INST.getClaim().getPhotoFiles().size();
-                nextButton.setEnabled(photosTaken > 1 && platesEditText.getText().length() >=
+                String result = editable.toString().replaceAll(" ", "");
+                if (!editable.toString().equals(result)) {
+                    platesEditText.setText(result);
+                    platesEditText.setSelection(result.length());
+                }
+
+                nextButton.setEnabled(photosTaken > 1 && platesEditText.getText().toString().length() >=
                         Constants.MIN_CARPLATE_LENGTH ? true : false);
             }
         });
@@ -188,13 +195,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             recyclerView.setVisibility(View.GONE);
             setPic(platesPreviewImage, ClaimService.INST.getClaim().getPhotoFiles().get(1).getPath());
             if (TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.showSoftInput(platesEditText, InputMethodManager.SHOW_IMPLICIT);
-                    }
-                }, 800);
+                showCarPlateKeyboard();
             }
         } else {
             nextButton.setVisibility(View.VISIBLE);
@@ -437,6 +438,16 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 //            Log.d(TAG,"PITCH "+ pitch);
 //            Log.d(TAG,"ROLL "+ roll);
         }
+    }
+
+    private void showCarPlateKeyboard(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(platesEditText, InputMethodManager.SHOW_IMPLICIT);
+            }
+        }, 800);
     }
 
     private int getAgleCorrection(){
