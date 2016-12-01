@@ -14,13 +14,17 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import ua.in.badparking.model.Claim;
+
 /**
  * Created by Dima Kovalenko on 10/5/16.
  */
 public class LogHelper {
     private static final String _timeStampFormat = "yyyy-MM-dd'T'HH:mm:ss";
     private static final String _timeStampTimeZoneId = "UTC";
-    public  static final String LOCATION_MONITORING_TAG = "Location Monitoring";
+    public static final String LOCATION_MONITORING_TAG = "Location Monitoring";
+    public static final String CLAIM_STATE_TAG = "Claim State";
+    public static final String ENTER = "\n";
     private static final boolean DEBUG = false;
 
     /**
@@ -216,9 +220,22 @@ public class LogHelper {
             case GpsStatus.GPS_EVENT_STOPPED:
                 message = "GPS_EVENT_STOPPED";
                 break;
-
         }
         return message;
     }
 
+    public static String getClaimStateLog(Class clazz, Claim claim){
+        StringBuilder claimLog = new StringBuilder();
+        claimLog.append("Fragment: " + clazz.getSimpleName()).append(ENTER).
+                append("plates - " + claim.getLicensePlates()).append(ENTER).
+                append("crimetypes - " + claim.getCrimetypes()).append(ENTER).
+                append("latitude - " + claim.getLatitude()).append(ENTER).
+                append("longitude - " + claim.getLongitude()).append(ENTER).
+                append("city - " + claim.getCity()).append(ENTER).
+                append("adress - " + claim.getAddress()).append(ENTER).
+                append("photoFiles - " + claim.getPhotoFiles().size()).append(ENTER).
+                append(ENTER);
+
+        return claimLog.toString();
+    }
 }

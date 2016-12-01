@@ -169,6 +169,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
         getActivity().registerReceiver(locationInfoReceiver, intentFilter);
         Log.d(LogHelper.LOCATION_MONITORING_TAG, "*****Register LocationInfoReciver");
+        claimStateLogging();
     }
 
     @Override

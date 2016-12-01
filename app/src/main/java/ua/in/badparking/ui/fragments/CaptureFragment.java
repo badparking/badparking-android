@@ -248,6 +248,8 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             ActivityCompat.requestPermissions(getActivity(), new String[] {Manifest.permission.CAMERA},
                     REQUEST_CAMERA_PERMISSION);
         }
+
+        claimStateLogging();
     }
 
     @Override
