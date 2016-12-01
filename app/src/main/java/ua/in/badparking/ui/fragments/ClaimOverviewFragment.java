@@ -188,6 +188,8 @@ public class ClaimOverviewFragment extends BaseFragment {
         }
         carPlateNumberEditText.setText(ClaimService.INST.getClaim().getLicensePlates());
         addressTextView.setText(ClaimService.INST.getOverviewAddress());
+
+        claimStateLogging();
     }
 
     private void send() {

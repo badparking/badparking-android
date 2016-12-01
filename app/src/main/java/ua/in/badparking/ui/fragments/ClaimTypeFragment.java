@@ -104,6 +104,12 @@ public class ClaimTypeFragment extends BaseFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        claimStateLogging();
+    }
+
+    @Override
     public void onDestroyView() {
         unbinder.unbind();
         super.onDestroyView();
