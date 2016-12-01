@@ -49,7 +49,10 @@
             android:layout_toLeftOf="@id/next_button"
             android:background="@android:color/white"
             android:gravity="center"
-            android:hint="Номери авто"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:maxLength="8"
+            android:hint="@string/car_plate_number"
             android:inputType="textCapCharacters|textNoSuggestions"
             android:visibility="gone"/>
 

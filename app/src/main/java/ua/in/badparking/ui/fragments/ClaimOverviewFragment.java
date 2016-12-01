@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -109,13 +110,35 @@ public class ClaimOverviewFragment extends BaseFragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if(carPlateNumberEditText.getText().length() >= Constants.MIN_CARPLATE_LENGTH){
+                String result = editable.toString().replaceAll(" ", "");
+                if (!editable.toString().equals(result)) {
+                    carPlateNumberEditText.setText(result);
+                    carPlateNumberEditText.setSelection(result.length());
+                }
+
+                if(carPlateNumberEditText.getText().toString().length() >= Constants.MIN_CARPLATE_LENGTH){
                     mSendButton.setEnabled(true);
                     ClaimService.INST.getClaim().setLicensePlates(String.valueOf(carPlateNumberEditText.getText()));
-                } else mSendButton.setEnabled(false);
-
+                } else {
+                    mSendButton.setEnabled(false);
+                }
             }
         });
+
+        carPlateNumberEditText.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+
+                    if(carPlateNumberEditText.getText().toString().length() < Constants.MIN_CARPLATE_LENGTH){
+                        carPlateNumberEditText.setText("");
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+
         return rootView;
     }
 
