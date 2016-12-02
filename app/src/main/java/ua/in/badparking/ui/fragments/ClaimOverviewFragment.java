@@ -157,6 +157,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mSendButton.setEnabled(false);
                 if (UserService.INST.getUser() != null) {
                     UserService.INST.validateTokenAndSend(UserService.INST.getUser().getToken());
                 }
