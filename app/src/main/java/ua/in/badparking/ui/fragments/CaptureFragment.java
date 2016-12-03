@@ -6,10 +6,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -23,8 +19,8 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -60,7 +56,7 @@ import ua.in.badparking.utils.Utils;
  * @author Volodymyr Dranyk
  */
 @SuppressWarnings("deprecation")
-public class CaptureFragment extends BaseFragment implements View.OnClickListener, PhotoAdapter.PhotosUpdatedListener, SensorEventListener {
+public class CaptureFragment extends BaseFragment implements View.OnClickListener, PhotoAdapter.PhotosUpdatedListener {
 
     private static final String TAG = CaptureFragment.class.getName();
 
@@ -69,6 +65,10 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     private static final int PHOTO_MAX_HEIGHT = 1024;
     private static final int QUALITY_PHOTO = 40;
     private static final String FRAGMENT_DIALOG = "dialog";
+    private static final int DEGREE_0 = 0;
+    private static final int DEGREE_90 = 90;
+    private static final int DEGREE_180 = 180;
+    private static final int DEGREE_270 = 270;
 
     @BindView(R.id.camera)
     protected CameraView cameraView;
@@ -95,10 +95,9 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     private Unbinder unbinder;
     private PhotoAdapter photoAdapter;
     private boolean safeToTakePicture = false;
+    private int orientationDegree = 0;
+    private OrientationEventListener orientationEventListener;
 
-    private SensorManager sensorManager;
-    private Sensor mySensor;
-    private int m_nOrientation;
 
     public static CaptureFragment newInstance() {
         return new CaptureFragment();
@@ -113,9 +112,13 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             cameraView.addCallback(mCallback);
         }
 
-        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-        mySensor = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
-        m_nOrientation = getAgleCorrection();
+        orientationEventListener = new OrientationEventListener(getContext()) {
+            @Override
+            public void onOrientationChanged(int orientation) {
+                orientationDegree = roundOrientation(orientation);
+            }
+        };
+
         return rootView;
     }
 
@@ -205,9 +208,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     // TODO use Glide here
     private void setPic(ImageView view, String currentPhotoPath) {
         view.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-
         Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
         view.setImageBitmap(bitmap);
     }
@@ -216,23 +217,16 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     public void onPause() {
         cameraView.stop();
         removePhoneKeypad();
-
-        if (sensorManager != null) {
-            sensorManager.unregisterListener(this, mySensor);
-        }
+        orientationEventListener.disable();
         super.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
+        orientationEventListener.enable();
         if(ClaimService.INST.getClaim().getPhotoFiles().size() > 1 && !TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())){
             nextButton.setVisibility(View.VISIBLE);
-        }
-
-        if (sensorManager != null) {
-            sensorManager.registerListener(this, mySensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
 
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -287,7 +281,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                     }
                 }, 1000);
 
-
                 break;
         }
     }
@@ -332,8 +325,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                         return;
                     }
 
-                    // This demo app saves the taken picture to a constant file.
-                    // $ adb pull /sdcard/Android/data/com.google.android.cameraview.demo/files/Pictures/picture.jpg
                     final File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), Utils.getFileName());
                     OutputStream os = null;
 
@@ -350,9 +341,65 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                             PHOTO_MAX_HEIGHT, PHOTO_MAX_WIDTH);
 
                     Matrix matrix = new Matrix();
-                    matrix.postRotate(m_nOrientation);
+
+                    int savePhotoCorrectionDegree = DEGREE_0;
+
+                    if(bmOriginalWidth > bmOriginalHeight) {
+                        switch (orientationDegree) {
+                            case DEGREE_0:
+                                savePhotoCorrectionDegree = DEGREE_90;
+                                break;
+
+                            case DEGREE_90:
+                                savePhotoCorrectionDegree = DEGREE_180;
+                                break;
+
+                            case DEGREE_180:
+                                savePhotoCorrectionDegree = DEGREE_270;
+                                break;
+
+                            case DEGREE_270:
+                                savePhotoCorrectionDegree = DEGREE_0;
+                                break;
+                        }
+                    } else {
+                        switch (orientationDegree) {
+                            case DEGREE_90:
+                                savePhotoCorrectionDegree = DEGREE_90;
+                                break;
+
+                            case DEGREE_180:
+                                savePhotoCorrectionDegree = DEGREE_180;
+                                break;
+
+                            case DEGREE_0:
+                                savePhotoCorrectionDegree = DEGREE_0;
+                                break;
+
+                            case DEGREE_270:
+                                savePhotoCorrectionDegree = DEGREE_270;
+                                break;
+                        }
+                    }
+
+                    matrix.postRotate(savePhotoCorrectionDegree);
                     Bitmap rotatedBitmap = Bitmap.createBitmap(photoBm, 0, 0, photoBm.getWidth(), photoBm.getHeight(), matrix, true);
-                    Log.d(TAG,"ORIENTATION "+ m_nOrientation);
+
+                    Log.d(TAG,"IS TABLET? "+ isTablet);
+                    Log.d(TAG, "Android configuration orientation: " +
+                            getResources().getConfiguration().orientation);
+                    Log.d(TAG, "WindowManager rotation: " +
+                            getActivity().getWindowManager().getDefaultDisplay()
+                            .getRotation());
+                    Log.d(TAG, "CameraView savePhotoCorrectionDegree orientation: " + cameraView.getRotation());
+                    Log.d(TAG, "CameraView config orientation: " +
+                            cameraView.getResources().getConfiguration().orientation);
+                    Log.d(TAG, "CameraView diaplay orientation: " +
+                            cameraView.getDisplay().getRotation());
+                    Log.d(TAG, "Orientation savePhotoCorrectionDegree: " + orientationDegree);
+                    Log.d(TAG, "Save photo correction degree: "+ savePhotoCorrectionDegree);
+                    Log.d(TAG,"Photos count: " + ClaimService.INST.getClaim().getPhotoFiles().size());
+                    Log.d(TAG, "====================================================");
 
                     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                     rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY_PHOTO, bytes);
@@ -421,27 +468,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         this.safeToTakePicture = safeToTakePicture;
     }
 
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-            int orientation = getAgleCorrection();
-
-            float roll = event.values[2];
-            float pitch = event.values[1];
-
-            if (pitch < 0 && roll >= -35 && roll <= 35) orientation += 0;
-            else if (roll > 0 && pitch >= -45 && pitch  <= 65) orientation += 270;
-            else if (roll < 0 && pitch >= -65 && pitch <=45) orientation += 90;
-
-            if (m_nOrientation != orientation) {
-                m_nOrientation = orientation;
-            }
-
-//            Log.d(TAG,"PITCH "+ pitch);
-//            Log.d(TAG,"ROLL "+ roll);
-        }
-    }
-
     private void showCarPlateKeyboard(){
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -452,11 +478,27 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         }, 800);
     }
 
-    private int getAgleCorrection(){
-        return  (isTablet) ? 90 : 0;
-    }
+    public int roundOrientation(int orientationInput) {
+        int orientation = orientationInput;
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN) {
+            orientation = DEGREE_0;
+        }
+
+        orientation = orientation % 360;
+        int retVal;
+        if (orientation < (0 * 90) + 45) {
+            retVal = DEGREE_0;
+        } else if (orientation < (1 * 90) + 45) {
+            retVal = DEGREE_90;
+        } else if (orientation < (2 * 90) + 45) {
+            retVal = DEGREE_180;
+        } else if (orientation < (3 * 90) + 45) {
+            retVal = DEGREE_270;
+        } else {
+            retVal = DEGREE_0;
+        }
+
+        return retVal;
     }
 }
