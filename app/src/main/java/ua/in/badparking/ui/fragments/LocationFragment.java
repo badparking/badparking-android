@@ -255,14 +255,16 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     }
 
     private void setAddressUI(Address address) {
+        String coordinates = String.valueOf(currentLocation.longitude + ", " + currentLocation.longitude);
+
         if (address == null) {
-            positioningText.setText(String.valueOf(currentLocation.longitude + ", " + currentLocation.longitude));
+            positioningText.setText(coordinates);
         } else {
             String city = (address.getLocality() != null) ? address.getLocality() + ", " : "";
             String addressStr = (address.getAddressLine(0) != null) ? address.getAddressLine(0) : "";
 
             if (city.isEmpty() & addressStr.isEmpty()) {
-                String.valueOf(currentLocation.longitude + ", " + currentLocation.longitude);
+                positioningText.setText(coordinates);
             } else positioningText.setText(city + addressStr);
         }
     }
