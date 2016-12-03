@@ -43,8 +43,7 @@
     <string name="gps_network_not_enabled">Будь ласка, увiмкнiть геолокацiю в налаштуваннях телефона.</string>
     <string name="open_location_settings">Налаштування</string>
     <string name="ok">OK</string>
-    <string name="thanks">Дякуємо</string>
-    <string name="claim_sent">Скаргу надiслано</string>
+    <string name="thanks">Скаргу надіслано. Дякуємо!</string>
     <string name="error_claim_sent">Помилка. Спробуйте ще</string>
     <string name="photo_uploaded">"Заватнаженя зображень завершено "</string>
     <string name="claim_sending">Відправлення...</string>

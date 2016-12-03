@@ -89,7 +89,7 @@ public enum ClaimService {
         mClaimsApi.postMyClaims(claim.getCrimetypes(), filenames, paramsMap, new Callback<Claim>() {
             @Override
             public void success(Claim claimsResponse, Response response) {
-                EventBus.getDefault().post(new ClaimPostedEvent(claimsResponse.getPk(), context.getString(R.string.claim_sent), true));
+                EventBus.getDefault().post(new ClaimPostedEvent(claimsResponse.getPk(), context.getString(R.string.thanks), true));
             }
 
             @Override

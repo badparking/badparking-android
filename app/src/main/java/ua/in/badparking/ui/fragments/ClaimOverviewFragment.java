@@ -236,7 +236,6 @@ public class ClaimOverviewFragment extends BaseFragment {
     }
 
     private void showCompleteUserDataDialog() {
-
         LinearLayout layout = new LinearLayout(getActivity());
         layout.setOrientation(LinearLayout.VERTICAL);
 
@@ -276,6 +275,8 @@ public class ClaimOverviewFragment extends BaseFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
+                //TODO BREAK SEND
+                mSendButton.setEnabled(true);
             }
         });
         waitDialog = builder.create();
@@ -284,7 +285,6 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     @Subscribe
     public void onImagePosted(final ImageUploadedEvent event) {
-        readyDialog.hide();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if (!event.getFilesUploaded()) {
             builder.setMessage(getActivity().getString(R.string.error_uploading_image));
@@ -292,16 +292,55 @@ public class ClaimOverviewFragment extends BaseFragment {
             builder.setMessage(getActivity().getString(R.string.thanks));
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    //restart activity
-                    Intent intent = new Intent(getContext(), MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    getActivity().finish(); // call this to finish the current activity
+                    dialog.dismiss();
                 }
             });
+
+            builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
+                @Override
+                public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                    if(keyCode==KeyEvent.KEYCODE_BACK && event.isCanceled()) {
+                        dialog.dismiss();
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+            builder.setOnDismissListener(new DialogInterface.OnDismissListener(){
+
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    restartFlow();
+                }
+            });
+
         }
         readyDialog = builder.create();
+        if(waitDialog.isShowing()){
+            waitDialog.dismiss();
+        }
         readyDialog.show();
+    }
+
+    private void restartFlow() {
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        getActivity().finish(); // call this to finish the current activity
+    }
+
+    @Subscribe
+    public void onClaimPosted(final ClaimPostedEvent event) {
+        ClaimService.INST.setPk(event.getPk());
+
+        if (event.getPosted()) {
+            List<MediaFile> files = ClaimService.INST.getPictures();
+            for (int i = 0; i < files.size(); i++) {
+                MediaFile file = files.get(i);
+                ClaimService.INST.postImage(event.getPk(), file);
+            }
+        }
     }
 
     @Subscribe
@@ -317,24 +356,6 @@ public class ClaimOverviewFragment extends BaseFragment {
     @Subscribe
     public void onTokenRefreshed(final TokenRefreshedEvent event) {
         send();
-    }
-
-    @Subscribe
-    public void onClaimPosted(final ClaimPostedEvent event) {
-        ClaimService.INST.setPk(event.getPk());
-        waitDialog.hide();
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(event.getMessage());
-        readyDialog = builder.create();
-        readyDialog.show();
-
-        if (event.getPosted()) {
-            List<MediaFile> files = ClaimService.INST.getPictures();
-            for (int i = 0; i < files.size(); i++) {
-                MediaFile file = files.get(i);
-                ClaimService.INST.postImage(event.getPk(), file);
-            }
-        }
     }
 
     @Subscribe
