@@ -135,6 +135,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                nextButton.setEnabled(false);
                 LatLng location = (isOnCurrentPosition) ? currentLocation : customLocation;
                 ClaimService.INST.getClaim().setLatitude(String.valueOf(location.latitude));
                 ClaimService.INST.getClaim().setLongitude(String.valueOf(location.longitude));
@@ -254,14 +255,16 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     }
 
     private void setAddressUI(Address address) {
+        String coordinates = String.valueOf(currentLocation.longitude + ", " + currentLocation.longitude);
+
         if (address == null) {
-            positioningText.setText(String.valueOf(currentLocation.longitude + ", " + currentLocation.longitude));
+            positioningText.setText(coordinates);
         } else {
             String city = (address.getLocality() != null) ? address.getLocality() + ", " : "";
             String addressStr = (address.getAddressLine(0) != null) ? address.getAddressLine(0) : "";
 
-            if (city.isEmpty() && addressStr.isEmpty()) {
-                String.valueOf(currentLocation.longitude + ", " + currentLocation.longitude);
+            if (city.isEmpty() & addressStr.isEmpty()) {
+                positioningText.setText(coordinates);
             } else positioningText.setText(city + addressStr);
         }
     }

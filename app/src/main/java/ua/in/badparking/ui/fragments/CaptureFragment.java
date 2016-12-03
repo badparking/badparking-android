@@ -267,6 +267,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                 break;
 
             case R.id.next_button:
+                nextButton.setEnabled(false);
                 InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
@@ -285,6 +286,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                         ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CLAIM_TYPES);
                     }
                 }, 1000);
+
 
                 break;
         }

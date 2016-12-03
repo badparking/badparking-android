@@ -92,6 +92,7 @@ public class ClaimTypeFragment extends BaseFragment {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                nextButton.setEnabled(false);
                 ((MainActivity)getActivity()).showPage(MainActivity.PAGE_MAP);
             }
         });
