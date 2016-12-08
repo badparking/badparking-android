@@ -3,9 +3,6 @@ package ua.in.badparking.ui.fragments;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -32,7 +29,6 @@ import com.google.android.cameraview.CameraView;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -48,7 +44,7 @@ import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.adapters.PhotoAdapter;
 import ua.in.badparking.utils.ConfirmationDialogFragment;
 import ua.in.badparking.utils.Constants;
-import ua.in.badparking.utils.Utils;
+import ua.in.badparking.utils.PhotoUtils;
 
 /**
  * @author Dima Kovalenko
@@ -61,14 +57,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     private static final String TAG = CaptureFragment.class.getName();
 
     private static final int REQUEST_CAMERA_PERMISSION = 1;
-    private static final int PHOTO_MAX_WIDTH = 1024;
-    private static final int PHOTO_MAX_HEIGHT = 1024;
-    private static final int QUALITY_PHOTO = 40;
     private static final String FRAGMENT_DIALOG = "dialog";
-    private static final int DEGREE_0 = 0;
-    private static final int DEGREE_90 = 90;
-    private static final int DEGREE_180 = 180;
-    private static final int DEGREE_270 = 270;
 
     @BindView(R.id.camera)
     protected CameraView cameraView;
@@ -97,7 +86,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     private boolean safeToTakePicture = false;
     private int orientationDegree = 0;
     private OrientationEventListener orientationEventListener;
-
 
     public static CaptureFragment newInstance() {
         return new CaptureFragment();
@@ -194,9 +182,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
             nextButton.setEnabled(false);
             nextButton.setVisibility(View.VISIBLE);
             platesEditText.setVisibility(View.VISIBLE);
-
             recyclerView.setVisibility(View.GONE);
-            setPic(platesPreviewImage, ClaimService.INST.getClaim().getPhotoFiles().get(1).getPath());
             if (TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())) {
                 showCarPlateKeyboard();
             }
@@ -205,16 +191,9 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         }
     }
 
-    // TODO use Glide here
-    private void setPic(ImageView view, String currentPhotoPath) {
-        view.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
-        view.setImageBitmap(bitmap);
-    }
-
     @Override
     public void onPause() {
+        cameraView.setAdjustViewBounds(true);
         cameraView.stop();
         removePhoneKeypad();
         orientationEventListener.disable();
@@ -224,7 +203,9 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void onResume() {
         super.onResume();
+        cameraView.setAdjustViewBounds(false);
         orientationEventListener.enable();
+
         if(ClaimService.INST.getClaim().getPhotoFiles().size() > 1 && !TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())){
             nextButton.setVisibility(View.VISIBLE);
         }
@@ -252,11 +233,12 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         switch (view.getId()) {
             case R.id.snap:
                 if (cameraView != null && cameraView.isCameraOpened() && isSafeToTakePicture()) {
-                    Log.d(TAG, String.valueOf(cameraView.isCameraOpened()));
-                    snapButton.setVisibility(View.GONE);
+                    ClaimService.INST.getClaim().addPhoto(""); //"wait preview" mode
+                    photoAdapter.notifyDataSetChanged();
                     cameraView.takePicture();
-                    Utils.shootSound(getActivity());
+                    snapButton.setVisibility(View.GONE);
                     setSafeToTakePicture(false);
+                    PhotoUtils.shootSound(getActivity());
                 }
                 break;
 
@@ -279,7 +261,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                     public void run() {
                         ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CLAIM_TYPES);
                     }
-                }, 1000);
+                }, 800);
 
                 break;
         }
@@ -288,7 +270,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     private void onImageFileCreated(String photoPath) {
         ClaimService.INST.getClaim().addPhoto(photoPath);
         int numberOfPhotosTaken = ClaimService.INST.getClaim().getPhotoFiles().size();
-        snapButton.setVisibility(numberOfPhotosTaken > 2 ? View.GONE : View.VISIBLE);
+        snapButton.setVisibility(numberOfPhotosTaken >= 2 ? View.GONE : View.VISIBLE);
         photoAdapter.notifyDataSetChanged();
         onPhotosUpdated();
     }
@@ -303,7 +285,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     }
 
     private CameraView.Callback mCallback = new CameraView.Callback() {
-
         @Override
         public void onCameraOpened(CameraView cameraView) {
             Log.d(TAG, "onCameraOpened - " + cameraView.isCameraOpened());
@@ -317,6 +298,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         @Override
         public void onPictureTaken(final CameraView cameraView, final byte[] data) {
             Log.d(TAG, "onPictureTaken " + data.length);
+
             getBackgroundHandler().post(new Runnable() {
                 @Override
                 public void run() {
@@ -325,88 +307,12 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                         return;
                     }
 
-                    final File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), Utils.getFileName());
+                    final File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), PhotoUtils.getFileName());
                     OutputStream os = null;
-
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    Bitmap photoBm = BitmapFactory.decodeByteArray(data, 0, data.length, options);
-
-                    int bmOriginalWidth = photoBm.getWidth();
-                    int bmOriginalHeight = photoBm.getHeight();
-                    double originalWidthToHeightRatio = 1.0 * bmOriginalWidth / bmOriginalHeight;
-                    double originalHeightToWidthRatio = 1.0 * bmOriginalHeight / bmOriginalWidth;
-
-                    photoBm = getScaledBitmap(photoBm, bmOriginalWidth, bmOriginalHeight,
-                            originalWidthToHeightRatio, originalHeightToWidthRatio,
-                            PHOTO_MAX_HEIGHT, PHOTO_MAX_WIDTH);
-
-                    Matrix matrix = new Matrix();
-
-                    int savePhotoCorrectionDegree = DEGREE_0;
-
-                    if(bmOriginalWidth > bmOriginalHeight) {
-                        switch (orientationDegree) {
-                            case DEGREE_0:
-                                savePhotoCorrectionDegree = DEGREE_90;
-                                break;
-
-                            case DEGREE_90:
-                                savePhotoCorrectionDegree = DEGREE_180;
-                                break;
-
-                            case DEGREE_180:
-                                savePhotoCorrectionDegree = DEGREE_270;
-                                break;
-
-                            case DEGREE_270:
-                                savePhotoCorrectionDegree = DEGREE_0;
-                                break;
-                        }
-                    } else {
-                        switch (orientationDegree) {
-                            case DEGREE_90:
-                                savePhotoCorrectionDegree = DEGREE_90;
-                                break;
-
-                            case DEGREE_180:
-                                savePhotoCorrectionDegree = DEGREE_180;
-                                break;
-
-                            case DEGREE_0:
-                                savePhotoCorrectionDegree = DEGREE_0;
-                                break;
-
-                            case DEGREE_270:
-                                savePhotoCorrectionDegree = DEGREE_270;
-                                break;
-                        }
-                    }
-
-                    matrix.postRotate(savePhotoCorrectionDegree);
-                    Bitmap rotatedBitmap = Bitmap.createBitmap(photoBm, 0, 0, photoBm.getWidth(), photoBm.getHeight(), matrix, true);
-
-                    Log.d(TAG,"IS TABLET? "+ isTablet);
-                    Log.d(TAG, "Android configuration orientation: " +
-                            getResources().getConfiguration().orientation);
-                    Log.d(TAG, "WindowManager rotation: " +
-                            getActivity().getWindowManager().getDefaultDisplay()
-                            .getRotation());
-                    Log.d(TAG, "CameraView savePhotoCorrectionDegree orientation: " + cameraView.getRotation());
-                    Log.d(TAG, "CameraView config orientation: " +
-                            cameraView.getResources().getConfiguration().orientation);
-                    Log.d(TAG, "CameraView diaplay orientation: " +
-                            cameraView.getDisplay().getRotation());
-                    Log.d(TAG, "Orientation savePhotoCorrectionDegree: " + orientationDegree);
-                    Log.d(TAG, "Save photo correction degree: "+ savePhotoCorrectionDegree);
-                    Log.d(TAG,"Photos count: " + ClaimService.INST.getClaim().getPhotoFiles().size());
-                    Log.d(TAG, "====================================================");
-
-                    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                    rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY_PHOTO, bytes);
 
                     try {
                         os = new FileOutputStream(file);
-                        os.write(bytes.toByteArray());
+                        os.write(data);
                         os.close();
                     } catch (IOException e) {
                         Log.w(TAG, "Cannot write to " + file, e);
@@ -420,43 +326,18 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                         }
                     }
 
+                    setSafeToTakePicture(true);
+
                     cameraView.post(new Runnable() {
                         @Override
                         public void run() {
+                            PhotoUtils.resize(file.getPath(), orientationDegree);
+                            photoAdapter.notifyDataSetChanged();
                             onImageFileCreated(file.getPath());
                         }
                     });
-
-                    setSafeToTakePicture(true);
                 }
             });
-        }
-
-        private Bitmap getScaledBitmap(Bitmap bm, int bmOriginalWidth, int bmOriginalHeight, double originalWidthToHeightRatio, double originalHeightToWidthRatio, int maxHeight, int maxWidth) {
-            if (bmOriginalWidth > maxWidth || bmOriginalHeight > maxHeight) {
-
-                if (bmOriginalWidth > bmOriginalHeight) {
-                    bm = scaleDeminsFromWidth(bm, maxWidth, bmOriginalHeight, originalHeightToWidthRatio);
-                } else if (bmOriginalHeight > bmOriginalWidth) {
-                    bm = scaleDeminsFromHeight(bm, maxHeight, bmOriginalHeight, originalWidthToHeightRatio);
-                }
-
-            }
-            return bm;
-        }
-
-        private Bitmap scaleDeminsFromHeight(Bitmap bm, int maxHeight, int bmOriginalHeight, double originalWidthToHeightRatio) {
-            int newHeight = (int)Math.max(maxHeight, bmOriginalHeight * .11);
-            int newWidth = (int)(newHeight * originalWidthToHeightRatio);
-            bm = Bitmap.createScaledBitmap(bm, newWidth, newHeight, true);
-            return bm;
-        }
-
-        private Bitmap scaleDeminsFromWidth(Bitmap bm, int maxWidth, int bmOriginalWidth, double originalHeightToWidthRatio) {
-            int newWidth = (int)Math.max(maxWidth, bmOriginalWidth * .15);
-            int newHeight = (int)(newWidth * originalHeightToWidthRatio);
-            bm = Bitmap.createScaledBitmap(bm, newWidth, newHeight, true);
-            return bm;
         }
     };
 
@@ -482,21 +363,21 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         int orientation = orientationInput;
 
         if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN) {
-            orientation = DEGREE_0;
+            orientation = PhotoUtils.DEGREE_0;
         }
 
         orientation = orientation % 360;
         int retVal;
         if (orientation < (0 * 90) + 45) {
-            retVal = DEGREE_0;
+            retVal = PhotoUtils.DEGREE_0;
         } else if (orientation < (1 * 90) + 45) {
-            retVal = DEGREE_90;
+            retVal = PhotoUtils.DEGREE_90;
         } else if (orientation < (2 * 90) + 45) {
-            retVal = DEGREE_180;
+            retVal = PhotoUtils.DEGREE_180;
         } else if (orientation < (3 * 90) + 45) {
-            retVal = DEGREE_270;
+            retVal = PhotoUtils.DEGREE_270;
         } else {
-            retVal = DEGREE_0;
+            retVal = PhotoUtils.DEGREE_0;
         }
 
         return retVal;

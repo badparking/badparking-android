@@ -25,8 +25,7 @@
             android:text="@string/next"
             android:textAllCaps="false"
             android:textSize="17sp"
-            android:visibility="gone"
-            />
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/message"
@@ -59,7 +58,7 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/photo_side"
+            android:layout_height="@dimen/photo_preview_side"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="10dp"
             android:layout_toLeftOf="@id/next_button"
@@ -68,7 +67,6 @@
             android:scrollbars="none"/>
 
     </RelativeLayout>
-
 
     <com.google.android.cameraview.CameraView
         android:id="@+id/camera"
@@ -82,7 +80,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/bottomPanel"
-        android:visibility="gone" />
+        android:visibility="gone"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/snap"

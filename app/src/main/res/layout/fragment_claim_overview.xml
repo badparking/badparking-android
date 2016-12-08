@@ -61,7 +61,7 @@
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/recyclerView"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/photo_side"
+                        android:layout_height="@dimen/photo_preview_side"
                         android:layout_alignParentBottom="true"
                         android:layout_marginBottom="10dp"
                         android:layout_toLeftOf="@id/next_button"
