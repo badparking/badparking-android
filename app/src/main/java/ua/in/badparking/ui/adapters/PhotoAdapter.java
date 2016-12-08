@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import java.util.List;
 
@@ -33,16 +34,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
 
     private PhotosUpdatedListener mListener;
 
-    /**
-     * Constructor
-     *
-     * @param context {@link Context}
-     */
     public PhotoAdapter(Context context, boolean hideCross) {
         mContext = context;
         this.hideCross = hideCross;
         mLayoutInflater = LayoutInflater.from(context);
-
     }
 
     @Override
@@ -53,9 +48,16 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
     @Override
     public void onBindViewHolder(MovieViewHolder holder, int position) {
         holder.setViewData(getItems().get(position));
+
         if(hideCross) {
             holder._deleteCross.setVisibility(View.GONE);
         } else holder._deleteCross.setVisibility(View.VISIBLE);
+
+        //"wait preview" mode
+        if(!getItems().get(position).exists()){
+            holder._deleteCross.setVisibility(View.GONE);
+            ClaimService.INST.getClaim().getPhotoFiles().remove(position);
+        }
     }
 
     @Override
@@ -71,49 +73,42 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.MovieViewHol
         mListener = listener;
     }
 
-    /**
-     * {@link RecyclerView.ViewHolder}
-     */
     class MovieViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.image)
         protected ImageView _photoView;
         @BindView(R.id.deleteCross)
         protected ImageView _deleteCross;
+        @BindView(R.id.progBar)
+        protected ProgressBar progBar;
 
-        /**
-         * Constructor
-         *
-         * @param itemView {@link View}
-         */
         public MovieViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
-        /**
-         * Set the data for the View.
-         *
-         * @param mediaFile {@link MediaFile}
-         */
         public void setViewData(final MediaFile mediaFile) {
-
-            setPic(_photoView, mediaFile.getPath());
-            _deleteCross.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ClaimService.INST.getClaim().removePhoto(mediaFile);
-                    notifyDataSetChanged();
-                    if (mListener != null) {
-                        mListener.onPhotosUpdated();
+            if(mediaFile.exists()) {
+                progBar.setVisibility(View.INVISIBLE);
+                setPic(_photoView, mediaFile.getPath());
+                _deleteCross.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ClaimService.INST.getClaim().removePhoto(mediaFile);
+                        notifyDataSetChanged();
+                        if (mListener != null) {
+                            mListener.onPhotosUpdated();
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                _photoView.setImageBitmap(null);
+                progBar.setVisibility(View.VISIBLE);
+            }
         }
 
-        // TODO use Glide here
         private void setPic(ImageView view, String currentPhotoPath) {
-            int targetW = mContext.getResources().getDimensionPixelSize(R.dimen.photo_side);
-            int targetH = mContext.getResources().getDimensionPixelSize(R.dimen.photo_side);
+            int targetH, targetW;
+            targetH = targetW = mContext.getResources().getDimensionPixelSize(R.dimen.photo_preview_side);
 
             BitmapFactory.Options bmOptions = new BitmapFactory.Options();
             bmOptions.inJustDecodeBounds = true;

@@ -22,7 +22,5 @@ public class App extends MultiDexApplication {
 //        }
         UserService.INST.init(this);
         ClaimService.INST.init(this);
-
     }
-
 }

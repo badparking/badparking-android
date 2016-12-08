@@ -2,15 +2,23 @@
 <RelativeLayout
     android:id="@+id/second_image_holder"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="@dimen/photo_side"
-    android:layout_height="@dimen/photo_side"
+    android:layout_width="@dimen/photo_preview_side"
+    android:layout_height="@dimen/photo_preview_side"
     android:layout_marginLeft="10dp"
     android:background="@drawable/white_dashed_frame">
 
     <ua.in.badparking.utils.TopAlignedImageView
         android:id="@+id/image"
-        android:layout_width="@dimen/photo_side"
-        android:layout_height="@dimen/photo_side"
+        android:layout_width="@dimen/photo_preview_side"
+        android:layout_height="@dimen/photo_preview_side"
+        android:scaleType="matrix"/>
+
+    <ProgressBar
+        android:id="@+id/progBar"
+        android:indeterminateDrawable="@drawable/progress_indeterminate"
+        android:layout_width="@dimen/photo_preview_side"
+        android:layout_height="@dimen/photo_preview_side"
+        android:visibility="gone"
         android:scaleType="matrix"/>
 
     <ImageView
