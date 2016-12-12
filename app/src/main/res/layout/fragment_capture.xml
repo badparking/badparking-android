@@ -50,7 +50,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:singleLine="true"
-            android:maxLength="8"
+            android:maxLength="@integer/max_carplate_lenght"
             android:hint="@string/car_plate_number"
             android:inputType="textCapCharacters|textNoSuggestions"
             android:visibility="gone"/>

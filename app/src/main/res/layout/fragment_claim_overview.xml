@@ -154,7 +154,7 @@
                         android:background="@null"
                         android:maxLines="1"
                         android:singleLine="true"
-                        android:maxLength="8"
+                        android:maxLength="@integer/max_carplate_lenght"
                         android:textColorHint="@color/red"
                         android:hint="@string/min_four_numbers"
                         android:inputType="textCapCharacters|textNoSuggestions"
