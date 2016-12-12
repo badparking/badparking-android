@@ -238,7 +238,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                     cameraView.takePicture();
                     snapButton.setVisibility(View.GONE);
                     setSafeToTakePicture(false);
-                    PhotoUtils.shootSound(getActivity());
                 }
                 break;
 
@@ -327,6 +326,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                     }
 
                     setSafeToTakePicture(true);
+                    PhotoUtils.shootSound(getActivity());
 
                     cameraView.post(new Runnable() {
                         @Override
