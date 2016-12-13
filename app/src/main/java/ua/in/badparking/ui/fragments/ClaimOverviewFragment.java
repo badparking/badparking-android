@@ -18,13 +18,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
@@ -157,7 +155,6 @@ public class ClaimOverviewFragment extends BaseFragment {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mSendButton.setEnabled(false);
                 if (UserService.INST.getUser() != null) {
                     UserService.INST.validateTokenAndSend(UserService.INST.getUser().getToken());
                 }
@@ -176,6 +173,13 @@ public class ClaimOverviewFragment extends BaseFragment {
         callbackManager = CallbackManager.Factory.create();
         crimeTypeTextView.setText(getCrimeTypesNames(ClaimService.INST.getSelectedCrimeTypes()));
 
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loginButton.setVisibility(View.GONE);
+            }
+        });
+
         loginButton.setReadPermissions(Arrays.asList("email", "public_profile"));
         // If using in a fragment
         loginButton.setFragment(this);
@@ -184,7 +188,6 @@ public class ClaimOverviewFragment extends BaseFragment {
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
-                        loginButton.setVisibility(View.GONE);
                         mSendButton.setVisibility(View.VISIBLE);
                         UserService.INST.authorizeWithFacebook(loginResult.getAccessToken().getToken());
                     }
@@ -225,6 +228,7 @@ public class ClaimOverviewFragment extends BaseFragment {
             mSendButton.setVisibility(View.GONE);
             return;
         }
+
         claim = ClaimService.INST.getClaim();
         User user = UserService.INST.getUser();
         if (!user.isComplete()) {
@@ -232,6 +236,7 @@ public class ClaimOverviewFragment extends BaseFragment {
         } else {
             showSendClaimDialog();
             ClaimService.INST.postMyClaims(claim);
+            mSendButton.setEnabled(false);
         }
     }
 
@@ -345,12 +350,17 @@ public class ClaimOverviewFragment extends BaseFragment {
 
     @Subscribe
     public void onTokenRefreshFailed(final TokenRefreshFailedEvent event) {
-        loginButton.setVisibility(View.VISIBLE);
-        mSendButton.setVisibility(View.GONE);
+        //loginButton.setVisibility(View.VISIBLE);
+        //mSendButton.setVisibility(View.GONE);
+
         // logout
-        LoginManager.getInstance().logOut();
-        Toast.makeText(getContext(), "Cecciя закiнчилась...", Toast.LENGTH_SHORT).show();
-        Toast.makeText(getContext(), "Залогiнтесь ще раз, будь-ласка", Toast.LENGTH_LONG).show();
+        // LoginManager.getInstance().logOut();
+
+        //Toast.makeText(getContext(), "Cecciя закiнчилась...", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "Залогiнтесь ще раз, будь-ласка", Toast.LENGTH_LONG).show();
+
+        //refreshed
+        send();
     }
 
     @Subscribe
