@@ -23,7 +23,6 @@ import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
-import ua.in.badparking.ui.activities.MainActivity;
 import ua.in.badparking.ui.dialogs.Alerts;
 
 import static android.content.Context.LOCATION_SERVICE;
@@ -119,7 +118,6 @@ public class PermissionsChecker implements GoogleApiClient.ConnectionCallbacks, 
 
         return isConnected;
     }
-
 
     public boolean confirmPermissionsAvailable() {
         return confirmAirplaneModeOff() && confirmWiFiAvailable() && confirmGPSEnabled();

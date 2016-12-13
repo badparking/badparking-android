@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -34,6 +35,9 @@ public class ClaimTypeFragment extends BaseFragment {
     @BindView(R.id.reportTypeList)
     ListView listView;
 
+    @BindView(R.id.emptyTypeList)
+    TextView emptyListView;
+
     @BindView(R.id.next_button)
     Button nextButton;
 
@@ -54,8 +58,17 @@ public class ClaimTypeFragment extends BaseFragment {
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
         if (ClaimService.INST.getAvailableCrimeTypes() != null) {
+
             CrimeTypeAdapter crimeTypeAdapter = new CrimeTypeAdapter(getActivity(),
                     ClaimService.INST.getAvailableCrimeTypes());
+
+            if(crimeTypeAdapter.isEmpty()){
+                listView.setVisibility(View.GONE);
+                emptyListView.setVisibility(View.VISIBLE);
+            } else {
+                listView.setVisibility(View.VISIBLE);
+                emptyListView.setVisibility(View.GONE);
+            }
 
             listView.setAdapter(crimeTypeAdapter);
 
