@@ -16,6 +16,15 @@
         android:divider="@null"
         android:dividerHeight="0dp"/>
 
+    <TextView android:id="@+id/emptyTypeList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:visibility="gone"
+        android:textSize="18sp"
+        android:textColor="#808080"
+        android:text="Відсутній інтернет.\nБудь ласка, увімкніть інтернет та перезавантажте додаток."/>
+
     <RelativeLayout
         android:id="@+id/bottomPanel"
         android:layout_width="match_parent"

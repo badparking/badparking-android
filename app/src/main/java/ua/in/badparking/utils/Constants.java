@@ -7,4 +7,5 @@ public class Constants {
     public final static String LATITUDE = "latitude";
     public final static String LONGITUDE = "longitude";
     public final static int MIN_CARPLATE_LENGTH = 4;
+    public final static String CRIME_TYPES_PREF_KEY = "CRIME_TYPES_PREF_KEY";
 }

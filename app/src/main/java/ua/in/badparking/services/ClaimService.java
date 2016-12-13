@@ -1,9 +1,15 @@
 package ua.in.badparking.services;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,34 +42,43 @@ public enum ClaimService {
 
     private Context context;
     private List<CrimeType> availableCrimeTypes;
+    private SharedPreferences preferences;
 
     private Claim claim = new Claim();
     private String pk;
     private List<String> uploadedPictures = new ArrayList<>();
 
-
     public void init(Context context) {
         this.context = context;
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        availableCrimeTypes = readCrimeTypes();
         mTypesApi = ApiGenerator.INST.createApi(TypesApi.class, Constants.API_BASE_URL, null);
     }
 
 //     TYPES
 
     public void updateTypes() {
-        mTypesApi.getTypes(new Callback<List<CrimeType>>() {
 
-            @Override
-            public void success(List<CrimeType> crimeTypes, Response response) {
-                availableCrimeTypes = crimeTypes;
-                // TODO save to prefs
-                EventBus.getDefault().post(new TypesLoadedEvent(crimeTypes));
-            }
+        if(availableCrimeTypes.isEmpty()) {
+            mTypesApi.getTypes(new Callback<List<CrimeType>>() {
 
-            @Override
-            public void failure(RetrofitError error) {
+                @Override
+                public void success(List<CrimeType> crimeTypes, Response response) {
 
-            }
-        });
+                    if(!availableCrimeTypes.equals(crimeTypes)){
+                        availableCrimeTypes = crimeTypes;
+                        rewriteCrimeTypes(availableCrimeTypes);
+                    }
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+
+                }
+            });
+        }
+
+        EventBus.getDefault().post(new TypesLoadedEvent(availableCrimeTypes));
     }
 
     public List<CrimeType> getAvailableCrimeTypes() {
@@ -244,4 +259,21 @@ public enum ClaimService {
 //        });
 //    }
 
+    private void rewriteCrimeTypes(List<CrimeType> crimeTypes){
+        Type type = new TypeToken<List<CrimeType>>() {}.getType();
+        Gson gson = new Gson();
+        String jsonString = gson.toJson(crimeTypes, type);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove(Constants.CRIME_TYPES_PREF_KEY);
+        editor.putString(Constants.CRIME_TYPES_PREF_KEY,jsonString);
+        editor.apply();
+    }
+
+    private List<CrimeType> readCrimeTypes() {
+        String jsonString = preferences.getString(Constants.CRIME_TYPES_PREF_KEY, "");
+        Gson gson = new Gson();
+        Type type = new TypeToken<List<CrimeType>>() {}.getType();
+        List<CrimeType> crimeTypes = gson.fromJson(jsonString, type);
+        return (crimeTypes == null) ? new ArrayList<CrimeType>() : crimeTypes;
+    }
 }

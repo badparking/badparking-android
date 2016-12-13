@@ -118,9 +118,11 @@ public class MainActivity extends AppCompatActivity  {
     protected void onResume() {
         super.onResume();
         EventBus.getDefault().register(this);
-        ClaimService.INST.updateTypes();
 
         if (permissionsChecker.confirmPermissionsAvailable()) {
+
+            ClaimService.INST.updateTypes();
+
             requiredStateReceiver = new RequiredStateReceiver();
             requiredStateReceiver.start(this);
 

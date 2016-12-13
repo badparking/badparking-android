@@ -25,4 +25,22 @@ public class CrimeType {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CrimeType crimeType = (CrimeType) o;
+
+        if (id != null ? !id.equals(crimeType.id) : crimeType.id != null) return false;
+        return name != null ? name.equals(crimeType.name) : crimeType.name == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
+    }
 }
