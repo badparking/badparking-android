@@ -138,14 +138,13 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                 nextButton.setEnabled(false);
                 LatLng location = (isOnCurrentPosition) ? currentLocation : customLocation;
 
-                if(location != null) {
-                    ClaimService.INST.getClaim().setLatitude(String.valueOf(location.latitude));
-                    ClaimService.INST.getClaim().setLongitude(String.valueOf(location.longitude));
-                } else {
-                    currentLocation = DISABLE_GPS_START_MAP_POINT;
-                    ClaimService.INST.getClaim().setLatitude(String.valueOf(location.latitude));
-                    ClaimService.INST.getClaim().setLongitude(String.valueOf(location.longitude));
+                if(location == null) {
+                    location = DISABLE_GPS_START_MAP_POINT;
+                    address = getAddress(currentLocation);
                 }
+
+                ClaimService.INST.getClaim().setLatitude(String.valueOf(location.latitude));
+                ClaimService.INST.getClaim().setLongitude(String.valueOf(location.longitude));
 
                 if (address == null) {
                     ClaimService.INST.getClaim().setCity("unrecognized");
