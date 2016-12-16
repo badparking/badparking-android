@@ -193,7 +193,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void onPause() {
-        cameraView.setAdjustViewBounds(true);
         cameraView.stop();
         removePhoneKeypad();
         orientationEventListener.disable();
@@ -203,7 +202,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void onResume() {
         super.onResume();
-        cameraView.setAdjustViewBounds(false);
         orientationEventListener.enable();
 
         if(ClaimService.INST.getClaim().getPhotoFiles().size() > 1 && !TextUtils.isEmpty(ClaimService.INST.getClaim().getLicensePlates())){
@@ -255,12 +253,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                 recyclerView.setVisibility(View.VISIBLE);
                 platesPreviewImage.setVisibility(View.GONE);
 
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CLAIM_TYPES);
-                    }
-                }, 800);
+                ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CLAIM_TYPES);
 
                 break;
         }

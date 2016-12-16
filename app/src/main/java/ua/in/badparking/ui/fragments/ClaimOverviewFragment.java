@@ -18,11 +18,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
@@ -220,6 +222,7 @@ public class ClaimOverviewFragment extends BaseFragment {
     }
 
     private void send() {
+        mSendButton.setEnabled(false);
         if (!ClaimService.INST.getClaim().isComplete()) {
             // TODO show "not complete" message
             return;
@@ -236,7 +239,6 @@ public class ClaimOverviewFragment extends BaseFragment {
         } else {
             showSendClaimDialog();
             ClaimService.INST.postMyClaims(claim);
-            mSendButton.setEnabled(false);
         }
     }
 
@@ -353,11 +355,11 @@ public class ClaimOverviewFragment extends BaseFragment {
         //loginButton.setVisibility(View.VISIBLE);
         //mSendButton.setVisibility(View.GONE);
 
-        // logout
-        // LoginManager.getInstance().logOut();
-
-        //Toast.makeText(getContext(), "Cecciя закiнчилась...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Cecciя закiнчилась.\nОновлення сессії...", Toast.LENGTH_SHORT).show();
         //Toast.makeText(getContext(), "Залогiнтесь ще раз, будь-ласка", Toast.LENGTH_LONG).show();
+
+        //logout
+        LoginManager.getInstance().logOut();
 
         //refreshed
         send();
