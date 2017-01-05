@@ -53,5 +53,6 @@
     <string name="camera_permission_not_granted">Camera app cannot do anything without camera permission.</string>
     <string name="car_plate_number">Номери авто</string>
     <string name="min_four_numbers">Мінімум 4 символи</string>
+    <string name="cameraview_cant_start">Даний пристрій не підтримує CameraView.\nБуде використана стандартна камера.</string>
 
 </resources>

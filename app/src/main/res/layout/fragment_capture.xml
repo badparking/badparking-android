@@ -68,19 +68,29 @@
 
     </RelativeLayout>
 
+    <TextView
+        android:id="@+id/cantStartCameraViewMessage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:text="@string/cameraview_cant_start"
+        android:textColor="@android:color/white"
+        android:textSize="17sp"
+        android:gravity="center"
+        android:layout_above="@id/bottomPanel"
+        android:visibility="gone"/>
+
     <com.google.android.cameraview.CameraView
         android:id="@+id/camera"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/bottomPanel"
-        app:autoFocus="true"/>
+        app:autoFocus="true" >
 
-    <ImageView
-        android:id="@+id/platesPreviewImage"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/bottomPanel"
-        android:visibility="gone"/>
+    </com.google.android.cameraview.CameraView>
+
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/snap"

@@ -2,12 +2,16 @@ package ua.in.badparking.ui.fragments;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,7 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.cameraview.CameraView;
@@ -46,6 +49,8 @@ import ua.in.badparking.utils.ConfirmationDialogFragment;
 import ua.in.badparking.utils.Constants;
 import ua.in.badparking.utils.PhotoUtils;
 
+import static android.app.Activity.RESULT_CANCELED;
+
 /**
  * @author Dima Kovalenko
  * @author Vadik Kovalsky
@@ -57,6 +62,7 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     private static final String TAG = CaptureFragment.class.getName();
 
     private static final int REQUEST_CAMERA_PERMISSION = 1;
+    private static final int PHOTO_INTENT_WITH_FILENAME = 1001;
     private static final String FRAGMENT_DIALOG = "dialog";
 
     @BindView(R.id.camera)
@@ -69,9 +75,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
     @BindView(R.id.message)
     protected TextView messageView;
 
-    @BindView(R.id.platesPreviewImage)
-    protected ImageView platesPreviewImage;
-
     @BindView(R.id.platesEditText)
     protected EditText platesEditText;
 
@@ -83,9 +86,15 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     private Unbinder unbinder;
     private PhotoAdapter photoAdapter;
+
     private boolean safeToTakePicture = false;
     private int orientationDegree = 0;
     private OrientationEventListener orientationEventListener;
+
+    //used if cameraView can't start
+    @BindView(R.id.cantStartCameraViewMessage)
+    protected TextView cantStartCameraViewText;
+    private Uri nativeCameraPhotoFileUri;
 
     public static CaptureFragment newInstance() {
         return new CaptureFragment();
@@ -193,7 +202,11 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void onPause() {
-        cameraView.stop();
+
+        if(cameraView != null) {
+            cameraView.stop();
+        }
+
         removePhoneKeypad();
         orientationEventListener.disable();
         super.onPause();
@@ -209,8 +222,18 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         }
 
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            cameraView.start();
-            safeToTakePicture = true;
+
+            if(cameraView != null) {
+                try {
+                    //throw new RuntimeException(); //test cameraView.start() crush
+                    cameraView.start();
+                    safeToTakePicture = true;
+                } catch (RuntimeException re) {
+                    cameraView = null;
+                    cantStartCameraViewText.setVisibility(View.VISIBLE);
+                }
+            }
+
         } else if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.CAMERA)) {
             ConfirmationDialogFragment
                     .newInstance(R.string.camera_permission_confirmation,
@@ -236,6 +259,12 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                     cameraView.takePicture();
                     snapButton.setVisibility(View.GONE);
                     setSafeToTakePicture(false);
+                } else if (cameraView == null){
+                    File currentPhotoFile = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), PhotoUtils.getFileName());
+                    nativeCameraPhotoFileUri = Uri.fromFile(currentPhotoFile);
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, nativeCameraPhotoFileUri);
+                    startActivityForResult(intent, PHOTO_INTENT_WITH_FILENAME);
                 }
                 break;
 
@@ -251,10 +280,26 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                 EventBus.getDefault().post(new ShowHeaderEvent(true));
                 platesEditText.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
-                platesPreviewImage.setVisibility(View.GONE);
 
                 ((MainActivity)getActivity()).showPage(MainActivity.PAGE_CLAIM_TYPES);
 
+                break;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_CANCELED) {
+            return;
+        }
+
+        switch(requestCode) {
+            case PHOTO_INTENT_WITH_FILENAME:
+                PhotoUtils.resize(nativeCameraPhotoFileUri.getPath(), orientationDegree);
+                photoAdapter.notifyDataSetChanged();
+                onImageFileCreated(nativeCameraPhotoFileUri.getPath());
                 break;
         }
     }
@@ -299,15 +344,15 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                         return;
                     }
 
-                    final File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), PhotoUtils.getFileName());
+                    final File currentPhotoFile = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), PhotoUtils.getFileName());
                     OutputStream os = null;
 
                     try {
-                        os = new FileOutputStream(file);
+                        os = new FileOutputStream(currentPhotoFile);
                         os.write(data);
                         os.close();
                     } catch (IOException e) {
-                        Log.w(TAG, "Cannot write to " + file, e);
+                        Log.w(TAG, "Cannot write to " + currentPhotoFile, e);
                     } finally {
                         if (os != null) {
                             try {
@@ -324,9 +369,9 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
                     cameraView.post(new Runnable() {
                         @Override
                         public void run() {
-                            PhotoUtils.resize(file.getPath(), orientationDegree);
+                            PhotoUtils.resize(currentPhotoFile.getPath(), orientationDegree);
                             photoAdapter.notifyDataSetChanged();
-                            onImageFileCreated(file.getPath());
+                            onImageFileCreated(currentPhotoFile.getPath());
                         }
                     });
                 }
