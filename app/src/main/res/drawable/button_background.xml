@@ -3,10 +3,8 @@
 
     <item
         android:drawable="@drawable/button_background_sel"
-        android:state_pressed="true"
-        />
-    <item
-        android:drawable="@drawable/button_background_nor"
-        />
+        android:state_pressed="true" />
 
+    <item
+        android:drawable="@drawable/button_background_nor" />
 </selector>
