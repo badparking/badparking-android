@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:state_checked="true"
-        android:drawable="@drawable/ic_radio_button_checked_black_24dp" android:height="18dp" android:width="18dp"/>
-    <item android:drawable="@drawable/ic_radio_button_unchecked_black_24dp" android:height="18dp" android:width="18dp"/>
-</selector>
-

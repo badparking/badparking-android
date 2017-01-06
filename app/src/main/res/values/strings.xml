@@ -2,57 +2,29 @@
     <string name="app_name">Parking Hero</string>
     <string name="facebook_app_id">973984766052427</string>
     <integer name="max_carplate_lenght">10</integer>
-    <string name="title_section1">Подiя</string>
-    <string name="title_section2">Мiсце</string>
 
-    <string name="action_settings">Settings</string>
-    <string name="choose">Вибрати</string>
     <string name="cancel">Відмінити</string>
     <string name="your_data">Вашi даннi</string>
     <string name="send">Надiслати</string>
     <string name="next">Далi</string>
-    <string name="add_photo">Додати\n фото</string>
-    <string name="comment">Коментар (необов\'язково)</string>
-    <string name="comment_hint">наприклад: бачу ворожий Бук</string>
-    <string name="location">Мiсце подiї</string>
-    <string name="location_hint">наприклад: Донецьк, Київский район</string>
-
-    <string name="make_phonot">Зробити фото</string>
-    <string name="from_gallery">З галереї</string>
-    <string name="no_connection">Немає мережi</string>
-    <string name="choose_photo_mode">Ви можете зробити нове фото або додати фото з галереї</string>
     <string name="positioning_in_progress">Miсцезнаходження визначається...</string>
     <string name="need_enable_all_permissions">Для запуску додатку необхідно увімкнути:\n- дозвіл на використання CAMERA\n- дозвіл на використання WRITE_EXTERNAL_STORAGE\n- дозвіл на використання LOCATION\n\nУвімкнути дозволи можна через\nНалаштування -> Додатки -> Parking Hero -> Дозволи</string>
     <string name="please_check_gps">Будь ласка, увімкніть GPS або встановіть адресу вручну</string>
-    <string name="error">Помилка</string>
-    <string name="simple_mode">Простий режим</string>
-    <string name="extended_mode">Розширений режим</string>
-    <string name="only_2_pics">Ви можете послати тiльки двi фотографiї одночасно</string>
-    <string name="dialogGPSActivateQuestion">Щоб визначити мiсцезнаходження, треби увiмкнути GPS в налаштуваннях, зробити це?</string>
     <string name="capture_plates">Зробiть фото номерних знакiв </string>
     <string name="capture_claim">Зробiть фото правопорушення </string>
-    <string name="capture_claim_another_angle">Зробiть фото правопорушення (2)</string>
-    <string name="electronic_identification" />
-    <string name="choose_bank" />
     <string name="chooseCrimeType">Оберіть тип порушення</string>
-    <string name="additionalInfo">Додаткова інформація:</string>
-    <string name="actionbar_title_claim">Реєстрація порушення</string>
     <string name="network_not_enabled">Для корректної роботи додатку необхідний інтернет.</string>
     <string name="air_mode_alert">Будь ласка, вимкніть режим польоту.</string>
     <string name="gps_network_not_enabled">Будь ласка, увiмкнiть геолокацiю в налаштуваннях телефона.</string>
-    <string name="open_location_settings">Налаштування</string>
     <string name="ok">OK</string>
     <string name="thanks">Скаргу надіслано. Дякуємо!</string>
     <string name="error_claim_sent">Помилка. Спробуйте ще</string>
-    <string name="photo_uploaded">"Заватнаженя зображень завершено "</string>
     <string name="claim_sending">Відправлення...</string>
     <string name="error_uploading_image">Помилка завантаження зображень</string>
     <string name="claim_overview_complete_user_message">Необхідно заповнити дані користувача</string>
-
     <string name="camera_permission_confirmation">This app demonstrates the usage of CameraView. In order to do that, it needs permission to access camera.</string>
     <string name="camera_permission_not_granted">Camera app cannot do anything without camera permission.</string>
     <string name="car_plate_number">Номери авто</string>
     <string name="min_four_numbers">Мінімум 4 символи</string>
     <string name="cameraview_cant_start">Даний пристрій не підтримує CameraView.\nБуде використана стандартна камера.</string>
-
 </resources>
