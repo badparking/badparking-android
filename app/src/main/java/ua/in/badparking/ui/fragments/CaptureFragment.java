@@ -9,7 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -32,9 +31,6 @@ import com.google.android.cameraview.CameraView;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -311,15 +307,6 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         onPhotosUpdated();
     }
 
-    private Handler getBackgroundHandler() {
-        if (mBackgroundHandler == null) {
-            HandlerThread thread = new HandlerThread("background");
-            thread.start();
-            mBackgroundHandler = new Handler(thread.getLooper());
-        }
-        return mBackgroundHandler;
-    }
-
     private CameraView.Callback mCallback = new CameraView.Callback() {
         @Override
         public void onCameraOpened(CameraView cameraView) {
@@ -335,46 +322,20 @@ public class CaptureFragment extends BaseFragment implements View.OnClickListene
         public void onPictureTaken(final CameraView cameraView, final byte[] data) {
             Log.d(TAG, "onPictureTaken " + data.length);
 
-            getBackgroundHandler().post(new Runnable() {
-                @Override
-                public void run() {
+            final File currentPhotoFile = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), PhotoUtils.getFileName());
+
                     if (data == null) {
                         setSafeToTakePicture(true);
                         return;
                     }
 
-                    final File currentPhotoFile = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), PhotoUtils.getFileName());
-                    OutputStream os = null;
-
-                    try {
-                        os = new FileOutputStream(currentPhotoFile);
-                        os.write(data);
-                        os.close();
-                    } catch (IOException e) {
-                        Log.w(TAG, "Cannot write to " + currentPhotoFile, e);
-                    } finally {
-                        if (os != null) {
-                            try {
-                                os.close();
-                            } catch (IOException e) {
-                                // Ignore
-                            }
-                        }
-                    }
+                    PhotoUtils.takePhoto(data, orientationDegree, currentPhotoFile);
 
                     setSafeToTakePicture(true);
                     PhotoUtils.shootSound(getActivity());
 
-                    cameraView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            PhotoUtils.resize(currentPhotoFile.getPath(), orientationDegree);
-                            photoAdapter.notifyDataSetChanged();
-                            onImageFileCreated(currentPhotoFile.getPath());
-                        }
-                    });
-                }
-            });
+                    photoAdapter.notifyDataSetChanged();
+                    onImageFileCreated(currentPhotoFile.getPath());
         }
     };
 
