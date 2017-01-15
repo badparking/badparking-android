@@ -34,11 +34,11 @@ public class PhotoUtils {
     }
 
     public static void shootSound(Context context) {
-        AudioManager audio = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+        AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         switch (audio.getRingerMode()) {
             case AudioManager.RINGER_MODE_NORMAL:
                 MediaActionSound sound = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     sound = new MediaActionSound();
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -66,25 +66,84 @@ public class PhotoUtils {
     }
 
     private static Bitmap scaleDeminsFromHeight(Bitmap bm, int maxHeight, int bmOriginalHeight, double originalWidthToHeightRatio) {
-        int newHeight = (int)Math.max(maxHeight, bmOriginalHeight * .11);
-        int newWidth = (int)(newHeight * originalWidthToHeightRatio);
+        int newHeight = (int) Math.max(maxHeight, bmOriginalHeight * .11);
+        int newWidth = (int) (newHeight * originalWidthToHeightRatio);
         bm = Bitmap.createScaledBitmap(bm, newWidth, newHeight, true);
         return bm;
     }
 
     private static Bitmap scaleDeminsFromWidth(Bitmap bm, int maxWidth, int bmOriginalWidth, double originalHeightToWidthRatio) {
-        int newWidth = (int)Math.max(maxWidth, bmOriginalWidth * .15);
-        int newHeight = (int)(newWidth * originalHeightToWidthRatio);
+        int newWidth = (int) Math.max(maxWidth, bmOriginalWidth * .15);
+        int newHeight = (int) (newWidth * originalHeightToWidthRatio);
         bm = Bitmap.createScaledBitmap(bm, newWidth, newHeight, true);
         return bm;
     }
 
     public static void resize(String currentPhotoPath, int orientationDegree) {
-
         Bitmap resizedBitmap = resizeBitmap(currentPhotoPath);
+        Bitmap rotatedBitmap = rotateBitmap(resizedBitmap, orientationDegree);
+
+        File file = new File(currentPhotoPath);
+
+        saveBitmap(rotatedBitmap, file);
+    }
+
+    public static Bitmap resizeBitmap(String photoPath) {
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(photoPath, bmOptions);
+        int bmOriginalWidth = bmOptions.outWidth;
+        int bmOriginalHeight = bmOptions.outHeight;
+
+        int scaleFactor = 2;
+        if ((bmOriginalWidth > 0) || (bmOriginalHeight > 0)) {
+            scaleFactor = Math.min(bmOriginalWidth / PHOTO_MAX_WIDTH, bmOriginalHeight / PHOTO_MAX_HEIGHT);
+        }
+
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        double originalWidthToHeightRatio = 1.0 * bmOriginalWidth / bmOriginalHeight;
+        double originalHeightToWidthRatio = 1.0 * bmOriginalHeight / bmOriginalWidth;
+
+        Bitmap originalBitmap = BitmapFactory.decodeFile(photoPath, bmOptions);
+        Bitmap photoBm = getScaledBitmap(originalBitmap, bmOriginalWidth, bmOriginalHeight,
+                originalWidthToHeightRatio, originalHeightToWidthRatio,
+                PHOTO_MAX_HEIGHT, PHOTO_MAX_WIDTH);
+        return photoBm;
+    }
+
+    private static Bitmap resizeBitmap(final byte[] data) {
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(data, 0, data.length, bmOptions);
+        int bmOriginalWidth = bmOptions.outWidth;
+        int bmOriginalHeight = bmOptions.outHeight;
+
+        int scaleFactor = 2;
+        if ((bmOriginalWidth > 0) || (bmOriginalHeight > 0)) {
+            scaleFactor = Math.min(bmOriginalWidth / PHOTO_MAX_WIDTH, bmOriginalHeight / PHOTO_MAX_HEIGHT);
+        }
+
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        double originalWidthToHeightRatio = 1.0 * bmOriginalWidth / bmOriginalHeight;
+        double originalHeightToWidthRatio = 1.0 * bmOriginalHeight / bmOriginalWidth;
+
+        Bitmap originalBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, bmOptions);
+        Bitmap photoBm = getScaledBitmap(originalBitmap, bmOriginalWidth, bmOriginalHeight,
+                originalWidthToHeightRatio, originalHeightToWidthRatio,
+                PHOTO_MAX_HEIGHT, PHOTO_MAX_WIDTH);
+        return photoBm;
+    }
+
+    private static Bitmap rotateBitmap(Bitmap bitmap, int orientationDegree) {
 
         int savePhotoCorrectionDegree = DEGREE_0;
-        if(resizedBitmap.getWidth() > resizedBitmap.getHeight()) {
+        if (bitmap.getWidth() > bitmap.getHeight()) {
             switch (orientationDegree) {
                 case DEGREE_0:
                     savePhotoCorrectionDegree = DEGREE_90;
@@ -124,15 +183,16 @@ public class PhotoUtils {
 
         Matrix matrix = new Matrix();
         matrix.postRotate(savePhotoCorrectionDegree);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(resizedBitmap, 0, 0, resizedBitmap.getWidth(), resizedBitmap.getHeight(), matrix, true);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        return rotatedBitmap;
+    }
 
-        File file = new File(currentPhotoPath);
-
+    private static void saveBitmap(Bitmap bitmap, final File file) {
         FileOutputStream out = null;
         try {
             file.createNewFile();
             out = new FileOutputStream(file);
-            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY_PHOTO, out);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY_PHOTO, out);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -146,29 +206,9 @@ public class PhotoUtils {
         }
     }
 
-    public static Bitmap resizeBitmap(String photoPath) {
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(photoPath, bmOptions);
-        int bmOriginalWidth = bmOptions.outWidth;
-        int bmOriginalHeight = bmOptions.outHeight;
-
-        int scaleFactor = 2;
-        if ((bmOriginalWidth > 0) || (bmOriginalHeight > 0)) {
-            scaleFactor = Math.min(bmOriginalWidth/PHOTO_MAX_WIDTH, bmOriginalHeight/PHOTO_MAX_HEIGHT);
-        }
-
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-        double originalWidthToHeightRatio = 1.0 * bmOriginalWidth / bmOriginalHeight;
-        double originalHeightToWidthRatio = 1.0 * bmOriginalHeight / bmOriginalWidth;
-
-        Bitmap originalBitmap = BitmapFactory.decodeFile(photoPath, bmOptions);
-        Bitmap photoBm = getScaledBitmap(originalBitmap, bmOriginalWidth, bmOriginalHeight,
-                originalWidthToHeightRatio, originalHeightToWidthRatio,
-                PHOTO_MAX_HEIGHT, PHOTO_MAX_WIDTH);
-        return photoBm;
+    public static void takePhoto(final byte[] data, int orientationDegree, final File file){
+        Bitmap resizedBitmap = resizeBitmap(data);
+        Bitmap rotatedBitmap = rotateBitmap(resizedBitmap, orientationDegree);
+        saveBitmap(rotatedBitmap,file);
     }
 }
